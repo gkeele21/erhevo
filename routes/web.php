@@ -15,7 +15,6 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/stories', [StoryController::class, 'index'])->name('stories.index');
-Route::get('/stories/{story:slug}', [StoryController::class, 'show'])->name('stories.show');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 
@@ -68,3 +67,6 @@ Route::middleware([
     Route::post('/categories/{category}/approve', [AdminCategoryController::class, 'approve'])->name('categories.approve');
     Route::post('/categories/{category}/reject', [AdminCategoryController::class, 'reject'])->name('categories.reject');
 });
+
+// Story show route (must be after /stories/create to avoid slug collision)
+Route::get('/stories/{story:slug}', [StoryController::class, 'show'])->name('stories.show');

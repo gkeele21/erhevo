@@ -12,6 +12,19 @@ These routes are accessible without authentication.
 | GET | `/about` | `about` | Closure (Inertia) | About page |
 | GET | `/stories` | `stories.index` | `StoryController@index` | Browse public stories |
 | GET | `/stories/{story:slug}` | `stories.show` | `StoryController@show` | View single story |
+
+### Stories Query Parameters
+
+The `/stories` endpoint supports the following query parameters:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `search` | string | Search by title, tag name, or author |
+| `category` | string | Filter by category slug |
+| `tag` | string | Filter by tag slug |
+| `friends_only` | `1` | Show only stories from friends (requires auth) |
+
+Example: `/stories?search=kindness&category=inspiration&friends_only=1`
 | GET | `/categories` | `categories.index` | `CategoryController@index` | Browse categories |
 | GET | `/categories/{category:slug}` | `categories.show` | `CategoryController@show` | Stories in category |
 
@@ -102,6 +115,10 @@ Jetstream provides additional routes for:
 Stories and categories use slug-based route model binding:
 - `{story:slug}` - Binds by `slug` column instead of `id`
 - `{category:slug}` - Binds by `slug` column instead of `id`
+
+## Route Ordering Note
+
+The `/stories/{story:slug}` route is defined **after** `/stories/create` to prevent the wildcard from catching the literal "create" path. When adding new story routes, ensure specific paths come before wildcard routes.
 
 ## Usage Examples
 

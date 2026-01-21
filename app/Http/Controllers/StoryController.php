@@ -28,7 +28,14 @@ class StoryController extends Controller
             ->published()
             ->when($request->category, fn ($q, $category) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $category)))
             ->when($request->tag, fn ($q, $tag) => $q->whereHas('tags', fn ($q2) => $q2->where('slug', $tag)))
-            ->when($request->search, fn ($q, $search) => $q->where('title', 'like', "%{$search}%"))
+            ->when($request->search, fn ($q, $search) => $q->where(function ($q2) use ($search) {
+                $q2->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('tags', fn ($q3) => $q3->where('name', 'like', "%{$search}%"))
+                    ->orWhere('author_text', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($q3) => $q3->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('authorUser', fn ($q3) => $q3->where('name', 'like', "%{$search}%"));
+            }))
+            ->when($request->friends_only && $request->user(), fn ($q) => $q->whereIn('user_id', $request->user()->friendIds()))
             ->latest('published_at')
             ->paginate(12)
             ->withQueryString();
@@ -36,7 +43,7 @@ class StoryController extends Controller
         return Inertia::render('Stories/Index', [
             'stories' => $stories,
             'categories' => Category::approved()->orderBy('name')->get(),
-            'filters' => $request->only(['category', 'tag', 'search']),
+            'filters' => $request->only(['category', 'tag', 'search', 'friends_only']),
         ]);
     }
 

@@ -3,7 +3,7 @@
 ## Tables Overview
 
 ### users (Jetstream default)
-Standard Laravel Jetstream users table with teams support.
+Standard Laravel Jetstream users table.
 
 ### categories
 | Column | Type | Description |
@@ -134,3 +134,13 @@ enum FriendshipStatus: string
 
 ### Tag
 - `belongsToMany` Stories
+
+## Computed Attributes
+
+The Story model includes these appended attributes (automatically included in JSON/API responses):
+
+| Attribute | Description |
+|-----------|-------------|
+| `creator_name` | Creator's name (null if `hide_creator` is true) |
+| `author_name` | Author attribution based on `author_type` (null if `hide_author` is true) |
+| `display_content` | Returns `content_anonymized` if anonymization enabled, otherwise `content` |

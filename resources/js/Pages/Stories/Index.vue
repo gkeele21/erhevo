@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, router } from '@inertiajs/vue3'
+import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryCard from '@/Components/Story/StoryCard.vue'
@@ -12,17 +12,21 @@ const props = defineProps({
 
 const search = ref(props.filters?.search || '')
 const selectedCategory = ref(props.filters?.category || '')
+const friendsOnly = ref(props.filters?.friends_only === '1' || props.filters?.friends_only === true)
 
 const applyFilters = () => {
     router.get(route('stories.index'), {
         search: search.value || undefined,
         category: selectedCategory.value || undefined,
-        tag: props.filters?.tag || undefined
+        tag: props.filters?.tag || undefined,
+        friends_only: friendsOnly.value ? '1' : undefined
     }, {
         preserveState: true,
         replace: true
     })
 }
+
+const page = usePage()
 
 let debounceTimer = null
 watch(search, () => {
@@ -31,6 +35,7 @@ watch(search, () => {
 })
 
 watch(selectedCategory, applyFilters)
+watch(friendsOnly, applyFilters)
 </script>
 
 <template>
@@ -50,7 +55,7 @@ watch(selectedCategory, applyFilters)
                             <input
                                 v-model="search"
                                 type="text"
-                                placeholder="Search stories..."
+                                placeholder="Search by title, tag, or author..."
                                 class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
                             >
                         </div>
@@ -64,6 +69,16 @@ watch(selectedCategory, applyFilters)
                                     {{ cat.name }}
                                 </option>
                             </select>
+                        </div>
+                        <div v-if="page.props.auth.user" class="flex items-center">
+                            <label class="flex items-center cursor-pointer">
+                                <input
+                                    v-model="friendsOnly"
+                                    type="checkbox"
+                                    class="rounded border-stone-300 text-amber-500 focus:ring-amber-500"
+                                >
+                                <span class="ml-2 text-sm text-stone-600">Friends only</span>
+                            </label>
                         </div>
                     </div>
 

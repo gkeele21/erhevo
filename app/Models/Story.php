@@ -47,6 +47,12 @@ class Story extends Model
         'published_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'creator_name',
+        'author_name',
+        'display_content',
+    ];
+
     protected static function booted(): void
     {
         static::creating(function (Story $story) {

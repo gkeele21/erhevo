@@ -170,8 +170,11 @@ php artisan optimize:clear
 # Fresh migration (drops all tables)
 php artisan migrate:fresh
 
-# Seed database
+# Seed database (includes test user, categories, and 100 sample stories)
 php artisan db:seed
+
+# Seed only stories (requires existing user and categories)
+php artisan db:seed --class=StorySeeder
 
 # Create new model with migration, controller, etc.
 php artisan make:model ModelName -mfc

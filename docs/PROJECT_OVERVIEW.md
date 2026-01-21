@@ -10,7 +10,7 @@ Erhevo is a web application for storing and sharing uplifting stories and though
 
 - **Backend:** Laravel 12
 - **Frontend:** Vue 3 with Inertia.js
-- **Authentication:** Laravel Jetstream (with teams, 2FA, profile management)
+- **Authentication:** Laravel Jetstream (2FA, profile management)
 - **Rich Text Editor:** Tiptap (Vue 3 WYSIWYG)
 - **NLP:** Compromise.js (for name anonymization)
 - **Database:** MySQL
@@ -46,9 +46,16 @@ Stories can attribute authorship three ways:
 - Each story belongs to one category
 
 ### Tags
+- Global tags shared across all users
 - Multiple tags per story
 - Tag autocomplete/search
 - Browse stories by tag
+
+### Story Search & Filtering
+- Search by title, tag, or author name
+- Filter by category
+- Filter to show only friends' stories (authenticated users)
+- Tag-based filtering via URL parameter
 
 ## Project Structure
 
@@ -62,7 +69,7 @@ erhevo/
 │   └── Services/        # NameAnonymizer
 ├── database/
 │   ├── migrations/
-│   └── seeders/         # CategorySeeder with 8 default categories
+│   └── seeders/         # CategorySeeder, StorySeeder (100 sample stories)
 ├── resources/js/
 │   ├── Components/
 │   │   └── Story/       # StoryEditor, StoryCard, TagInput, etc.

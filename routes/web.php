@@ -6,7 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\SharedStoryController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\StoryShareController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,9 +16,15 @@ use Inertia\Inertia;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
-Route::get('/stories', [StoryController::class, 'index'])->name('stories.index');
+Route::get('/posts', [StoryController::class, 'index'])->name('posts.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+
+// Shared post editing (public, rate-limited)
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/s/{token}/edit', [SharedStoryController::class, 'edit'])->name('posts.shared.edit');
+    Route::put('/s/{token}', [SharedStoryController::class, 'update'])->name('posts.shared.update');
+});
 
 // Authenticated routes
 Route::middleware([
@@ -27,12 +35,17 @@ Route::middleware([
     // Dashboard
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    // Stories CRUD (except public index and show)
-    Route::get('/stories/create', [StoryController::class, 'create'])->name('stories.create');
-    Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
-    Route::get('/stories/{story:slug}/edit', [StoryController::class, 'edit'])->name('stories.edit');
-    Route::put('/stories/{story:slug}', [StoryController::class, 'update'])->name('stories.update');
-    Route::delete('/stories/{story:slug}', [StoryController::class, 'destroy'])->name('stories.destroy');
+    // Posts CRUD (except public index and show)
+    Route::get('/posts/create', [StoryController::class, 'create'])->name('posts.create');
+    Route::post('/posts', [StoryController::class, 'store'])->name('posts.store');
+    Route::get('/posts/{story:slug}/edit', [StoryController::class, 'edit'])->name('posts.edit');
+    Route::put('/posts/{story:slug}', [StoryController::class, 'update'])->name('posts.update');
+    Route::delete('/posts/{story:slug}', [StoryController::class, 'destroy'])->name('posts.destroy');
+
+    // Post sharing
+    Route::get('/posts/{story:slug}/share', [StoryShareController::class, 'index'])->name('posts.share.index');
+    Route::post('/posts/{story:slug}/share', [StoryShareController::class, 'store'])->name('posts.share.store');
+    Route::delete('/posts/{story:slug}/share/{token}', [StoryShareController::class, 'destroy'])->name('posts.share.destroy');
 
     // Image uploads
     Route::post('/upload-image', [ImageUploadController::class, 'store'])->name('images.store');
@@ -68,5 +81,5 @@ Route::middleware([
     Route::post('/categories/{category}/reject', [AdminCategoryController::class, 'reject'])->name('categories.reject');
 });
 
-// Story show route (must be after /stories/create to avoid slug collision)
-Route::get('/stories/{story:slug}', [StoryController::class, 'show'])->name('stories.show');
+// Post show route (must be after /posts/create to avoid slug collision)
+Route::get('/posts/{story:slug}', [StoryController::class, 'show'])->name('posts.show');

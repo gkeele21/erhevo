@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthorType;
+use App\Enums\PostType;
 use App\Enums\Visibility;
 use App\Models\Category;
 use App\Models\Story;
@@ -26,6 +27,7 @@ class StoryController extends Controller
         $stories = Story::with(['user', 'category', 'tags'])
             ->visibleTo($request->user())
             ->published()
+            ->when($request->type, fn ($q, $type) => $q->where('post_type', $type))
             ->when($request->category, fn ($q, $category) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $category)))
             ->when($request->tag, fn ($q, $tag) => $q->whereHas('tags', fn ($q2) => $q2->where('slug', $tag)))
             ->when($request->search, fn ($q, $search) => $q->where(function ($q2) use ($search) {
@@ -40,17 +42,27 @@ class StoryController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return Inertia::render('Stories/Index', [
+        return Inertia::render('Posts/Index', [
             'stories' => $stories,
             'categories' => Category::approved()->orderBy('name')->get(),
-            'filters' => $request->only(['category', 'tag', 'search', 'friends_only']),
+            'postTypes' => collect(PostType::cases())->map(fn ($p) => [
+                'value' => $p->value,
+                'label' => $p->label(),
+            ]),
+            'filters' => $request->only(['category', 'tag', 'search', 'friends_only', 'type']),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Stories/Create', [
+        return Inertia::render('Posts/Create', [
             'categories' => Category::approved()->orderBy('name')->get(),
+            'postTypes' => collect(PostType::cases())->map(fn ($p) => [
+                'value' => $p->value,
+                'label' => $p->label(),
+                'description' => $p->description(),
+                'icon' => $p->icon(),
+            ]),
             'visibilityOptions' => collect(Visibility::cases())->map(fn ($v) => [
                 'value' => $v->value,
                 'label' => $v->label(),
@@ -66,6 +78,7 @@ class StoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'post_type' => 'required|in:story,thought,note,quote',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
@@ -106,8 +119,8 @@ class StoryController extends Controller
             $story->syncTags($validated['tags']);
         }
 
-        return redirect()->route('stories.show', $story)
-            ->with('success', 'Story created successfully.');
+        return redirect()->route('posts.show', $story)
+            ->with('success', 'Post created successfully.');
     }
 
     public function show(Story $story): Response
@@ -116,7 +129,7 @@ class StoryController extends Controller
 
         $story->load(['user', 'authorUser', 'category', 'tags']);
 
-        return Inertia::render('Stories/Show', [
+        return Inertia::render('Posts/Show', [
             'story' => $story,
             'canEdit' => $story->user_id === auth()->id(),
         ]);
@@ -128,9 +141,15 @@ class StoryController extends Controller
 
         $story->load(['category', 'tags']);
 
-        return Inertia::render('Stories/Edit', [
+        return Inertia::render('Posts/Edit', [
             'story' => $story,
             'categories' => Category::approved()->orderBy('name')->get(),
+            'postTypes' => collect(PostType::cases())->map(fn ($p) => [
+                'value' => $p->value,
+                'label' => $p->label(),
+                'description' => $p->description(),
+                'icon' => $p->icon(),
+            ]),
             'visibilityOptions' => collect(Visibility::cases())->map(fn ($v) => [
                 'value' => $v->value,
                 'label' => $v->label(),
@@ -148,6 +167,7 @@ class StoryController extends Controller
         Gate::authorize('update', $story);
 
         $validated = $request->validate([
+            'post_type' => 'required|in:story,thought,note,quote',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
@@ -190,8 +210,8 @@ class StoryController extends Controller
             $story->syncTags($validated['tags']);
         }
 
-        return redirect()->route('stories.show', $story)
-            ->with('success', 'Story updated successfully.');
+        return redirect()->route('posts.show', $story)
+            ->with('success', 'Post updated successfully.');
     }
 
     public function destroy(Story $story)
@@ -201,6 +221,6 @@ class StoryController extends Controller
         $story->delete();
 
         return redirect()->route('dashboard')
-            ->with('success', 'Story deleted successfully.');
+            ->with('success', 'Post deleted successfully.');
     }
 }

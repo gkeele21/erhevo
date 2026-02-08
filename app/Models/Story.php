@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AuthorType;
+use App\Enums\PostType;
 use App\Enums\Visibility;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ class Story extends Model
 
     protected $fillable = [
         'uuid',
+        'post_type',
         'title',
         'slug',
         'content',
@@ -38,6 +40,7 @@ class Story extends Model
     ];
 
     protected $casts = [
+        'post_type' => PostType::class,
         'visibility' => Visibility::class,
         'author_type' => AuthorType::class,
         'hide_creator' => 'boolean',
@@ -88,6 +91,11 @@ class Story extends Model
     public function images(): HasMany
     {
         return $this->hasMany(StoryImage::class);
+    }
+
+    public function editTokens(): HasMany
+    {
+        return $this->hasMany(StoryEditToken::class);
     }
 
     public function getDisplayContentAttribute(): string

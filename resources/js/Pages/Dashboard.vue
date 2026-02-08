@@ -18,10 +18,10 @@ defineProps({
                     Dashboard
                 </h2>
                 <Link
-                    :href="route('stories.create')"
+                    :href="route('posts.create')"
                     class="px-4 py-2 bg-amber text-white rounded-lg hover:bg-amber-600"
                 >
-                    New Story
+                    New Post
                 </Link>
             </div>
         </template>
@@ -32,7 +32,7 @@ defineProps({
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white rounded-lg shadow p-6 border border-navy-50">
                         <h3 class="text-lg font-semibold text-navy mb-2">
-                            My Stories
+                            My Posts
                         </h3>
                         <p class="text-3xl font-bold text-teal">
                             {{ myStories?.total || 0 }}
@@ -52,7 +52,7 @@ defineProps({
                     </Link>
 
                     <Link
-                        :href="route('stories.create')"
+                        :href="route('posts.create')"
                         class="bg-gradient-to-r from-teal to-aqua rounded-lg shadow p-6 text-white hover:shadow-lg transition-shadow"
                     >
                         <h3 class="text-lg font-semibold mb-2">Share Something</h3>
@@ -63,10 +63,10 @@ defineProps({
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- My Stories -->
+                    <!-- My Posts -->
                     <div class="lg:col-span-2">
                         <h3 class="text-lg font-semibold text-navy mb-4">
-                            My Stories
+                            My Posts
                         </h3>
 
                         <div v-if="myStories?.data?.length" class="space-y-4">
@@ -78,7 +78,7 @@ defineProps({
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <Link
-                                            :href="route('stories.show', story.slug)"
+                                            :href="route('posts.show', story.slug)"
                                             class="text-lg font-semibold text-navy hover:text-teal"
                                         >
                                             {{ story.title }}
@@ -93,7 +93,7 @@ defineProps({
                                         </div>
                                     </div>
                                     <Link
-                                        :href="route('stories.edit', story.slug)"
+                                        :href="route('posts.edit', story.slug)"
                                         class="text-teal-300 hover:text-teal"
                                     >
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,13 +121,13 @@ defineProps({
 
                         <div v-else class="bg-white rounded-lg shadow p-8 text-center border border-navy-50">
                             <p class="text-teal mb-4">
-                                You haven't written any stories yet.
+                                You haven't written any posts yet.
                             </p>
                             <Link
-                                :href="route('stories.create')"
+                                :href="route('posts.create')"
                                 class="text-amber hover:text-amber-600 font-medium"
                             >
-                                Write your first story &rarr;
+                                Write your first post &rarr;
                             </Link>
                         </div>
                     </div>

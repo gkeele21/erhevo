@@ -22,10 +22,10 @@ defineProps({
                     </Link>
                     <nav class="flex items-center gap-6">
                         <Link
-                            :href="route('stories.index')"
+                            :href="route('posts.index')"
                             class="text-teal hover:text-navy transition-colors"
                         >
-                            Stories
+                            Posts
                         </Link>
                         <Link
                             :href="route('categories.index')"
@@ -77,17 +77,17 @@ defineProps({
                 </p>
                 <div class="flex justify-center gap-4">
                     <Link
-                        :href="route('stories.index')"
+                        :href="route('posts.index')"
                         class="px-6 py-3 bg-white text-navy rounded-lg font-semibold hover:bg-navy-50 shadow-sm transition-colors"
                     >
-                        Explore Stories
+                        Explore Posts
                     </Link>
                     <Link
                         v-if="$page.props.auth.user"
-                        :href="route('stories.create')"
+                        :href="route('posts.create')"
                         class="px-6 py-3 bg-amber text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
                     >
-                        Share a Story
+                        Share a Post
                     </Link>
                     <Link
                         v-else
@@ -100,11 +100,11 @@ defineProps({
             </div>
         </section>
 
-        <!-- Featured Stories -->
+        <!-- Featured Posts -->
         <section class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-2xl font-bold text-navy mb-8">
-                    Featured Stories
+                    Featured Posts
                 </h2>
                 <div v-if="featuredStories?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <StoryCard
@@ -114,14 +114,14 @@ defineProps({
                     />
                 </div>
                 <div v-else class="text-center py-8 text-teal">
-                    No stories yet. Be the first to share one!
+                    No posts yet. Be the first to share one!
                 </div>
                 <div class="mt-8 text-center">
                     <Link
-                        :href="route('stories.index')"
+                        :href="route('posts.index')"
                         class="text-amber hover:text-amber-600 font-medium"
                     >
-                        View all stories &rarr;
+                        View all posts &rarr;
                     </Link>
                 </div>
             </div>
@@ -164,7 +164,7 @@ defineProps({
                     <Link
                         v-for="tag in popularTags"
                         :key="tag.id"
-                        :href="route('stories.index', { tag: tag.slug })"
+                        :href="route('posts.index', { tag: tag.slug })"
                         class="px-4 py-2 bg-navy-50 text-teal rounded-full hover:bg-aqua-50 hover:text-navy transition-colors"
                     >
                         #{{ tag.name }}
@@ -186,8 +186,8 @@ defineProps({
                         <Link :href="route('about')" class="text-aqua-200 hover:text-gold text-sm">
                             About
                         </Link>
-                        <Link :href="route('stories.index')" class="text-aqua-200 hover:text-gold text-sm">
-                            Stories
+                        <Link :href="route('posts.index')" class="text-aqua-200 hover:text-gold text-sm">
+                            Posts
                         </Link>
                         <Link :href="route('categories.index')" class="text-aqua-200 hover:text-gold text-sm">
                             Categories

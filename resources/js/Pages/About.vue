@@ -15,10 +15,10 @@ import { Head, Link } from '@inertiajs/vue3'
                     </Link>
                     <nav class="flex items-center gap-6">
                         <Link
-                            :href="route('stories.index')"
+                            :href="route('posts.index')"
                             class="text-teal hover:text-navy transition-colors"
                         >
-                            Stories
+                            Posts
                         </Link>
                         <Link
                             :href="route('categories.index')"
@@ -181,10 +181,10 @@ import { Head, Link } from '@inertiajs/vue3'
                         </p>
                         <div class="flex justify-center gap-4">
                             <Link
-                                :href="route('stories.index')"
+                                :href="route('posts.index')"
                                 class="px-6 py-3 bg-white text-navy rounded-lg font-semibold hover:bg-navy-50 transition-colors"
                             >
-                                Explore Stories
+                                Explore Posts
                             </Link>
                             <Link
                                 v-if="!$page.props.auth.user"
@@ -195,10 +195,10 @@ import { Head, Link } from '@inertiajs/vue3'
                             </Link>
                             <Link
                                 v-else
-                                :href="route('stories.create')"
+                                :href="route('posts.create')"
                                 class="px-6 py-3 bg-amber text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
                             >
-                                Share a Story
+                                Share a Post
                             </Link>
                         </div>
                     </div>
@@ -218,8 +218,8 @@ import { Head, Link } from '@inertiajs/vue3'
                         <Link :href="route('about')" class="text-aqua-200 hover:text-gold text-sm">
                             About
                         </Link>
-                        <Link :href="route('stories.index')" class="text-aqua-200 hover:text-gold text-sm">
-                            Stories
+                        <Link :href="route('posts.index')" class="text-aqua-200 hover:text-gold text-sm">
+                            Posts
                         </Link>
                         <Link :href="route('categories.index')" class="text-aqua-200 hover:text-gold text-sm">
                             Categories

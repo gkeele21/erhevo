@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
-class StoryEditToken extends Model
+class PostEditToken extends Model
 {
     protected $fillable = [
-        'story_id',
+        'post_id',
         'token',
         'name',
         'expires_at',
@@ -26,9 +26,9 @@ class StoryEditToken extends Model
         'token',
     ];
 
-    public function story(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Story::class);
+        return $this->belongsTo(Post::class);
     }
 
     public static function generateToken(): string

@@ -67,9 +67,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function stories(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(Story::class);
+        return $this->hasMany(Post::class);
     }
 
     public function categories(): HasMany

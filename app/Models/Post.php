@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Story extends Model
+class Post extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -58,12 +58,12 @@ class Story extends Model
 
     protected static function booted(): void
     {
-        static::creating(function (Story $story) {
-            if (empty($story->uuid)) {
-                $story->uuid = (string) Str::uuid();
+        static::creating(function (Post $post) {
+            if (empty($post->uuid)) {
+                $post->uuid = (string) Str::uuid();
             }
-            if (empty($story->slug)) {
-                $story->slug = Str::slug($story->title) . '-' . Str::random(6);
+            if (empty($post->slug)) {
+                $post->slug = Str::slug($post->title) . '-' . Str::random(6);
             }
         });
     }
@@ -90,12 +90,51 @@ class Story extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(StoryImage::class);
+        return $this->hasMany(PostImage::class);
     }
 
     public function editTokens(): HasMany
     {
-        return $this->hasMany(StoryEditToken::class);
+        return $this->hasMany(PostEditToken::class);
+    }
+
+    /**
+     * Scripture references linked to this post
+     */
+    public function scriptureReferences(): HasMany
+    {
+        return $this->hasMany(PostScriptureReference::class)->orderBy('sort_order');
+    }
+
+    /**
+     * CFM weeks this post is associated with
+     */
+    public function cfmWeeks(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CfmWeek::class,
+            'post_cfm_weeks',
+            'post_id',
+            'cfm_week_id'
+        )->withTimestamps();
+    }
+
+    /**
+     * Sync scripture references from parsed input
+     */
+    public function syncScriptureReferences(array $references): void
+    {
+        $this->scriptureReferences()->delete();
+
+        foreach ($references as $index => $ref) {
+            $this->scriptureReferences()->create([
+                'start_chapter_id' => $ref['start_chapter_id'],
+                'start_verse' => $ref['start_verse'] ?? null,
+                'end_chapter_id' => $ref['end_chapter_id'] ?? null,
+                'end_verse' => $ref['end_verse'] ?? null,
+                'sort_order' => $index,
+            ]);
+        }
     }
 
     public function getDisplayContentAttribute(): string

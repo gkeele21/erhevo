@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\StoryEditToken;
+use App\Models\PostEditToken;
 use App\Services\NameAnonymizer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class SharedStoryController extends Controller
+class SharedPostController extends Controller
 {
     public function __construct(
         protected NameAnonymizer $nameAnonymizer
@@ -16,8 +16,8 @@ class SharedStoryController extends Controller
 
     public function edit(string $token)
     {
-        $editToken = StoryEditToken::where('token', $token)
-            ->with('story.tags', 'story.category')
+        $editToken = PostEditToken::where('token', $token)
+            ->with('post.tags', 'post.category')
             ->first();
 
         if (!$editToken) {
@@ -37,12 +37,12 @@ class SharedStoryController extends Controller
         $editToken->recordUsage(request()->ip());
 
         return Inertia::render('Posts/SharedEdit', [
-            'story' => [
-                'title' => $editToken->story->title,
-                'content' => $editToken->story->content,
-                'excerpt' => $editToken->story->excerpt,
-                'category_id' => $editToken->story->category_id,
-                'tags' => $editToken->story->tags->pluck('name'),
+            'post' => [
+                'title' => $editToken->post->title,
+                'content' => $editToken->post->content,
+                'excerpt' => $editToken->post->excerpt,
+                'category_id' => $editToken->post->category_id,
+                'tags' => $editToken->post->tags->pluck('name'),
             ],
             'token' => $token,
             'categories' => Category::approved()->orderBy('name')->get(),
@@ -52,15 +52,15 @@ class SharedStoryController extends Controller
 
     public function update(Request $request, string $token)
     {
-        $editToken = StoryEditToken::where('token', $token)
-            ->with('story')
+        $editToken = PostEditToken::where('token', $token)
+            ->with('post')
             ->first();
 
         if (!$editToken || !$editToken->isValid()) {
             abort(403, 'This edit link is no longer valid.');
         }
 
-        $story = $editToken->story;
+        $post = $editToken->post;
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -71,24 +71,24 @@ class SharedStoryController extends Controller
             'tags.*' => 'string|max:50',
         ]);
 
-        $story->title = $validated['title'];
-        $story->content = $validated['content'];
-        $story->excerpt = $validated['excerpt'] ?? null;
-        $story->category_id = $validated['category_id'] ?? null;
+        $post->title = $validated['title'];
+        $post->content = $validated['content'];
+        $post->excerpt = $validated['excerpt'] ?? null;
+        $post->category_id = $validated['category_id'] ?? null;
 
-        if ($story->anonymize_names) {
+        if ($post->anonymize_names) {
             $result = $this->nameAnonymizer->anonymize(
                 $validated['content'],
-                $story->name_mappings
+                $post->name_mappings
             );
-            $story->content_anonymized = $result['content'];
-            $story->name_mappings = $result['mappings'];
+            $post->content_anonymized = $result['content'];
+            $post->name_mappings = $result['mappings'];
         }
 
-        $story->save();
+        $post->save();
 
         if (isset($validated['tags'])) {
-            $story->syncTags($validated['tags']);
+            $post->syncTags($validated['tags']);
         }
 
         $editToken->recordUsage($request->ip());

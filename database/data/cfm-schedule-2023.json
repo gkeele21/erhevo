@@ -1,0 +1,390 @@
+{
+  "year": 2023,
+  "title": "New Testament 2023",
+  "description": "Come Follow Me study of the New Testament",
+  "volumes": ["new-testament"],
+  "weeks": [
+    {
+      "week": 1,
+      "start_date": "2022-12-26",
+      "end_date": "2023-01-01",
+      "title": "Introductory Pages",
+      "description": "Introduction to the New Testament",
+      "chapters": []
+    },
+    {
+      "week": 2,
+      "start_date": "2023-01-02",
+      "end_date": "2023-01-08",
+      "title": "Matthew 1; Luke 1",
+      "chapters": ["matthew:1", "luke:1"]
+    },
+    {
+      "week": 3,
+      "start_date": "2023-01-09",
+      "end_date": "2023-01-15",
+      "title": "Matthew 2; Luke 2",
+      "chapters": ["matthew:2", "luke:2"]
+    },
+    {
+      "week": 4,
+      "start_date": "2023-01-16",
+      "end_date": "2023-01-22",
+      "title": "Matthew 3; Mark 1; Luke 3",
+      "chapters": ["matthew:3", "mark:1", "luke:3"]
+    },
+    {
+      "week": 5,
+      "start_date": "2023-01-23",
+      "end_date": "2023-01-29",
+      "title": "Matthew 4; Luke 4–5",
+      "chapters": ["matthew:4", "luke:4", "luke:5"]
+    },
+    {
+      "week": 6,
+      "start_date": "2023-01-30",
+      "end_date": "2023-02-05",
+      "title": "John 1",
+      "chapters": ["john:1"]
+    },
+    {
+      "week": 7,
+      "start_date": "2023-02-06",
+      "end_date": "2023-02-12",
+      "title": "John 2–4",
+      "chapters": ["john:2", "john:3", "john:4"]
+    },
+    {
+      "week": 8,
+      "start_date": "2023-02-13",
+      "end_date": "2023-02-19",
+      "title": "Matthew 5; Luke 6",
+      "chapters": ["matthew:5", "luke:6"]
+    },
+    {
+      "week": 9,
+      "start_date": "2023-02-20",
+      "end_date": "2023-02-26",
+      "title": "Matthew 6–7",
+      "chapters": ["matthew:6", "matthew:7"]
+    },
+    {
+      "week": 10,
+      "start_date": "2023-02-27",
+      "end_date": "2023-03-05",
+      "title": "Matthew 8; Mark 2–4; Luke 7",
+      "chapters": ["matthew:8", "mark:2", "mark:3", "mark:4", "luke:7"]
+    },
+    {
+      "week": 11,
+      "start_date": "2023-03-06",
+      "end_date": "2023-03-12",
+      "title": "Matthew 9–10; Mark 5; Luke 8–9",
+      "chapters": ["matthew:9", "matthew:10", "mark:5", "luke:8", "luke:9"]
+    },
+    {
+      "week": 12,
+      "start_date": "2023-03-13",
+      "end_date": "2023-03-19",
+      "title": "Matthew 11–12; Luke 11",
+      "chapters": ["matthew:11", "matthew:12", "luke:11"]
+    },
+    {
+      "week": 13,
+      "start_date": "2023-03-20",
+      "end_date": "2023-03-26",
+      "title": "Matthew 13; Luke 8; 13",
+      "chapters": ["matthew:13", "luke:13"]
+    },
+    {
+      "week": 14,
+      "start_date": "2023-03-27",
+      "end_date": "2023-04-02",
+      "title": "Matthew 14; Mark 6; John 5–6",
+      "chapters": ["matthew:14", "mark:6", "john:5", "john:6"]
+    },
+    {
+      "week": 15,
+      "start_date": "2023-04-03",
+      "end_date": "2023-04-09",
+      "title": "Easter",
+      "is_special": true,
+      "special_topic": "easter"
+    },
+    {
+      "week": 16,
+      "start_date": "2023-04-10",
+      "end_date": "2023-04-16",
+      "title": "Matthew 15–17; Mark 7–9",
+      "chapters": ["matthew:15", "matthew:16", "matthew:17", "mark:7", "mark:8", "mark:9"]
+    },
+    {
+      "week": 17,
+      "start_date": "2023-04-17",
+      "end_date": "2023-04-23",
+      "title": "Matthew 18; Luke 10",
+      "chapters": ["matthew:18", "luke:10"]
+    },
+    {
+      "week": 18,
+      "start_date": "2023-04-24",
+      "end_date": "2023-04-30",
+      "title": "John 7–10",
+      "chapters": ["john:7", "john:8", "john:9", "john:10"]
+    },
+    {
+      "week": 19,
+      "start_date": "2023-05-01",
+      "end_date": "2023-05-07",
+      "title": "Luke 12–17; John 11",
+      "chapters": ["luke:12", "luke:14", "luke:15", "luke:16", "luke:17", "john:11"]
+    },
+    {
+      "week": 20,
+      "start_date": "2023-05-08",
+      "end_date": "2023-05-14",
+      "title": "Matthew 19–20; Mark 10; Luke 18",
+      "chapters": ["matthew:19", "matthew:20", "mark:10", "luke:18"]
+    },
+    {
+      "week": 21,
+      "start_date": "2023-05-15",
+      "end_date": "2023-05-21",
+      "title": "Matthew 21–23; Mark 11; Luke 19–20; John 12",
+      "chapters": ["matthew:21", "matthew:22", "matthew:23", "mark:11", "luke:19", "luke:20", "john:12"]
+    },
+    {
+      "week": 22,
+      "start_date": "2023-05-22",
+      "end_date": "2023-05-28",
+      "title": "Joseph Smith—Matthew 1; Matthew 24–25; Mark 12–13; Luke 21",
+      "chapters": ["matthew:24", "matthew:25", "mark:12", "mark:13", "luke:21"]
+    },
+    {
+      "week": 23,
+      "start_date": "2023-05-29",
+      "end_date": "2023-06-04",
+      "title": "Matthew 26; Mark 14; John 13",
+      "chapters": ["matthew:26", "mark:14", "john:13"]
+    },
+    {
+      "week": 24,
+      "start_date": "2023-06-05",
+      "end_date": "2023-06-11",
+      "title": "John 14–17",
+      "chapters": ["john:14", "john:15", "john:16", "john:17"]
+    },
+    {
+      "week": 25,
+      "start_date": "2023-06-12",
+      "end_date": "2023-06-18",
+      "title": "Matthew 27; Mark 15; Luke 23; John 18–19",
+      "chapters": ["matthew:27", "mark:15", "luke:23", "john:18", "john:19"]
+    },
+    {
+      "week": 26,
+      "start_date": "2023-06-19",
+      "end_date": "2023-06-25",
+      "title": "Matthew 28; Mark 16; Luke 24; John 20–21",
+      "chapters": ["matthew:28", "mark:16", "luke:24", "john:20", "john:21"]
+    },
+    {
+      "week": 27,
+      "start_date": "2023-06-26",
+      "end_date": "2023-07-02",
+      "title": "Acts 1–5",
+      "chapters": ["acts:1", "acts:2", "acts:3", "acts:4", "acts:5"]
+    },
+    {
+      "week": 28,
+      "start_date": "2023-07-03",
+      "end_date": "2023-07-09",
+      "title": "Acts 6–9",
+      "chapters": ["acts:6", "acts:7", "acts:8", "acts:9"]
+    },
+    {
+      "week": 29,
+      "start_date": "2023-07-10",
+      "end_date": "2023-07-16",
+      "title": "Acts 10–15",
+      "chapters": ["acts:10"]
+    },
+    {
+      "week": 30,
+      "start_date": "2023-07-17",
+      "end_date": "2023-07-23",
+      "title": "Acts 16–21",
+      "description": "Paul's Missionary Journeys",
+      "chapters": []
+    },
+    {
+      "week": 31,
+      "start_date": "2023-07-24",
+      "end_date": "2023-07-30",
+      "title": "Acts 22–28",
+      "description": "Paul's Journey to Rome",
+      "chapters": []
+    },
+    {
+      "week": 32,
+      "start_date": "2023-07-31",
+      "end_date": "2023-08-06",
+      "title": "Romans 1–6",
+      "chapters": ["romans:1", "romans:2", "romans:3", "romans:4", "romans:5", "romans:6"]
+    },
+    {
+      "week": 33,
+      "start_date": "2023-08-07",
+      "end_date": "2023-08-13",
+      "title": "Romans 7–16",
+      "chapters": ["romans:7", "romans:8"]
+    },
+    {
+      "week": 34,
+      "start_date": "2023-08-14",
+      "end_date": "2023-08-20",
+      "title": "1 Corinthians 1–7",
+      "chapters": ["1-corinthians:1"]
+    },
+    {
+      "week": 35,
+      "start_date": "2023-08-21",
+      "end_date": "2023-08-27",
+      "title": "1 Corinthians 8–13",
+      "chapters": ["1-corinthians:12", "1-corinthians:13"]
+    },
+    {
+      "week": 36,
+      "start_date": "2023-08-28",
+      "end_date": "2023-09-03",
+      "title": "1 Corinthians 14–16",
+      "chapters": ["1-corinthians:15"]
+    },
+    {
+      "week": 37,
+      "start_date": "2023-09-04",
+      "end_date": "2023-09-10",
+      "title": "2 Corinthians 1–13",
+      "description": "Paul's Second Letter to Corinth",
+      "chapters": []
+    },
+    {
+      "week": 38,
+      "start_date": "2023-09-11",
+      "end_date": "2023-09-17",
+      "title": "Galatians",
+      "description": "Paul's Letter to the Galatians",
+      "chapters": []
+    },
+    {
+      "week": 39,
+      "start_date": "2023-09-18",
+      "end_date": "2023-09-24",
+      "title": "Ephesians",
+      "description": "Paul's Letter to the Ephesians",
+      "chapters": []
+    },
+    {
+      "week": 40,
+      "start_date": "2023-09-25",
+      "end_date": "2023-10-01",
+      "title": "Philippians; Colossians",
+      "description": "Paul's Letters from Prison",
+      "chapters": []
+    },
+    {
+      "week": 41,
+      "start_date": "2023-10-02",
+      "end_date": "2023-10-08",
+      "title": "General Conference",
+      "is_special": true,
+      "special_topic": "general-conference"
+    },
+    {
+      "week": 42,
+      "start_date": "2023-10-09",
+      "end_date": "2023-10-15",
+      "title": "1 & 2 Thessalonians",
+      "description": "Paul's Letters to Thessalonica",
+      "chapters": []
+    },
+    {
+      "week": 43,
+      "start_date": "2023-10-16",
+      "end_date": "2023-10-22",
+      "title": "1 & 2 Timothy; Titus; Philemon",
+      "description": "Paul's Pastoral Letters",
+      "chapters": []
+    },
+    {
+      "week": 44,
+      "start_date": "2023-10-23",
+      "end_date": "2023-10-29",
+      "title": "Hebrews 1–6",
+      "description": "Christ's Superiority",
+      "chapters": []
+    },
+    {
+      "week": 45,
+      "start_date": "2023-10-30",
+      "end_date": "2023-11-05",
+      "title": "Hebrews 7–13",
+      "description": "Faith and Endurance",
+      "chapters": []
+    },
+    {
+      "week": 46,
+      "start_date": "2023-11-06",
+      "end_date": "2023-11-12",
+      "title": "James",
+      "description": "Faith and Works",
+      "chapters": []
+    },
+    {
+      "week": 47,
+      "start_date": "2023-11-13",
+      "end_date": "2023-11-19",
+      "title": "1 & 2 Peter",
+      "description": "Peter's Letters",
+      "chapters": []
+    },
+    {
+      "week": 48,
+      "start_date": "2023-11-20",
+      "end_date": "2023-11-26",
+      "title": "1–3 John; Jude",
+      "description": "John's Letters",
+      "chapters": []
+    },
+    {
+      "week": 49,
+      "start_date": "2023-11-27",
+      "end_date": "2023-12-03",
+      "title": "Revelation 1–11",
+      "chapters": ["revelation:1", "revelation:2", "revelation:3", "revelation:4", "revelation:5"]
+    },
+    {
+      "week": 50,
+      "start_date": "2023-12-04",
+      "end_date": "2023-12-10",
+      "title": "Revelation 12–22",
+      "chapters": ["revelation:21", "revelation:22"]
+    },
+    {
+      "week": 51,
+      "start_date": "2023-12-11",
+      "end_date": "2023-12-17",
+      "title": "Review and Reflection",
+      "description": "Review of the New Testament",
+      "chapters": []
+    },
+    {
+      "week": 52,
+      "start_date": "2023-12-18",
+      "end_date": "2023-12-24",
+      "title": "Christmas",
+      "is_special": true,
+      "special_topic": "christmas"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "volumes": [
+    {
+      "name": "Old Testament",
+      "slug": "old-testament",
+      "abbreviation": "OT",
+      "sort_order": 4,
+      "books": [
+        {"name": "Genesis", "slug": "genesis", "abbreviation": "Gen.", "sort_order": 1, "chapters": [
+          {"number": 1, "verse_count": 31}, {"number": 2, "verse_count": 25}, {"number": 3, "verse_count": 24},
+          {"number": 4, "verse_count": 26}, {"number": 5, "verse_count": 32}, {"number": 6, "verse_count": 22},
+          {"number": 7, "verse_count": 24}, {"number": 8, "verse_count": 22}, {"number": 9, "verse_count": 29},
+          {"number": 10, "verse_count": 32}, {"number": 11, "verse_count": 32}, {"number": 12, "verse_count": 20},
+          {"number": 13, "verse_count": 18}, {"number": 14, "verse_count": 24}, {"number": 15, "verse_count": 21},
+          {"number": 16, "verse_count": 16}, {"number": 17, "verse_count": 27}, {"number": 18, "verse_count": 33},
+          {"number": 19, "verse_count": 38}, {"number": 20, "verse_count": 18}, {"number": 21, "verse_count": 34},
+          {"number": 22, "verse_count": 24}, {"number": 23, "verse_count": 20}, {"number": 24, "verse_count": 67},
+          {"number": 25, "verse_count": 34}, {"number": 26, "verse_count": 35}, {"number": 27, "verse_count": 46},
+          {"number": 28, "verse_count": 22}, {"number": 29, "verse_count": 35}, {"number": 30, "verse_count": 43},
+          {"number": 31, "verse_count": 55}, {"number": 32, "verse_count": 32}, {"number": 33, "verse_count": 20},
+          {"number": 34, "verse_count": 31}, {"number": 35, "verse_count": 29}, {"number": 36, "verse_count": 43},
+          {"number": 37, "verse_count": 36}, {"number": 38, "verse_count": 30}, {"number": 39, "verse_count": 23},
+          {"number": 40, "verse_count": 23}, {"number": 41, "verse_count": 57}, {"number": 42, "verse_count": 38},
+          {"number": 43, "verse_count": 34}, {"number": 44, "verse_count": 34}, {"number": 45, "verse_count": 28},
+          {"number": 46, "verse_count": 34}, {"number": 47, "verse_count": 31}, {"number": 48, "verse_count": 22},
+          {"number": 49, "verse_count": 33}, {"number": 50, "verse_count": 26}
+        ]},
+        {"name": "Exodus", "slug": "exodus", "abbreviation": "Ex.", "sort_order": 2, "chapters": [
+          {"number": 1, "verse_count": 22}, {"number": 2, "verse_count": 25}, {"number": 3, "verse_count": 22},
+          {"number": 4, "verse_count": 31}, {"number": 5, "verse_count": 23}, {"number": 6, "verse_count": 30},
+          {"number": 7, "verse_count": 25}, {"number": 8, "verse_count": 32}, {"number": 9, "verse_count": 35},
+          {"number": 10, "verse_count": 29}, {"number": 11, "verse_count": 10}, {"number": 12, "verse_count": 51},
+          {"number": 13, "verse_count": 22}, {"number": 14, "verse_count": 31}, {"number": 15, "verse_count": 27},
+          {"number": 16, "verse_count": 36}, {"number": 17, "verse_count": 16}, {"number": 18, "verse_count": 27},
+          {"number": 19, "verse_count": 25}, {"number": 20, "verse_count": 26}, {"number": 21, "verse_count": 36},
+          {"number": 22, "verse_count": 31}, {"number": 23, "verse_count": 33}, {"number": 24, "verse_count": 18},
+          {"number": 25, "verse_count": 40}, {"number": 26, "verse_count": 37}, {"number": 27, "verse_count": 21},
+          {"number": 28, "verse_count": 43}, {"number": 29, "verse_count": 46}, {"number": 30, "verse_count": 38},
+          {"number": 31, "verse_count": 18}, {"number": 32, "verse_count": 35}, {"number": 33, "verse_count": 23},
+          {"number": 34, "verse_count": 35}, {"number": 35, "verse_count": 35}, {"number": 36, "verse_count": 38},
+          {"number": 37, "verse_count": 29}, {"number": 38, "verse_count": 31}, {"number": 39, "verse_count": 43},
+          {"number": 40, "verse_count": 38}
+        ]},
+        {"name": "Psalms", "slug": "psalms", "abbreviation": "Ps.", "sort_order": 19, "chapters": [
+          {"number": 1, "verse_count": 6}, {"number": 23, "verse_count": 6}, {"number": 24, "verse_count": 10},
+          {"number": 46, "verse_count": 11}, {"number": 91, "verse_count": 16}, {"number": 100, "verse_count": 5},
+          {"number": 119, "verse_count": 176}, {"number": 121, "verse_count": 8}, {"number": 150, "verse_count": 6}
+        ]},
+        {"name": "Isaiah", "slug": "isaiah", "abbreviation": "Isa.", "sort_order": 23, "chapters": [
+          {"number": 1, "verse_count": 31}, {"number": 2, "verse_count": 22}, {"number": 3, "verse_count": 26},
+          {"number": 4, "verse_count": 6}, {"number": 5, "verse_count": 30}, {"number": 6, "verse_count": 13},
+          {"number": 7, "verse_count": 25}, {"number": 8, "verse_count": 22}, {"number": 9, "verse_count": 21},
+          {"number": 10, "verse_count": 34}, {"number": 11, "verse_count": 16}, {"number": 12, "verse_count": 6},
+          {"number": 40, "verse_count": 31}, {"number": 53, "verse_count": 12}, {"number": 55, "verse_count": 13}
+        ]}
+      ]
+    },
+    {
+      "name": "New Testament",
+      "slug": "new-testament",
+      "abbreviation": "NT",
+      "sort_order": 5,
+      "books": [
+        {"name": "Matthew", "slug": "matthew", "abbreviation": "Matt.", "sort_order": 1, "chapters": [
+          {"number": 1, "verse_count": 25}, {"number": 2, "verse_count": 23}, {"number": 3, "verse_count": 17},
+          {"number": 4, "verse_count": 25}, {"number": 5, "verse_count": 48}, {"number": 6, "verse_count": 34},
+          {"number": 7, "verse_count": 29}, {"number": 8, "verse_count": 34}, {"number": 9, "verse_count": 38},
+          {"number": 10, "verse_count": 42}, {"number": 11, "verse_count": 30}, {"number": 12, "verse_count": 50},
+          {"number": 13, "verse_count": 58}, {"number": 14, "verse_count": 36}, {"number": 15, "verse_count": 39},
+          {"number": 16, "verse_count": 28}, {"number": 17, "verse_count": 27}, {"number": 18, "verse_count": 35},
+          {"number": 19, "verse_count": 30}, {"number": 20, "verse_count": 34}, {"number": 21, "verse_count": 46},
+          {"number": 22, "verse_count": 46}, {"number": 23, "verse_count": 39}, {"number": 24, "verse_count": 51},
+          {"number": 25, "verse_count": 46}, {"number": 26, "verse_count": 75}, {"number": 27, "verse_count": 66},
+          {"number": 28, "verse_count": 20}
+        ]},
+        {"name": "Mark", "slug": "mark", "abbreviation": "Mark", "sort_order": 2, "chapters": [
+          {"number": 1, "verse_count": 45}, {"number": 2, "verse_count": 28}, {"number": 3, "verse_count": 35},
+          {"number": 4, "verse_count": 41}, {"number": 5, "verse_count": 43}, {"number": 6, "verse_count": 56},
+          {"number": 7, "verse_count": 37}, {"number": 8, "verse_count": 38}, {"number": 9, "verse_count": 50},
+          {"number": 10, "verse_count": 52}, {"number": 11, "verse_count": 33}, {"number": 12, "verse_count": 44},
+          {"number": 13, "verse_count": 37}, {"number": 14, "verse_count": 72}, {"number": 15, "verse_count": 47},
+          {"number": 16, "verse_count": 20}
+        ]},
+        {"name": "Luke", "slug": "luke", "abbreviation": "Luke", "sort_order": 3, "chapters": [
+          {"number": 1, "verse_count": 80}, {"number": 2, "verse_count": 52}, {"number": 3, "verse_count": 38},
+          {"number": 4, "verse_count": 44}, {"number": 5, "verse_count": 39}, {"number": 6, "verse_count": 49},
+          {"number": 7, "verse_count": 50}, {"number": 8, "verse_count": 56}, {"number": 9, "verse_count": 62},
+          {"number": 10, "verse_count": 42}, {"number": 11, "verse_count": 54}, {"number": 12, "verse_count": 59},
+          {"number": 13, "verse_count": 35}, {"number": 14, "verse_count": 35}, {"number": 15, "verse_count": 32},
+          {"number": 16, "verse_count": 31}, {"number": 17, "verse_count": 37}, {"number": 18, "verse_count": 43},
+          {"number": 19, "verse_count": 48}, {"number": 20, "verse_count": 47}, {"number": 21, "verse_count": 38},
+          {"number": 22, "verse_count": 71}, {"number": 23, "verse_count": 56}, {"number": 24, "verse_count": 53}
+        ]},
+        {"name": "John", "slug": "john", "abbreviation": "John", "sort_order": 4, "chapters": [
+          {"number": 1, "verse_count": 51}, {"number": 2, "verse_count": 25}, {"number": 3, "verse_count": 36},
+          {"number": 4, "verse_count": 54}, {"number": 5, "verse_count": 47}, {"number": 6, "verse_count": 71},
+          {"number": 7, "verse_count": 53}, {"number": 8, "verse_count": 59}, {"number": 9, "verse_count": 41},
+          {"number": 10, "verse_count": 42}, {"number": 11, "verse_count": 57}, {"number": 12, "verse_count": 50},
+          {"number": 13, "verse_count": 38}, {"number": 14, "verse_count": 31}, {"number": 15, "verse_count": 27},
+          {"number": 16, "verse_count": 33}, {"number": 17, "verse_count": 26}, {"number": 18, "verse_count": 40},
+          {"number": 19, "verse_count": 42}, {"number": 20, "verse_count": 31}, {"number": 21, "verse_count": 25}
+        ]},
+        {"name": "Acts", "slug": "acts", "abbreviation": "Acts", "sort_order": 5, "chapters": [
+          {"number": 1, "verse_count": 26}, {"number": 2, "verse_count": 47}, {"number": 3, "verse_count": 26},
+          {"number": 4, "verse_count": 37}, {"number": 5, "verse_count": 42}, {"number": 6, "verse_count": 15},
+          {"number": 7, "verse_count": 60}, {"number": 8, "verse_count": 40}, {"number": 9, "verse_count": 43},
+          {"number": 10, "verse_count": 48}
+        ]},
+        {"name": "Romans", "slug": "romans", "abbreviation": "Rom.", "sort_order": 6, "chapters": [
+          {"number": 1, "verse_count": 32}, {"number": 2, "verse_count": 29}, {"number": 3, "verse_count": 31},
+          {"number": 4, "verse_count": 25}, {"number": 5, "verse_count": 21}, {"number": 6, "verse_count": 23},
+          {"number": 7, "verse_count": 25}, {"number": 8, "verse_count": 39}
+        ]},
+        {"name": "1 Corinthians", "slug": "1-corinthians", "abbreviation": "1 Cor.", "sort_order": 7, "chapters": [
+          {"number": 1, "verse_count": 31}, {"number": 12, "verse_count": 31}, {"number": 13, "verse_count": 13},
+          {"number": 15, "verse_count": 58}
+        ]},
+        {"name": "Revelation", "slug": "revelation", "abbreviation": "Rev.", "sort_order": 27, "chapters": [
+          {"number": 1, "verse_count": 20}, {"number": 2, "verse_count": 29}, {"number": 3, "verse_count": 22},
+          {"number": 4, "verse_count": 11}, {"number": 5, "verse_count": 14}, {"number": 21, "verse_count": 27},
+          {"number": 22, "verse_count": 21}
+        ]}
+      ]
+    }
+  ]
+}

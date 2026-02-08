@@ -6,7 +6,7 @@ use App\Enums\AuthorType;
 use App\Enums\PostType;
 use App\Enums\Visibility;
 use App\Models\Category;
-use App\Models\Story;
+use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 use App\Services\NameAnonymizer;
@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class StoryController extends Controller
+class PostController extends Controller
 {
     public function __construct(
         protected NameAnonymizer $nameAnonymizer
@@ -24,7 +24,7 @@ class StoryController extends Controller
 
     public function index(Request $request): Response
     {
-        $stories = Story::with(['user', 'category', 'tags'])
+        $posts = Post::with(['user', 'category', 'tags'])
             ->visibleTo($request->user())
             ->published()
             ->when($request->type, fn ($q, $type) => $q->where('post_type', $type))
@@ -43,7 +43,7 @@ class StoryController extends Controller
             ->withQueryString();
 
         return Inertia::render('Posts/Index', [
-            'stories' => $stories,
+            'posts' => $posts,
             'categories' => Category::approved()->orderBy('name')->get(),
             'postTypes' => collect(PostType::cases())->map(fn ($p) => [
                 'value' => $p->value,
@@ -97,52 +97,52 @@ class StoryController extends Controller
             'publish' => 'boolean',
         ]);
 
-        $story = new Story($validated);
-        $story->user_id = $request->user()->id;
+        $post = new Post($validated);
+        $post->user_id = $request->user()->id;
 
         if ($validated['anonymize_names'] ?? false) {
             $result = $this->nameAnonymizer->anonymize(
                 $validated['content'],
                 $validated['name_mappings'] ?? null
             );
-            $story->content_anonymized = $result['content'];
-            $story->name_mappings = $result['mappings'];
+            $post->content_anonymized = $result['content'];
+            $post->name_mappings = $result['mappings'];
         }
 
         if ($validated['publish'] ?? false) {
-            $story->published_at = now();
+            $post->published_at = now();
         }
 
-        $story->save();
+        $post->save();
 
         if (! empty($validated['tags'])) {
-            $story->syncTags($validated['tags']);
+            $post->syncTags($validated['tags']);
         }
 
-        return redirect()->route('posts.show', $story)
+        return redirect()->route('posts.show', $post)
             ->with('success', 'Post created successfully.');
     }
 
-    public function show(Story $story): Response
+    public function show(Post $post): Response
     {
-        Gate::authorize('view', $story);
+        Gate::authorize('view', $post);
 
-        $story->load(['user', 'authorUser', 'category', 'tags']);
+        $post->load(['user', 'authorUser', 'category', 'tags']);
 
         return Inertia::render('Posts/Show', [
-            'story' => $story,
-            'canEdit' => $story->user_id === auth()->id(),
+            'post' => $post,
+            'canEdit' => $post->user_id === auth()->id(),
         ]);
     }
 
-    public function edit(Story $story): Response
+    public function edit(Post $post): Response
     {
-        Gate::authorize('update', $story);
+        Gate::authorize('update', $post);
 
-        $story->load(['category', 'tags']);
+        $post->load(['category', 'tags']);
 
         return Inertia::render('Posts/Edit', [
-            'story' => $story,
+            'post' => $post,
             'categories' => Category::approved()->orderBy('name')->get(),
             'postTypes' => collect(PostType::cases())->map(fn ($p) => [
                 'value' => $p->value,
@@ -162,9 +162,9 @@ class StoryController extends Controller
         ]);
     }
 
-    public function update(Request $request, Story $story)
+    public function update(Request $request, Post $post)
     {
-        Gate::authorize('update', $story);
+        Gate::authorize('update', $post);
 
         $validated = $request->validate([
             'post_type' => 'required|in:story,thought,note,quote',
@@ -186,39 +186,39 @@ class StoryController extends Controller
             'publish' => 'boolean',
         ]);
 
-        $story->fill($validated);
+        $post->fill($validated);
 
         if ($validated['anonymize_names'] ?? false) {
             $result = $this->nameAnonymizer->anonymize(
                 $validated['content'],
-                $validated['name_mappings'] ?? $story->name_mappings
+                $validated['name_mappings'] ?? $post->name_mappings
             );
-            $story->content_anonymized = $result['content'];
-            $story->name_mappings = $result['mappings'];
+            $post->content_anonymized = $result['content'];
+            $post->name_mappings = $result['mappings'];
         } else {
-            $story->content_anonymized = null;
-            $story->name_mappings = null;
+            $post->content_anonymized = null;
+            $post->name_mappings = null;
         }
 
-        if (($validated['publish'] ?? false) && ! $story->published_at) {
-            $story->published_at = now();
+        if (($validated['publish'] ?? false) && ! $post->published_at) {
+            $post->published_at = now();
         }
 
-        $story->save();
+        $post->save();
 
         if (isset($validated['tags'])) {
-            $story->syncTags($validated['tags']);
+            $post->syncTags($validated['tags']);
         }
 
-        return redirect()->route('posts.show', $story)
+        return redirect()->route('posts.show', $post)
             ->with('success', 'Post updated successfully.');
     }
 
-    public function destroy(Story $story)
+    public function destroy(Post $post)
     {
-        Gate::authorize('delete', $story);
+        Gate::authorize('delete', $post);
 
-        $story->delete();
+        $post->delete();
 
         return redirect()->route('dashboard')
             ->with('success', 'Post deleted successfully.');

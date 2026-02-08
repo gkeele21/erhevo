@@ -3,7 +3,7 @@ import { Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
 
 const props = defineProps({
-    story: {
+    post: {
         type: Object,
         required: true
     }
@@ -29,7 +29,7 @@ const truncate = (text, length = 150) => {
     return stripped.substring(0, length) + '...'
 }
 
-const postType = computed(() => props.story.post_type || 'story')
+const postType = computed(() => props.post.post_type || 'story')
 
 const typeConfig = computed(() => ({
     story: {
@@ -77,27 +77,27 @@ const typeConfig = computed(() => ({
             </div>
 
             <!-- Quote Content -->
-            <Link :href="route('posts.show', story.slug)" class="block">
+            <Link :href="route('posts.show', post.slug)" class="block">
                 <div class="relative">
                     <svg class="absolute -top-2 -left-2 w-8 h-8 text-gold-300 opacity-50" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
                     </svg>
                     <p class="text-lg text-navy text-center italic px-6 py-4 leading-relaxed">
-                        {{ story.excerpt || truncate(story.content, 200) }}
+                        {{ post.excerpt || truncate(post.content, 200) }}
                     </p>
                 </div>
-                <div v-if="story.title" class="text-center text-sm text-gold-700 mt-2">
-                    &mdash; {{ story.title }}
+                <div v-if="post.title" class="text-center text-sm text-gold-700 mt-2">
+                    &mdash; {{ post.title }}
                 </div>
             </Link>
 
             <!-- Footer -->
             <div class="flex items-center justify-between text-sm text-teal-300 mt-4 pt-4 border-t border-gold-200">
                 <div class="flex items-center gap-2">
-                    <span v-if="story.creator_name">{{ story.creator_name }}</span>
+                    <span v-if="post.creator_name">{{ post.creator_name }}</span>
                     <span v-else class="italic">Anonymous</span>
                 </div>
-                <span>{{ formatDate(story.published_at) }}</span>
+                <span>{{ formatDate(post.published_at) }}</span>
             </div>
         </div>
     </article>
@@ -111,23 +111,23 @@ const typeConfig = computed(() => ({
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="typeConfig.icon"></svg>
                     {{ typeConfig.label }}
                 </span>
-                <span class="text-xs text-teal-300">{{ formatDate(story.published_at) }}</span>
+                <span class="text-xs text-teal-300">{{ formatDate(post.published_at) }}</span>
             </div>
 
             <!-- Content -->
-            <Link :href="route('posts.show', story.slug)" class="block">
+            <Link :href="route('posts.show', post.slug)" class="block">
                 <p class="text-teal italic leading-relaxed">
-                    {{ story.excerpt || truncate(story.content, 200) }}
+                    {{ post.excerpt || truncate(post.content, 200) }}
                 </p>
-                <div v-if="story.title" class="text-sm font-medium text-navy mt-3">
-                    {{ story.title }}
+                <div v-if="post.title" class="text-sm font-medium text-navy mt-3">
+                    {{ post.title }}
                 </div>
             </Link>
 
             <!-- Footer -->
             <div class="flex items-center justify-between text-sm text-teal-300 mt-4">
                 <div class="flex items-center gap-2">
-                    <span v-if="story.creator_name">{{ story.creator_name }}</span>
+                    <span v-if="post.creator_name">{{ post.creator_name }}</span>
                     <span v-else class="italic">Anonymous</span>
                 </div>
             </div>
@@ -143,25 +143,25 @@ const typeConfig = computed(() => ({
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="typeConfig.icon"></svg>
                     {{ typeConfig.label }}
                 </span>
-                <span class="text-xs text-teal-300">{{ formatDate(story.published_at) }}</span>
+                <span class="text-xs text-teal-300">{{ formatDate(post.published_at) }}</span>
             </div>
 
             <!-- Title -->
             <h3 class="text-base font-medium text-navy mb-1">
-                <Link :href="route('posts.show', story.slug)" class="hover:text-teal">
-                    {{ story.title }}
+                <Link :href="route('posts.show', post.slug)" class="hover:text-teal">
+                    {{ post.title }}
                 </Link>
             </h3>
 
             <!-- Excerpt -->
             <p class="text-teal text-sm">
-                {{ story.excerpt || truncate(story.content, 100) }}
+                {{ post.excerpt || truncate(post.content, 100) }}
             </p>
 
             <!-- Tags -->
-            <div v-if="story.tags && story.tags.length" class="flex flex-wrap gap-1 mt-3">
+            <div v-if="post.tags && post.tags.length" class="flex flex-wrap gap-1 mt-3">
                 <span
-                    v-for="tag in story.tags.slice(0, 3)"
+                    v-for="tag in post.tags.slice(0, 3)"
                     :key="tag.id"
                     class="px-1.5 py-0.5 text-xs bg-white text-teal rounded"
                 >
@@ -174,10 +174,10 @@ const typeConfig = computed(() => ({
     <!-- Default Story Card -->
     <article v-else class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-navy-50">
         <!-- Cover Image -->
-        <div v-if="story.cover_image" class="aspect-video overflow-hidden">
+        <div v-if="post.cover_image" class="aspect-video overflow-hidden">
             <img
-                :src="story.cover_image"
-                :alt="story.title"
+                :src="post.cover_image"
+                :alt="post.title"
                 class="w-full h-full object-cover"
             >
         </div>
@@ -186,11 +186,11 @@ const typeConfig = computed(() => ({
             <!-- Category & Type Badge -->
             <div class="flex items-center justify-between mb-2">
                 <Link
-                    v-if="story.category"
-                    :href="route('categories.show', story.category.slug)"
+                    v-if="post.category"
+                    :href="route('categories.show', post.category.slug)"
                     class="text-xs font-medium text-teal hover:text-navy"
                 >
-                    {{ story.category.name }}
+                    {{ post.category.name }}
                 </Link>
                 <span v-else></span>
                 <span class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded" :class="typeConfig.badgeClass">
@@ -201,20 +201,20 @@ const typeConfig = computed(() => ({
 
             <!-- Title -->
             <h3 class="text-lg font-semibold text-navy mb-2">
-                <Link :href="route('posts.show', story.slug)" class="hover:text-teal">
-                    {{ story.title }}
+                <Link :href="route('posts.show', post.slug)" class="hover:text-teal">
+                    {{ post.title }}
                 </Link>
             </h3>
 
             <!-- Excerpt -->
             <p class="text-teal text-sm mb-4" :class="typeConfig.contentClass">
-                {{ story.excerpt || truncate(story.content) }}
+                {{ post.excerpt || truncate(post.content) }}
             </p>
 
             <!-- Tags -->
-            <div v-if="story.tags && story.tags.length" class="flex flex-wrap gap-2 mb-4">
+            <div v-if="post.tags && post.tags.length" class="flex flex-wrap gap-2 mb-4">
                 <span
-                    v-for="tag in story.tags.slice(0, 3)"
+                    v-for="tag in post.tags.slice(0, 3)"
                     :key="tag.id"
                     class="px-2 py-1 text-xs bg-navy-50 text-teal rounded"
                 >
@@ -225,10 +225,10 @@ const typeConfig = computed(() => ({
             <!-- Footer -->
             <div class="flex items-center justify-between text-sm text-teal-300">
                 <div class="flex items-center gap-2">
-                    <span v-if="story.creator_name">{{ story.creator_name }}</span>
+                    <span v-if="post.creator_name">{{ post.creator_name }}</span>
                     <span v-else class="italic">Anonymous</span>
                 </div>
-                <span>{{ formatDate(story.published_at) }}</span>
+                <span>{{ formatDate(post.published_at) }}</span>
             </div>
         </div>
     </article>

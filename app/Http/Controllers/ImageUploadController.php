@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\StoryImage;
+use App\Models\PostImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,9 +16,9 @@ class ImageUploadController extends Controller
         ]);
 
         $file = $request->file('image');
-        $path = $file->store('story-images', 'public');
+        $path = $file->store('post-images', 'public');
 
-        $image = StoryImage::create([
+        $image = PostImage::create([
             'user_id' => $request->user()->id,
             'path' => $path,
             'filename' => $file->getClientOriginalName(),
@@ -32,7 +32,7 @@ class ImageUploadController extends Controller
         ]);
     }
 
-    public function destroy(StoryImage $image): JsonResponse
+    public function destroy(PostImage $image): JsonResponse
     {
         if ($image->user_id !== auth()->id()) {
             return response()->json(['error' => 'Unauthorized'], 403);

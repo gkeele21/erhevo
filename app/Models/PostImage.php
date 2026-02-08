@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
-class StoryImage extends Model
+class PostImage extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'story_id',
+        'post_id',
         'user_id',
         'path',
         'filename',
@@ -24,9 +24,9 @@ class StoryImage extends Model
         'size' => 'integer',
     ];
 
-    public function story(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Story::class);
+        return $this->belongsTo(Post::class);
     }
 
     public function user(): BelongsTo
@@ -46,7 +46,7 @@ class StoryImage extends Model
 
     protected static function booted(): void
     {
-        static::deleting(function (StoryImage $image) {
+        static::deleting(function (PostImage $image) {
             $image->deleteFile();
         });
     }

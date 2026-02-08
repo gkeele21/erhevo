@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Story;
-use App\Models\StoryEditToken;
+use App\Models\Post;
+use App\Models\PostEditToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
-class StoryShareController extends Controller
+class PostShareController extends Controller
 {
-    public function index(Story $story)
+    public function index(Post $post)
     {
-        Gate::authorize('update', $story);
+        Gate::authorize('update', $post);
 
         return Inertia::render('Posts/Share', [
-            'story' => $story,
-            'tokens' => $story->editTokens()
+            'post' => $post,
+            'tokens' => $post->editTokens()
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(fn ($token) => [
@@ -33,18 +33,18 @@ class StoryShareController extends Controller
         ]);
     }
 
-    public function store(Request $request, Story $story)
+    public function store(Request $request, Post $post)
     {
-        Gate::authorize('update', $story);
+        Gate::authorize('update', $post);
 
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
             'expires_in_days' => 'required|integer|in:7,14,30',
         ]);
 
-        $rawToken = StoryEditToken::generateToken();
+        $rawToken = PostEditToken::generateToken();
 
-        $story->editTokens()->create([
+        $post->editTokens()->create([
             'token' => $rawToken,
             'name' => $validated['name'] ?? null,
             'expires_at' => now()->addDays($validated['expires_in_days']),
@@ -58,11 +58,11 @@ class StoryShareController extends Controller
         ]);
     }
 
-    public function destroy(Story $story, StoryEditToken $token)
+    public function destroy(Post $post, PostEditToken $token)
     {
-        Gate::authorize('update', $story);
+        Gate::authorize('update', $post);
 
-        if ($token->story_id !== $story->id) {
+        if ($token->post_id !== $post->id) {
             abort(404);
         }
 

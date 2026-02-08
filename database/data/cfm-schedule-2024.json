@@ -1,0 +1,376 @@
+{
+  "year": 2024,
+  "title": "Book of Mormon 2024",
+  "description": "Come Follow Me study of the Book of Mormon",
+  "volumes": ["book-of-mormon"],
+  "weeks": [
+    {
+      "week": 1,
+      "start_date": "2024-01-01",
+      "end_date": "2024-01-07",
+      "title": "Introductory Pages",
+      "description": "Introduction, Testimony of Witnesses, Brief Explanation",
+      "chapters": []
+    },
+    {
+      "week": 2,
+      "start_date": "2024-01-08",
+      "end_date": "2024-01-14",
+      "title": "1 Nephi 1-5",
+      "chapters": ["1-nephi:1", "1-nephi:2", "1-nephi:3", "1-nephi:4", "1-nephi:5"]
+    },
+    {
+      "week": 3,
+      "start_date": "2024-01-15",
+      "end_date": "2024-01-21",
+      "title": "1 Nephi 6-10",
+      "chapters": ["1-nephi:6", "1-nephi:7", "1-nephi:8", "1-nephi:9", "1-nephi:10"]
+    },
+    {
+      "week": 4,
+      "start_date": "2024-01-22",
+      "end_date": "2024-01-28",
+      "title": "1 Nephi 11-15",
+      "chapters": ["1-nephi:11", "1-nephi:12", "1-nephi:13", "1-nephi:14", "1-nephi:15"]
+    },
+    {
+      "week": 5,
+      "start_date": "2024-01-29",
+      "end_date": "2024-02-04",
+      "title": "1 Nephi 16-22",
+      "chapters": ["1-nephi:16", "1-nephi:17", "1-nephi:18", "1-nephi:19", "1-nephi:20", "1-nephi:21", "1-nephi:22"]
+    },
+    {
+      "week": 6,
+      "start_date": "2024-02-05",
+      "end_date": "2024-02-11",
+      "title": "2 Nephi 1-5",
+      "chapters": ["2-nephi:1", "2-nephi:2", "2-nephi:3", "2-nephi:4", "2-nephi:5"]
+    },
+    {
+      "week": 7,
+      "start_date": "2024-02-12",
+      "end_date": "2024-02-18",
+      "title": "2 Nephi 6-10",
+      "chapters": ["2-nephi:6", "2-nephi:7", "2-nephi:8", "2-nephi:9", "2-nephi:10"]
+    },
+    {
+      "week": 8,
+      "start_date": "2024-02-19",
+      "end_date": "2024-02-25",
+      "title": "2 Nephi 11-19",
+      "chapters": ["2-nephi:11", "2-nephi:12", "2-nephi:13", "2-nephi:14", "2-nephi:15", "2-nephi:16", "2-nephi:17", "2-nephi:18", "2-nephi:19"]
+    },
+    {
+      "week": 9,
+      "start_date": "2024-02-26",
+      "end_date": "2024-03-03",
+      "title": "2 Nephi 20-25",
+      "chapters": ["2-nephi:20", "2-nephi:21", "2-nephi:22", "2-nephi:23", "2-nephi:24", "2-nephi:25"]
+    },
+    {
+      "week": 10,
+      "start_date": "2024-03-04",
+      "end_date": "2024-03-10",
+      "title": "2 Nephi 26-30",
+      "chapters": ["2-nephi:26", "2-nephi:27", "2-nephi:28", "2-nephi:29", "2-nephi:30"]
+    },
+    {
+      "week": 11,
+      "start_date": "2024-03-11",
+      "end_date": "2024-03-17",
+      "title": "2 Nephi 31-33",
+      "chapters": ["2-nephi:31", "2-nephi:32", "2-nephi:33"]
+    },
+    {
+      "week": 12,
+      "start_date": "2024-03-18",
+      "end_date": "2024-03-24",
+      "title": "Jacob 1-4",
+      "chapters": ["jacob:1", "jacob:2", "jacob:3", "jacob:4"]
+    },
+    {
+      "week": 13,
+      "start_date": "2024-03-25",
+      "end_date": "2024-03-31",
+      "title": "Easter",
+      "is_special": true,
+      "special_topic": "easter"
+    },
+    {
+      "week": 14,
+      "start_date": "2024-04-01",
+      "end_date": "2024-04-07",
+      "title": "Jacob 5-7",
+      "chapters": ["jacob:5", "jacob:6", "jacob:7"]
+    },
+    {
+      "week": 15,
+      "start_date": "2024-04-08",
+      "end_date": "2024-04-14",
+      "title": "Enos–Words of Mormon",
+      "chapters": ["enos:1", "jarom:1", "omni:1", "words-of-mormon:1"]
+    },
+    {
+      "week": 16,
+      "start_date": "2024-04-15",
+      "end_date": "2024-04-21",
+      "title": "Mosiah 1-3",
+      "chapters": ["mosiah:1", "mosiah:2", "mosiah:3"]
+    },
+    {
+      "week": 17,
+      "start_date": "2024-04-22",
+      "end_date": "2024-04-28",
+      "title": "Mosiah 4-6",
+      "chapters": ["mosiah:4", "mosiah:5", "mosiah:6"]
+    },
+    {
+      "week": 18,
+      "start_date": "2024-04-29",
+      "end_date": "2024-05-05",
+      "title": "Mosiah 7-10",
+      "chapters": ["mosiah:7", "mosiah:8", "mosiah:9", "mosiah:10"]
+    },
+    {
+      "week": 19,
+      "start_date": "2024-05-06",
+      "end_date": "2024-05-12",
+      "title": "Mosiah 11-17",
+      "chapters": ["mosiah:11", "mosiah:12", "mosiah:13", "mosiah:14", "mosiah:15", "mosiah:16", "mosiah:17"]
+    },
+    {
+      "week": 20,
+      "start_date": "2024-05-13",
+      "end_date": "2024-05-19",
+      "title": "Mosiah 18-24",
+      "chapters": ["mosiah:18", "mosiah:19", "mosiah:20", "mosiah:21", "mosiah:22", "mosiah:23", "mosiah:24"]
+    },
+    {
+      "week": 21,
+      "start_date": "2024-05-20",
+      "end_date": "2024-05-26",
+      "title": "Mosiah 25-28",
+      "chapters": ["mosiah:25", "mosiah:26", "mosiah:27", "mosiah:28"]
+    },
+    {
+      "week": 22,
+      "start_date": "2024-05-27",
+      "end_date": "2024-06-02",
+      "title": "Mosiah 29–Alma 4",
+      "chapters": ["mosiah:29", "alma:1", "alma:2", "alma:3", "alma:4"]
+    },
+    {
+      "week": 23,
+      "start_date": "2024-06-03",
+      "end_date": "2024-06-09",
+      "title": "Alma 5-7",
+      "chapters": ["alma:5", "alma:6", "alma:7"]
+    },
+    {
+      "week": 24,
+      "start_date": "2024-06-10",
+      "end_date": "2024-06-16",
+      "title": "Alma 8-12",
+      "chapters": ["alma:8", "alma:9", "alma:10", "alma:11", "alma:12"]
+    },
+    {
+      "week": 25,
+      "start_date": "2024-06-17",
+      "end_date": "2024-06-23",
+      "title": "Alma 13-16",
+      "chapters": ["alma:13", "alma:14", "alma:15", "alma:16"]
+    },
+    {
+      "week": 26,
+      "start_date": "2024-06-24",
+      "end_date": "2024-06-30",
+      "title": "Alma 17-22",
+      "chapters": ["alma:17", "alma:18", "alma:19", "alma:20", "alma:21", "alma:22"]
+    },
+    {
+      "week": 27,
+      "start_date": "2024-07-01",
+      "end_date": "2024-07-07",
+      "title": "Alma 23-29",
+      "chapters": ["alma:23", "alma:24", "alma:25", "alma:26", "alma:27", "alma:28", "alma:29"]
+    },
+    {
+      "week": 28,
+      "start_date": "2024-07-08",
+      "end_date": "2024-07-14",
+      "title": "Alma 30-31",
+      "chapters": ["alma:30", "alma:31"]
+    },
+    {
+      "week": 29,
+      "start_date": "2024-07-15",
+      "end_date": "2024-07-21",
+      "title": "Alma 32-35",
+      "chapters": ["alma:32", "alma:33", "alma:34", "alma:35"]
+    },
+    {
+      "week": 30,
+      "start_date": "2024-07-22",
+      "end_date": "2024-07-28",
+      "title": "Alma 36-38",
+      "chapters": ["alma:36", "alma:37", "alma:38"]
+    },
+    {
+      "week": 31,
+      "start_date": "2024-07-29",
+      "end_date": "2024-08-04",
+      "title": "Alma 39-42",
+      "chapters": ["alma:39", "alma:40", "alma:41", "alma:42"]
+    },
+    {
+      "week": 32,
+      "start_date": "2024-08-05",
+      "end_date": "2024-08-11",
+      "title": "Alma 43-52",
+      "chapters": ["alma:43", "alma:44", "alma:45", "alma:46", "alma:47", "alma:48", "alma:49", "alma:50", "alma:51", "alma:52"]
+    },
+    {
+      "week": 33,
+      "start_date": "2024-08-12",
+      "end_date": "2024-08-18",
+      "title": "Alma 53-63",
+      "chapters": ["alma:53", "alma:54", "alma:55", "alma:56", "alma:57", "alma:58", "alma:59", "alma:60", "alma:61", "alma:62", "alma:63"]
+    },
+    {
+      "week": 34,
+      "start_date": "2024-08-19",
+      "end_date": "2024-08-25",
+      "title": "Helaman 1-6",
+      "chapters": ["helaman:1", "helaman:2", "helaman:3", "helaman:4", "helaman:5", "helaman:6"]
+    },
+    {
+      "week": 35,
+      "start_date": "2024-08-26",
+      "end_date": "2024-09-01",
+      "title": "Helaman 7-12",
+      "chapters": ["helaman:7", "helaman:8", "helaman:9", "helaman:10", "helaman:11", "helaman:12"]
+    },
+    {
+      "week": 36,
+      "start_date": "2024-09-02",
+      "end_date": "2024-09-08",
+      "title": "Helaman 13-16",
+      "chapters": ["helaman:13", "helaman:14", "helaman:15", "helaman:16"]
+    },
+    {
+      "week": 37,
+      "start_date": "2024-09-09",
+      "end_date": "2024-09-15",
+      "title": "3 Nephi 1-7",
+      "chapters": ["3-nephi:1", "3-nephi:2", "3-nephi:3", "3-nephi:4", "3-nephi:5", "3-nephi:6", "3-nephi:7"]
+    },
+    {
+      "week": 38,
+      "start_date": "2024-09-16",
+      "end_date": "2024-09-22",
+      "title": "3 Nephi 8-11",
+      "chapters": ["3-nephi:8", "3-nephi:9", "3-nephi:10", "3-nephi:11"]
+    },
+    {
+      "week": 39,
+      "start_date": "2024-09-23",
+      "end_date": "2024-09-29",
+      "title": "3 Nephi 12-16",
+      "chapters": ["3-nephi:12", "3-nephi:13", "3-nephi:14", "3-nephi:15", "3-nephi:16"]
+    },
+    {
+      "week": 40,
+      "start_date": "2024-09-30",
+      "end_date": "2024-10-06",
+      "title": "General Conference",
+      "is_special": true,
+      "special_topic": "general-conference"
+    },
+    {
+      "week": 41,
+      "start_date": "2024-10-07",
+      "end_date": "2024-10-13",
+      "title": "3 Nephi 17-19",
+      "chapters": ["3-nephi:17", "3-nephi:18", "3-nephi:19"]
+    },
+    {
+      "week": 42,
+      "start_date": "2024-10-14",
+      "end_date": "2024-10-20",
+      "title": "3 Nephi 20-26",
+      "chapters": ["3-nephi:20", "3-nephi:21", "3-nephi:22", "3-nephi:23", "3-nephi:24", "3-nephi:25", "3-nephi:26"]
+    },
+    {
+      "week": 43,
+      "start_date": "2024-10-21",
+      "end_date": "2024-10-27",
+      "title": "3 Nephi 27–4 Nephi",
+      "chapters": ["3-nephi:27", "3-nephi:28", "3-nephi:29", "3-nephi:30", "4-nephi:1"]
+    },
+    {
+      "week": 44,
+      "start_date": "2024-10-28",
+      "end_date": "2024-11-03",
+      "title": "Mormon 1-6",
+      "chapters": ["mormon:1", "mormon:2", "mormon:3", "mormon:4", "mormon:5", "mormon:6"]
+    },
+    {
+      "week": 45,
+      "start_date": "2024-11-04",
+      "end_date": "2024-11-10",
+      "title": "Mormon 7-9",
+      "chapters": ["mormon:7", "mormon:8", "mormon:9"]
+    },
+    {
+      "week": 46,
+      "start_date": "2024-11-11",
+      "end_date": "2024-11-17",
+      "title": "Ether 1-5",
+      "chapters": ["ether:1", "ether:2", "ether:3", "ether:4", "ether:5"]
+    },
+    {
+      "week": 47,
+      "start_date": "2024-11-18",
+      "end_date": "2024-11-24",
+      "title": "Ether 6-11",
+      "chapters": ["ether:6", "ether:7", "ether:8", "ether:9", "ether:10", "ether:11"]
+    },
+    {
+      "week": 48,
+      "start_date": "2024-11-25",
+      "end_date": "2024-12-01",
+      "title": "Ether 12-15",
+      "chapters": ["ether:12", "ether:13", "ether:14", "ether:15"]
+    },
+    {
+      "week": 49,
+      "start_date": "2024-12-02",
+      "end_date": "2024-12-08",
+      "title": "Moroni 1-6",
+      "chapters": ["moroni:1", "moroni:2", "moroni:3", "moroni:4", "moroni:5", "moroni:6"]
+    },
+    {
+      "week": 50,
+      "start_date": "2024-12-09",
+      "end_date": "2024-12-15",
+      "title": "Moroni 7-9",
+      "chapters": ["moroni:7", "moroni:8", "moroni:9"]
+    },
+    {
+      "week": 51,
+      "start_date": "2024-12-16",
+      "end_date": "2024-12-22",
+      "title": "Moroni 10",
+      "chapters": ["moroni:10"]
+    },
+    {
+      "week": 52,
+      "start_date": "2024-12-23",
+      "end_date": "2024-12-29",
+      "title": "Christmas",
+      "is_special": true,
+      "special_topic": "christmas"
+    }
+  ]
+}

@@ -41,9 +41,9 @@ class Category extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function stories(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(Story::class);
+        return $this->hasMany(Post::class);
     }
 
     public function scopeApproved($query)

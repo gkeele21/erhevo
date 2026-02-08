@@ -4,8 +4,8 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryCard from '@/Components/Story/StoryCard.vue'
 
 defineProps({
-    myStories: Object,
-    friendStories: Array,
+    myPosts: Object,
+    friendPosts: Array,
     pendingFriendRequestsCount: Number
 })
 </script>
@@ -35,7 +35,7 @@ defineProps({
                             My Posts
                         </h3>
                         <p class="text-3xl font-bold text-teal">
-                            {{ myStories?.total || 0 }}
+                            {{ myPosts?.total || 0 }}
                         </p>
                     </div>
 
@@ -69,31 +69,31 @@ defineProps({
                             My Posts
                         </h3>
 
-                        <div v-if="myStories?.data?.length" class="space-y-4">
+                        <div v-if="myPosts?.data?.length" class="space-y-4">
                             <div
-                                v-for="story in myStories.data"
-                                :key="story.id"
+                                v-for="post in myPosts.data"
+                                :key="post.id"
                                 class="bg-white rounded-lg shadow p-4 border border-navy-50"
                             >
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <Link
-                                            :href="route('posts.show', story.slug)"
+                                            :href="route('posts.show', post.slug)"
                                             class="text-lg font-semibold text-navy hover:text-teal"
                                         >
-                                            {{ story.title }}
+                                            {{ post.title }}
                                         </Link>
                                         <div class="flex items-center gap-3 mt-2 text-sm text-teal">
-                                            <span class="capitalize">{{ story.visibility }}</span>
-                                            <span v-if="story.category">{{ story.category.name }}</span>
-                                            <span v-if="story.published_at">
-                                                Published {{ new Date(story.published_at).toLocaleDateString() }}
+                                            <span class="capitalize">{{ post.visibility }}</span>
+                                            <span v-if="post.category">{{ post.category.name }}</span>
+                                            <span v-if="post.published_at">
+                                                Published {{ new Date(post.published_at).toLocaleDateString() }}
                                             </span>
                                             <span v-else class="text-amber">Draft</span>
                                         </div>
                                     </div>
                                     <Link
-                                        :href="route('posts.edit', story.slug)"
+                                        :href="route('posts.edit', post.slug)"
                                         class="text-teal-300 hover:text-teal"
                                     >
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,13 +104,13 @@ defineProps({
                             </div>
 
                             <!-- Pagination -->
-                            <div v-if="myStories.last_page > 1" class="flex justify-center gap-2 mt-4">
+                            <div v-if="myPosts.last_page > 1" class="flex justify-center gap-2 mt-4">
                                 <Link
-                                    v-for="page in myStories.last_page"
+                                    v-for="page in myPosts.last_page"
                                     :key="page"
                                     :href="route('dashboard', { page })"
                                     class="px-3 py-1 rounded"
-                                    :class="page === myStories.current_page
+                                    :class="page === myPosts.current_page
                                         ? 'bg-teal text-white'
                                         : 'bg-navy-50 text-navy'"
                                 >
@@ -138,17 +138,17 @@ defineProps({
                             From Friends
                         </h3>
 
-                        <div v-if="friendStories?.length" class="space-y-4">
+                        <div v-if="friendPosts?.length" class="space-y-4">
                             <StoryCard
-                                v-for="story in friendStories"
-                                :key="story.id"
-                                :story="story"
+                                v-for="post in friendPosts"
+                                :key="post.id"
+                                :post="post"
                             />
                         </div>
 
                         <div v-else class="bg-white rounded-lg shadow p-6 text-center border border-navy-50">
                             <p class="text-teal mb-4">
-                                No stories from friends yet.
+                                No posts from friends yet.
                             </p>
                             <Link
                                 :href="route('friends.index')"

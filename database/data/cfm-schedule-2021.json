@@ -1,0 +1,377 @@
+{
+  "year": 2021,
+  "title": "Doctrine and Covenants 2021",
+  "description": "Come Follow Me study of the Doctrine and Covenants",
+  "volumes": ["doctrine-and-covenants"],
+  "weeks": [
+    {
+      "week": 1,
+      "start_date": "2020-12-28",
+      "end_date": "2021-01-03",
+      "title": "Introductory Pages",
+      "description": "Introduction to the Doctrine and Covenants",
+      "chapters": []
+    },
+    {
+      "week": 2,
+      "start_date": "2021-01-04",
+      "end_date": "2021-01-10",
+      "title": "D&C 1",
+      "chapters": ["doctrine-and-covenants:1"]
+    },
+    {
+      "week": 3,
+      "start_date": "2021-01-11",
+      "end_date": "2021-01-17",
+      "title": "D&C 2; Joseph Smith—History 1:27–65",
+      "chapters": ["doctrine-and-covenants:2"]
+    },
+    {
+      "week": 4,
+      "start_date": "2021-01-18",
+      "end_date": "2021-01-24",
+      "title": "D&C 3–5",
+      "chapters": ["doctrine-and-covenants:3", "doctrine-and-covenants:4", "doctrine-and-covenants:5"]
+    },
+    {
+      "week": 5,
+      "start_date": "2021-01-25",
+      "end_date": "2021-01-31",
+      "title": "D&C 6–9",
+      "chapters": ["doctrine-and-covenants:6", "doctrine-and-covenants:7", "doctrine-and-covenants:8", "doctrine-and-covenants:9"]
+    },
+    {
+      "week": 6,
+      "start_date": "2021-02-01",
+      "end_date": "2021-02-07",
+      "title": "D&C 10–11",
+      "chapters": ["doctrine-and-covenants:10", "doctrine-and-covenants:11"]
+    },
+    {
+      "week": 7,
+      "start_date": "2021-02-08",
+      "end_date": "2021-02-14",
+      "title": "D&C 12–13; Joseph Smith—History 1:66–75",
+      "chapters": ["doctrine-and-covenants:12", "doctrine-and-covenants:13"]
+    },
+    {
+      "week": 8,
+      "start_date": "2021-02-15",
+      "end_date": "2021-02-21",
+      "title": "D&C 14–17",
+      "chapters": ["doctrine-and-covenants:14", "doctrine-and-covenants:15", "doctrine-and-covenants:16", "doctrine-and-covenants:17"]
+    },
+    {
+      "week": 9,
+      "start_date": "2021-02-22",
+      "end_date": "2021-02-28",
+      "title": "D&C 18–19",
+      "chapters": ["doctrine-and-covenants:18", "doctrine-and-covenants:19"]
+    },
+    {
+      "week": 10,
+      "start_date": "2021-03-01",
+      "end_date": "2021-03-07",
+      "title": "D&C 20–22",
+      "chapters": ["doctrine-and-covenants:20", "doctrine-and-covenants:21", "doctrine-and-covenants:22"]
+    },
+    {
+      "week": 11,
+      "start_date": "2021-03-08",
+      "end_date": "2021-03-14",
+      "title": "D&C 23–26",
+      "chapters": ["doctrine-and-covenants:23", "doctrine-and-covenants:24", "doctrine-and-covenants:25", "doctrine-and-covenants:26"]
+    },
+    {
+      "week": 12,
+      "start_date": "2021-03-15",
+      "end_date": "2021-03-21",
+      "title": "D&C 27–28",
+      "chapters": ["doctrine-and-covenants:27", "doctrine-and-covenants:28"]
+    },
+    {
+      "week": 13,
+      "start_date": "2021-03-22",
+      "end_date": "2021-03-28",
+      "title": "D&C 29",
+      "chapters": ["doctrine-and-covenants:29"]
+    },
+    {
+      "week": 14,
+      "start_date": "2021-03-29",
+      "end_date": "2021-04-04",
+      "title": "Easter",
+      "is_special": true,
+      "special_topic": "easter"
+    },
+    {
+      "week": 15,
+      "start_date": "2021-04-05",
+      "end_date": "2021-04-11",
+      "title": "D&C 30–36",
+      "chapters": ["doctrine-and-covenants:30", "doctrine-and-covenants:31", "doctrine-and-covenants:32", "doctrine-and-covenants:33", "doctrine-and-covenants:34", "doctrine-and-covenants:35", "doctrine-and-covenants:36"]
+    },
+    {
+      "week": 16,
+      "start_date": "2021-04-12",
+      "end_date": "2021-04-18",
+      "title": "D&C 37–40",
+      "chapters": ["doctrine-and-covenants:37", "doctrine-and-covenants:38", "doctrine-and-covenants:39", "doctrine-and-covenants:40"]
+    },
+    {
+      "week": 17,
+      "start_date": "2021-04-19",
+      "end_date": "2021-04-25",
+      "title": "D&C 41–44",
+      "chapters": ["doctrine-and-covenants:41", "doctrine-and-covenants:42", "doctrine-and-covenants:43", "doctrine-and-covenants:44"]
+    },
+    {
+      "week": 18,
+      "start_date": "2021-04-26",
+      "end_date": "2021-05-02",
+      "title": "D&C 45",
+      "chapters": ["doctrine-and-covenants:45"]
+    },
+    {
+      "week": 19,
+      "start_date": "2021-05-03",
+      "end_date": "2021-05-09",
+      "title": "D&C 46–48",
+      "chapters": ["doctrine-and-covenants:46", "doctrine-and-covenants:47", "doctrine-and-covenants:48"]
+    },
+    {
+      "week": 20,
+      "start_date": "2021-05-10",
+      "end_date": "2021-05-16",
+      "title": "D&C 49–50",
+      "chapters": ["doctrine-and-covenants:49", "doctrine-and-covenants:50"]
+    },
+    {
+      "week": 21,
+      "start_date": "2021-05-17",
+      "end_date": "2021-05-23",
+      "title": "D&C 51–57",
+      "chapters": ["doctrine-and-covenants:51", "doctrine-and-covenants:52", "doctrine-and-covenants:53", "doctrine-and-covenants:54", "doctrine-and-covenants:55", "doctrine-and-covenants:56", "doctrine-and-covenants:57"]
+    },
+    {
+      "week": 22,
+      "start_date": "2021-05-24",
+      "end_date": "2021-05-30",
+      "title": "D&C 58–59",
+      "chapters": ["doctrine-and-covenants:58", "doctrine-and-covenants:59"]
+    },
+    {
+      "week": 23,
+      "start_date": "2021-05-31",
+      "end_date": "2021-06-06",
+      "title": "D&C 60–62",
+      "chapters": ["doctrine-and-covenants:60", "doctrine-and-covenants:61", "doctrine-and-covenants:62"]
+    },
+    {
+      "week": 24,
+      "start_date": "2021-06-07",
+      "end_date": "2021-06-13",
+      "title": "D&C 63",
+      "chapters": ["doctrine-and-covenants:63"]
+    },
+    {
+      "week": 25,
+      "start_date": "2021-06-14",
+      "end_date": "2021-06-20",
+      "title": "D&C 64–66",
+      "chapters": ["doctrine-and-covenants:64", "doctrine-and-covenants:65", "doctrine-and-covenants:66"]
+    },
+    {
+      "week": 26,
+      "start_date": "2021-06-21",
+      "end_date": "2021-06-27",
+      "title": "D&C 67–70",
+      "chapters": ["doctrine-and-covenants:67", "doctrine-and-covenants:68", "doctrine-and-covenants:69", "doctrine-and-covenants:70"]
+    },
+    {
+      "week": 27,
+      "start_date": "2021-06-28",
+      "end_date": "2021-07-04",
+      "title": "D&C 71–75",
+      "chapters": ["doctrine-and-covenants:71", "doctrine-and-covenants:72", "doctrine-and-covenants:73", "doctrine-and-covenants:74", "doctrine-and-covenants:75"]
+    },
+    {
+      "week": 28,
+      "start_date": "2021-07-05",
+      "end_date": "2021-07-11",
+      "title": "D&C 76",
+      "chapters": ["doctrine-and-covenants:76"]
+    },
+    {
+      "week": 29,
+      "start_date": "2021-07-12",
+      "end_date": "2021-07-18",
+      "title": "D&C 77–80",
+      "chapters": ["doctrine-and-covenants:77", "doctrine-and-covenants:78", "doctrine-and-covenants:79", "doctrine-and-covenants:80"]
+    },
+    {
+      "week": 30,
+      "start_date": "2021-07-19",
+      "end_date": "2021-07-25",
+      "title": "D&C 81–83",
+      "chapters": ["doctrine-and-covenants:81", "doctrine-and-covenants:82", "doctrine-and-covenants:83"]
+    },
+    {
+      "week": 31,
+      "start_date": "2021-07-26",
+      "end_date": "2021-08-01",
+      "title": "D&C 84",
+      "chapters": ["doctrine-and-covenants:84"]
+    },
+    {
+      "week": 32,
+      "start_date": "2021-08-02",
+      "end_date": "2021-08-08",
+      "title": "D&C 85–87",
+      "chapters": ["doctrine-and-covenants:85", "doctrine-and-covenants:86", "doctrine-and-covenants:87"]
+    },
+    {
+      "week": 33,
+      "start_date": "2021-08-09",
+      "end_date": "2021-08-15",
+      "title": "D&C 88",
+      "chapters": ["doctrine-and-covenants:88"]
+    },
+    {
+      "week": 34,
+      "start_date": "2021-08-16",
+      "end_date": "2021-08-22",
+      "title": "D&C 89–92",
+      "chapters": ["doctrine-and-covenants:89", "doctrine-and-covenants:90", "doctrine-and-covenants:91", "doctrine-and-covenants:92"]
+    },
+    {
+      "week": 35,
+      "start_date": "2021-08-23",
+      "end_date": "2021-08-29",
+      "title": "D&C 93",
+      "chapters": ["doctrine-and-covenants:93"]
+    },
+    {
+      "week": 36,
+      "start_date": "2021-08-30",
+      "end_date": "2021-09-05",
+      "title": "D&C 94–97",
+      "chapters": ["doctrine-and-covenants:94", "doctrine-and-covenants:95", "doctrine-and-covenants:96", "doctrine-and-covenants:97"]
+    },
+    {
+      "week": 37,
+      "start_date": "2021-09-06",
+      "end_date": "2021-09-12",
+      "title": "D&C 98–101",
+      "chapters": ["doctrine-and-covenants:98", "doctrine-and-covenants:99", "doctrine-and-covenants:100", "doctrine-and-covenants:101"]
+    },
+    {
+      "week": 38,
+      "start_date": "2021-09-13",
+      "end_date": "2021-09-19",
+      "title": "D&C 102–105",
+      "chapters": ["doctrine-and-covenants:102", "doctrine-and-covenants:103", "doctrine-and-covenants:104", "doctrine-and-covenants:105"]
+    },
+    {
+      "week": 39,
+      "start_date": "2021-09-20",
+      "end_date": "2021-09-26",
+      "title": "D&C 106–108",
+      "chapters": ["doctrine-and-covenants:106", "doctrine-and-covenants:107", "doctrine-and-covenants:108"]
+    },
+    {
+      "week": 40,
+      "start_date": "2021-09-27",
+      "end_date": "2021-10-03",
+      "title": "D&C 109–110",
+      "chapters": ["doctrine-and-covenants:109", "doctrine-and-covenants:110"]
+    },
+    {
+      "week": 41,
+      "start_date": "2021-10-04",
+      "end_date": "2021-10-10",
+      "title": "General Conference",
+      "is_special": true,
+      "special_topic": "general-conference"
+    },
+    {
+      "week": 42,
+      "start_date": "2021-10-11",
+      "end_date": "2021-10-17",
+      "title": "D&C 111–114",
+      "chapters": ["doctrine-and-covenants:111", "doctrine-and-covenants:112", "doctrine-and-covenants:113", "doctrine-and-covenants:114"]
+    },
+    {
+      "week": 43,
+      "start_date": "2021-10-18",
+      "end_date": "2021-10-24",
+      "title": "D&C 115–120",
+      "chapters": ["doctrine-and-covenants:115", "doctrine-and-covenants:116", "doctrine-and-covenants:117", "doctrine-and-covenants:118", "doctrine-and-covenants:119", "doctrine-and-covenants:120"]
+    },
+    {
+      "week": 44,
+      "start_date": "2021-10-25",
+      "end_date": "2021-10-31",
+      "title": "D&C 121–123",
+      "chapters": ["doctrine-and-covenants:121", "doctrine-and-covenants:122", "doctrine-and-covenants:123"]
+    },
+    {
+      "week": 45,
+      "start_date": "2021-11-01",
+      "end_date": "2021-11-07",
+      "title": "D&C 124",
+      "chapters": ["doctrine-and-covenants:124"]
+    },
+    {
+      "week": 46,
+      "start_date": "2021-11-08",
+      "end_date": "2021-11-14",
+      "title": "D&C 125–128",
+      "chapters": ["doctrine-and-covenants:125", "doctrine-and-covenants:126", "doctrine-and-covenants:127", "doctrine-and-covenants:128"]
+    },
+    {
+      "week": 47,
+      "start_date": "2021-11-15",
+      "end_date": "2021-11-21",
+      "title": "D&C 129–132",
+      "chapters": ["doctrine-and-covenants:129", "doctrine-and-covenants:130", "doctrine-and-covenants:131", "doctrine-and-covenants:132"]
+    },
+    {
+      "week": 48,
+      "start_date": "2021-11-22",
+      "end_date": "2021-11-28",
+      "title": "D&C 133–134",
+      "chapters": ["doctrine-and-covenants:133", "doctrine-and-covenants:134"]
+    },
+    {
+      "week": 49,
+      "start_date": "2021-11-29",
+      "end_date": "2021-12-05",
+      "title": "D&C 135–136",
+      "chapters": ["doctrine-and-covenants:135", "doctrine-and-covenants:136"]
+    },
+    {
+      "week": 50,
+      "start_date": "2021-12-06",
+      "end_date": "2021-12-12",
+      "title": "D&C 137–138",
+      "chapters": ["doctrine-and-covenants:137", "doctrine-and-covenants:138"]
+    },
+    {
+      "week": 51,
+      "start_date": "2021-12-13",
+      "end_date": "2021-12-19",
+      "title": "Official Declarations 1 & 2",
+      "description": "Official Declarations",
+      "chapters": []
+    },
+    {
+      "week": 52,
+      "start_date": "2021-12-20",
+      "end_date": "2021-12-26",
+      "title": "Christmas",
+      "is_special": true,
+      "special_topic": "christmas"
+    }
+  ]
+}

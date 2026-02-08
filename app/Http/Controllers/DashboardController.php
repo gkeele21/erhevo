@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Story;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,12 +13,12 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $myStories = Story::where('user_id', $user->id)
+        $myPosts = Post::where('user_id', $user->id)
             ->with(['category', 'tags'])
             ->latest()
             ->paginate(10);
 
-        $friendStories = Story::with(['user', 'category', 'tags'])
+        $friendPosts = Post::with(['user', 'category', 'tags'])
             ->whereIn('user_id', $user->friendIds())
             ->where('visibility', '!=', 'private')
             ->published()
@@ -31,8 +31,8 @@ class DashboardController extends Controller
             ->count();
 
         return Inertia::render('Dashboard', [
-            'myStories' => $myStories,
-            'friendStories' => $friendStories,
+            'myPosts' => $myPosts,
+            'friendPosts' => $friendPosts,
             'pendingFriendRequestsCount' => $pendingFriendRequests,
         ]);
     }

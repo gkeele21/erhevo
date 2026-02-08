@@ -1,0 +1,399 @@
+{
+  "year": 2022,
+  "title": "Old Testament 2022",
+  "description": "Come Follow Me study of the Old Testament",
+  "volumes": ["old-testament", "pearl-of-great-price"],
+  "weeks": [
+    {
+      "week": 1,
+      "start_date": "2021-12-27",
+      "end_date": "2022-01-02",
+      "title": "Introductory Pages",
+      "description": "Introduction to the Old Testament",
+      "chapters": []
+    },
+    {
+      "week": 2,
+      "start_date": "2022-01-03",
+      "end_date": "2022-01-09",
+      "title": "Moses 1; Abraham 3",
+      "chapters": ["moses:1", "abraham:3"]
+    },
+    {
+      "week": 3,
+      "start_date": "2022-01-10",
+      "end_date": "2022-01-16",
+      "title": "Abraham 4–5; Genesis 1–2; Moses 2–3",
+      "chapters": ["abraham:4", "abraham:5", "genesis:1", "genesis:2", "moses:2", "moses:3"]
+    },
+    {
+      "week": 4,
+      "start_date": "2022-01-17",
+      "end_date": "2022-01-23",
+      "title": "Genesis 3–4; Moses 4–5",
+      "chapters": ["genesis:3", "genesis:4", "moses:4", "moses:5"]
+    },
+    {
+      "week": 5,
+      "start_date": "2022-01-24",
+      "end_date": "2022-01-30",
+      "title": "Genesis 5; Moses 6",
+      "chapters": ["genesis:5", "moses:6"]
+    },
+    {
+      "week": 6,
+      "start_date": "2022-01-31",
+      "end_date": "2022-02-06",
+      "title": "Genesis 6–7; Moses 7–8",
+      "chapters": ["genesis:6", "genesis:7", "moses:7", "moses:8"]
+    },
+    {
+      "week": 7,
+      "start_date": "2022-02-07",
+      "end_date": "2022-02-13",
+      "title": "Genesis 8–10",
+      "chapters": ["genesis:8", "genesis:9", "genesis:10"]
+    },
+    {
+      "week": 8,
+      "start_date": "2022-02-14",
+      "end_date": "2022-02-20",
+      "title": "Genesis 11; Abraham 1–2",
+      "chapters": ["genesis:11", "abraham:1", "abraham:2"]
+    },
+    {
+      "week": 9,
+      "start_date": "2022-02-21",
+      "end_date": "2022-02-27",
+      "title": "Genesis 12–17; Abraham 1–2",
+      "chapters": ["genesis:12", "genesis:13", "genesis:14", "genesis:15", "genesis:16", "genesis:17"]
+    },
+    {
+      "week": 10,
+      "start_date": "2022-02-28",
+      "end_date": "2022-03-06",
+      "title": "Genesis 18–23",
+      "chapters": ["genesis:18", "genesis:19", "genesis:20", "genesis:21", "genesis:22", "genesis:23"]
+    },
+    {
+      "week": 11,
+      "start_date": "2022-03-07",
+      "end_date": "2022-03-13",
+      "title": "Genesis 24–27",
+      "chapters": ["genesis:24", "genesis:25", "genesis:26", "genesis:27"]
+    },
+    {
+      "week": 12,
+      "start_date": "2022-03-14",
+      "end_date": "2022-03-20",
+      "title": "Genesis 28–33",
+      "chapters": ["genesis:28", "genesis:29", "genesis:30", "genesis:31", "genesis:32", "genesis:33"]
+    },
+    {
+      "week": 13,
+      "start_date": "2022-03-21",
+      "end_date": "2022-03-27",
+      "title": "Genesis 34–41",
+      "chapters": ["genesis:34", "genesis:35", "genesis:36", "genesis:37", "genesis:38", "genesis:39", "genesis:40", "genesis:41"]
+    },
+    {
+      "week": 14,
+      "start_date": "2022-03-28",
+      "end_date": "2022-04-03",
+      "title": "Genesis 42–50",
+      "chapters": ["genesis:42", "genesis:43", "genesis:44", "genesis:45", "genesis:46", "genesis:47", "genesis:48", "genesis:49", "genesis:50"]
+    },
+    {
+      "week": 15,
+      "start_date": "2022-04-04",
+      "end_date": "2022-04-10",
+      "title": "General Conference",
+      "is_special": true,
+      "special_topic": "general-conference"
+    },
+    {
+      "week": 16,
+      "start_date": "2022-04-11",
+      "end_date": "2022-04-17",
+      "title": "Easter",
+      "is_special": true,
+      "special_topic": "easter"
+    },
+    {
+      "week": 17,
+      "start_date": "2022-04-18",
+      "end_date": "2022-04-24",
+      "title": "Exodus 1–6",
+      "chapters": ["exodus:1", "exodus:2", "exodus:3", "exodus:4", "exodus:5", "exodus:6"]
+    },
+    {
+      "week": 18,
+      "start_date": "2022-04-25",
+      "end_date": "2022-05-01",
+      "title": "Exodus 7–13",
+      "chapters": ["exodus:7", "exodus:8", "exodus:9", "exodus:10", "exodus:11", "exodus:12", "exodus:13"]
+    },
+    {
+      "week": 19,
+      "start_date": "2022-05-02",
+      "end_date": "2022-05-08",
+      "title": "Exodus 14–17",
+      "chapters": ["exodus:14", "exodus:15", "exodus:16", "exodus:17"]
+    },
+    {
+      "week": 20,
+      "start_date": "2022-05-09",
+      "end_date": "2022-05-15",
+      "title": "Exodus 18–20",
+      "chapters": ["exodus:18", "exodus:19", "exodus:20"]
+    },
+    {
+      "week": 21,
+      "start_date": "2022-05-16",
+      "end_date": "2022-05-22",
+      "title": "Exodus 21–24",
+      "chapters": ["exodus:21", "exodus:22", "exodus:23", "exodus:24"]
+    },
+    {
+      "week": 22,
+      "start_date": "2022-05-23",
+      "end_date": "2022-05-29",
+      "title": "Exodus 25–27; 30–31",
+      "chapters": ["exodus:25", "exodus:26", "exodus:27", "exodus:30", "exodus:31"]
+    },
+    {
+      "week": 23,
+      "start_date": "2022-05-30",
+      "end_date": "2022-06-05",
+      "title": "Exodus 32–34",
+      "chapters": ["exodus:32", "exodus:33", "exodus:34"]
+    },
+    {
+      "week": 24,
+      "start_date": "2022-06-06",
+      "end_date": "2022-06-12",
+      "title": "Exodus 35–40",
+      "chapters": ["exodus:35", "exodus:36", "exodus:37", "exodus:38", "exodus:39", "exodus:40"]
+    },
+    {
+      "week": 25,
+      "start_date": "2022-06-13",
+      "end_date": "2022-06-19",
+      "title": "Leviticus 1–7",
+      "description": "Sacrifices and Offerings",
+      "chapters": []
+    },
+    {
+      "week": 26,
+      "start_date": "2022-06-20",
+      "end_date": "2022-06-26",
+      "title": "Leviticus 8–18",
+      "description": "Priests and Holiness",
+      "chapters": []
+    },
+    {
+      "week": 27,
+      "start_date": "2022-06-27",
+      "end_date": "2022-07-03",
+      "title": "Leviticus 19–27",
+      "description": "Holy Living",
+      "chapters": []
+    },
+    {
+      "week": 28,
+      "start_date": "2022-07-04",
+      "end_date": "2022-07-10",
+      "title": "Numbers 1–10",
+      "description": "Organization and Preparation",
+      "chapters": []
+    },
+    {
+      "week": 29,
+      "start_date": "2022-07-11",
+      "end_date": "2022-07-17",
+      "title": "Numbers 11–21",
+      "description": "Wanderings in the Wilderness",
+      "chapters": []
+    },
+    {
+      "week": 30,
+      "start_date": "2022-07-18",
+      "end_date": "2022-07-24",
+      "title": "Numbers 22–36",
+      "description": "Balaam and Final Preparations",
+      "chapters": []
+    },
+    {
+      "week": 31,
+      "start_date": "2022-07-25",
+      "end_date": "2022-07-31",
+      "title": "Deuteronomy 1–16",
+      "description": "Moses Reviews the Law",
+      "chapters": []
+    },
+    {
+      "week": 32,
+      "start_date": "2022-08-01",
+      "end_date": "2022-08-07",
+      "title": "Deuteronomy 17–34",
+      "description": "Moses' Final Words",
+      "chapters": []
+    },
+    {
+      "week": 33,
+      "start_date": "2022-08-08",
+      "end_date": "2022-08-14",
+      "title": "Joshua 1–12",
+      "description": "Entering the Promised Land",
+      "chapters": []
+    },
+    {
+      "week": 34,
+      "start_date": "2022-08-15",
+      "end_date": "2022-08-21",
+      "title": "Joshua 13–24",
+      "description": "Dividing the Land",
+      "chapters": []
+    },
+    {
+      "week": 35,
+      "start_date": "2022-08-22",
+      "end_date": "2022-08-28",
+      "title": "Judges 1–21",
+      "description": "The Era of the Judges",
+      "chapters": []
+    },
+    {
+      "week": 36,
+      "start_date": "2022-08-29",
+      "end_date": "2022-09-04",
+      "title": "Ruth 1–4",
+      "description": "The Story of Ruth",
+      "chapters": []
+    },
+    {
+      "week": 37,
+      "start_date": "2022-09-05",
+      "end_date": "2022-09-11",
+      "title": "1 Samuel 1–15",
+      "description": "Samuel and Saul",
+      "chapters": []
+    },
+    {
+      "week": 38,
+      "start_date": "2022-09-12",
+      "end_date": "2022-09-18",
+      "title": "1 Samuel 16–2 Samuel 1",
+      "description": "David's Rise",
+      "chapters": []
+    },
+    {
+      "week": 39,
+      "start_date": "2022-09-19",
+      "end_date": "2022-09-25",
+      "title": "2 Samuel 2–24",
+      "description": "David's Reign",
+      "chapters": []
+    },
+    {
+      "week": 40,
+      "start_date": "2022-09-26",
+      "end_date": "2022-10-02",
+      "title": "1 Kings 1–11",
+      "description": "Solomon's Reign",
+      "chapters": []
+    },
+    {
+      "week": 41,
+      "start_date": "2022-10-03",
+      "end_date": "2022-10-09",
+      "title": "General Conference",
+      "is_special": true,
+      "special_topic": "general-conference"
+    },
+    {
+      "week": 42,
+      "start_date": "2022-10-10",
+      "end_date": "2022-10-16",
+      "title": "1 Kings 12–2 Kings 17",
+      "description": "The Divided Kingdom",
+      "chapters": []
+    },
+    {
+      "week": 43,
+      "start_date": "2022-10-17",
+      "end_date": "2022-10-23",
+      "title": "2 Kings 18–25",
+      "description": "The Fall of Judah",
+      "chapters": []
+    },
+    {
+      "week": 44,
+      "start_date": "2022-10-24",
+      "end_date": "2022-10-30",
+      "title": "Ezra–Nehemiah",
+      "description": "Return from Exile",
+      "chapters": []
+    },
+    {
+      "week": 45,
+      "start_date": "2022-10-31",
+      "end_date": "2022-11-06",
+      "title": "Esther",
+      "description": "Esther Saves Her People",
+      "chapters": []
+    },
+    {
+      "week": 46,
+      "start_date": "2022-11-07",
+      "end_date": "2022-11-13",
+      "title": "Job 1–42",
+      "description": "The Book of Job",
+      "chapters": []
+    },
+    {
+      "week": 47,
+      "start_date": "2022-11-14",
+      "end_date": "2022-11-20",
+      "title": "Psalms 1–150 (Part 1)",
+      "chapters": ["psalms:1", "psalms:23", "psalms:24", "psalms:46"]
+    },
+    {
+      "week": 48,
+      "start_date": "2022-11-21",
+      "end_date": "2022-11-27",
+      "title": "Psalms 1–150 (Part 2)",
+      "chapters": ["psalms:91", "psalms:100", "psalms:119", "psalms:121", "psalms:150"]
+    },
+    {
+      "week": 49,
+      "start_date": "2022-11-28",
+      "end_date": "2022-12-04",
+      "title": "Proverbs; Ecclesiastes",
+      "description": "Wisdom Literature",
+      "chapters": []
+    },
+    {
+      "week": 50,
+      "start_date": "2022-12-05",
+      "end_date": "2022-12-11",
+      "title": "Isaiah 1–12",
+      "chapters": ["isaiah:1", "isaiah:2", "isaiah:3", "isaiah:4", "isaiah:5", "isaiah:6", "isaiah:7", "isaiah:8", "isaiah:9", "isaiah:10", "isaiah:11", "isaiah:12"]
+    },
+    {
+      "week": 51,
+      "start_date": "2022-12-12",
+      "end_date": "2022-12-18",
+      "title": "Isaiah 13–66",
+      "chapters": ["isaiah:40", "isaiah:53", "isaiah:55"]
+    },
+    {
+      "week": 52,
+      "start_date": "2022-12-19",
+      "end_date": "2022-12-25",
+      "title": "Christmas",
+      "is_special": true,
+      "special_topic": "christmas"
+    }
+  ]
+}

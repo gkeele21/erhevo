@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Story;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,7 +13,7 @@ class CategoryController extends Controller
     public function index(): Response
     {
         $categories = Category::approved()
-            ->withCount(['stories' => fn ($q) => $q->public()->published()])
+            ->withCount(['posts' => fn ($q) => $q->public()->published()])
             ->orderBy('name')
             ->get();
 
@@ -24,7 +24,7 @@ class CategoryController extends Controller
 
     public function show(Request $request, Category $category): Response
     {
-        $stories = Story::with(['user', 'category', 'tags'])
+        $posts = Post::with(['user', 'category', 'tags'])
             ->where('category_id', $category->id)
             ->visibleTo($request->user())
             ->published()
@@ -33,7 +33,7 @@ class CategoryController extends Controller
 
         return Inertia::render('Categories/Show', [
             'category' => $category,
-            'stories' => $stories,
+            'posts' => $posts,
         ]);
     }
 

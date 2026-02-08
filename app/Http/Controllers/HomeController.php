@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Story;
+use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,7 +13,7 @@ class HomeController extends Controller
 {
     public function index(Request $request): Response
     {
-        $featuredStories = Story::with(['user', 'category'])
+        $featuredPosts = Post::with(['user', 'category'])
             ->public()
             ->published()
             ->latest('published_at')
@@ -21,18 +21,18 @@ class HomeController extends Controller
             ->get();
 
         $categories = Category::approved()
-            ->withCount(['stories' => fn ($q) => $q->public()->published()])
-            ->orderByDesc('stories_count')
+            ->withCount(['posts' => fn ($q) => $q->public()->published()])
+            ->orderByDesc('posts_count')
             ->limit(8)
             ->get();
 
-        $popularTags = Tag::withCount('stories')
-            ->orderByDesc('stories_count')
+        $popularTags = Tag::withCount('posts')
+            ->orderByDesc('posts_count')
             ->limit(12)
             ->get();
 
         return Inertia::render('Welcome', [
-            'featuredStories' => $featuredStories,
+            'featuredPosts' => $featuredPosts,
             'categories' => $categories,
             'popularTags' => $popularTags,
         ]);

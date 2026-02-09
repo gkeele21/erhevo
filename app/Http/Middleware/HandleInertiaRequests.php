@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'shareUrl' => fn () => $request->session()->get('shareUrl'),
             ],
+            'isAdmin' => fn () => $request->user()?->isAdmin() ?? false,
         ];
     }
 }

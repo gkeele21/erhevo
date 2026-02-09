@@ -44,8 +44,6 @@ class CategoryPolicy
 
     protected function isAdmin(User $user): bool
     {
-        // You can customize this based on your admin implementation
-        // For now, check if user has 'admin' in their email or a specific role
-        return str_contains($user->email, 'admin@');
+        return $user->isAdmin();
     }
 }

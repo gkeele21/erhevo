@@ -1,6 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminCfmPublisherContentController;
+use App\Http\Controllers\Admin\AdminCfmPublisherController;
+use App\Http\Controllers\Admin\AdminCfmSpecialTopicController;
+use App\Http\Controllers\Admin\AdminCfmStudyYearController;
+use App\Http\Controllers\Admin\AdminCfmWeekController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FriendshipController;
@@ -72,13 +79,36 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    'admin',
 ])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Users
+    Route::resource('users', AdminUserController::class)->except(['create', 'store']);
+    Route::post('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+
+    // Categories
     Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
     Route::put('/categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
     Route::post('/categories/{category}/approve', [AdminCategoryController::class, 'approve'])->name('categories.approve');
     Route::post('/categories/{category}/reject', [AdminCategoryController::class, 'reject'])->name('categories.reject');
+
+    // CFM Management
+    Route::resource('cfm/study-years', AdminCfmStudyYearController::class);
+    Route::resource('cfm/weeks', AdminCfmWeekController::class);
+    Route::resource('cfm/special-topics', AdminCfmSpecialTopicController::class);
+
+    // CFM Publishers
+    Route::resource('cfm/publishers', AdminCfmPublisherController::class);
+    Route::post('cfm/publishers/{publisher}/toggle-verified', [AdminCfmPublisherController::class, 'toggleVerified'])->name('cfm.publishers.toggle-verified');
+    Route::post('cfm/publishers/{publisher}/toggle-active', [AdminCfmPublisherController::class, 'toggleActive'])->name('cfm.publishers.toggle-active');
+
+    // CFM Publisher Content
+    Route::resource('cfm/publisher-content', AdminCfmPublisherContentController::class)->except(['show']);
+    Route::post('cfm/publisher-content/{publisher_content}/toggle-featured', [AdminCfmPublisherContentController::class, 'toggleFeatured'])->name('cfm.publisher-content.toggle-featured');
 });
 
 // Post show route (must be after /posts/create to avoid slug collision)

@@ -57,6 +57,9 @@ const logout = () => {
                                 <NavLink :href="route('about')" :active="route().current('about')">
                                     About
                                 </NavLink>
+                                <NavLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')" :active="route().current('admin.*')">
+                                    Admin
+                                </NavLink>
                             </div>
                         </div>
 
@@ -180,6 +183,9 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('about')" :active="route().current('about')">
                             About
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')" :active="route().current('admin.*')">
+                            Admin
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('posts.create')" :active="route().current('posts.create')">
                             New Post

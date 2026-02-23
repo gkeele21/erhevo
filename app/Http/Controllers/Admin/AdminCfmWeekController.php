@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CfmSpecialTopic;
 use App\Models\CfmStudyYear;
 use App\Models\CfmWeek;
+use App\Models\ScriptureVolume;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,24 +17,40 @@ class AdminCfmWeekController extends Controller
 {
     public function index(Request $request): Response
     {
+        $sortField = $request->input('sort', 'start_date');
+        $sortDirection = $request->input('direction', 'desc');
+
+        // Validate sort field
+        $allowedSorts = ['week_number', 'title', 'start_date', 'is_special_topic'];
+        if (!in_array($sortField, $allowedSorts) && $sortField !== 'year') {
+            $sortField = 'start_date';
+        }
+
         $weeks = CfmWeek::with('studyYear')
             ->when($request->study_year_id, fn ($q, $id) => $q->where('study_year_id', $id))
-            ->orderByDesc('start_date')
+            ->when($sortField === 'year', function ($q) use ($sortDirection) {
+                $q->join('cfm_study_years', 'cfm_weeks.study_year_id', '=', 'cfm_study_years.id')
+                    ->orderBy('cfm_study_years.year', $sortDirection)
+                    ->select('cfm_weeks.*');
+            }, function ($q) use ($sortField, $sortDirection) {
+                $q->orderBy($sortField, $sortDirection);
+            })
             ->paginate(20)
             ->withQueryString();
 
         return Inertia::render('Admin/Cfm/Weeks/Index', [
             'weeks' => $weeks,
             'studyYears' => CfmStudyYear::orderByDesc('year')->get(),
-            'filters' => $request->only(['study_year_id']),
+            'filters' => $request->only(['study_year_id', 'sort', 'direction']),
         ]);
     }
 
     public function create(): Response
     {
         return Inertia::render('Admin/Cfm/Weeks/Create', [
-            'studyYears' => CfmStudyYear::orderByDesc('year')->get(),
+            'studyYears' => CfmStudyYear::with('volumes')->orderByDesc('year')->get(),
             'specialTopics' => CfmSpecialTopic::orderBy('name')->get(),
+            'volumes' => ScriptureVolume::with(['books.chapters'])->orderBy('sort_order')->get(),
         ]);
     }
 
@@ -49,6 +66,8 @@ class AdminCfmWeekController extends Controller
             'is_special_topic' => 'boolean',
             'special_topic_ids' => 'nullable|array',
             'special_topic_ids.*' => 'exists:cfm_special_topics,id',
+            'chapter_ids' => 'nullable|array',
+            'chapter_ids.*' => 'exists:scripture_chapters,id',
         ]);
 
         $week = CfmWeek::create([
@@ -66,6 +85,10 @@ class AdminCfmWeekController extends Controller
             $week->specialTopics()->attach($validated['special_topic_ids']);
         }
 
+        if (!empty($validated['chapter_ids'])) {
+            $week->chapters()->attach($validated['chapter_ids']);
+        }
+
         return redirect()->route('admin.cfm.weeks.index')
             ->with('success', 'Week created successfully.');
     }
@@ -81,12 +104,13 @@ class AdminCfmWeekController extends Controller
 
     public function edit(CfmWeek $week): Response
     {
-        $week->load(['studyYear', 'specialTopics', 'chapters']);
+        $week->load(['studyYear', 'specialTopics', 'chapters.book']);
 
         return Inertia::render('Admin/Cfm/Weeks/Edit', [
             'week' => $week,
-            'studyYears' => CfmStudyYear::orderByDesc('year')->get(),
+            'studyYears' => CfmStudyYear::with('volumes')->orderByDesc('year')->get(),
             'specialTopics' => CfmSpecialTopic::orderBy('name')->get(),
+            'volumes' => ScriptureVolume::with(['books.chapters'])->orderBy('sort_order')->get(),
         ]);
     }
 
@@ -102,6 +126,8 @@ class AdminCfmWeekController extends Controller
             'is_special_topic' => 'boolean',
             'special_topic_ids' => 'nullable|array',
             'special_topic_ids.*' => 'exists:cfm_special_topics,id',
+            'chapter_ids' => 'nullable|array',
+            'chapter_ids.*' => 'exists:scripture_chapters,id',
         ]);
 
         $week->update([
@@ -116,6 +142,7 @@ class AdminCfmWeekController extends Controller
         ]);
 
         $week->specialTopics()->sync($validated['special_topic_ids'] ?? []);
+        $week->chapters()->sync($validated['chapter_ids'] ?? []);
 
         return back()->with('success', 'Week updated successfully.');
     }

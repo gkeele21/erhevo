@@ -363,7 +363,7 @@
       "end_date": "2021-12-19",
       "title": "Official Declarations 1 & 2",
       "description": "Official Declarations",
-      "chapters": []
+      "chapters": ["od-1:1", "od-2:1"]
     },
     {
       "week": 52,

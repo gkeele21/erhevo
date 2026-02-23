@@ -1,11 +1,17 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 defineProps({
     studyYear: Object,
 });
+
+const deleteWeek = (week) => {
+    if (confirm(`Delete week "${week.title}"? This action cannot be undone.`)) {
+        router.delete(route('admin.cfm.weeks.destroy', week.id));
+    }
+};
 </script>
 
 <template>
@@ -67,9 +73,17 @@ defineProps({
                                     {{ new Date(week.start_date).toLocaleDateString() }} - {{ new Date(week.end_date).toLocaleDateString() }}
                                 </p>
                             </div>
-                            <span v-if="week.is_special_topic" class="px-2 py-1 bg-amber text-white text-xs rounded">
-                                Special
-                            </span>
+                            <div class="flex items-center gap-3">
+                                <span v-if="week.is_special_topic" class="px-2 py-1 bg-amber text-white text-xs rounded">
+                                    Special
+                                </span>
+                                <Link :href="route('admin.cfm.weeks.edit', week.id)" class="text-teal hover:text-navy text-sm">
+                                    Edit
+                                </Link>
+                                <button @click="deleteWeek(week)" class="text-red-500 hover:text-red-700 text-sm">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div v-else class="px-6 py-4 text-teal">

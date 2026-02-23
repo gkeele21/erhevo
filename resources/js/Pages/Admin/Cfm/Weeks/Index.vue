@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -11,9 +11,29 @@ const props = defineProps({
 });
 
 const selectedYear = ref(props.filters.study_year_id || '');
+const currentSort = computed(() => props.filters.sort || 'start_date');
+const currentDirection = computed(() => props.filters.direction || 'desc');
 
 const filterByYear = () => {
-    router.get(route('admin.cfm.weeks.index'), { study_year_id: selectedYear.value }, { preserveState: true });
+    router.get(route('admin.cfm.weeks.index'), {
+        study_year_id: selectedYear.value,
+        sort: currentSort.value,
+        direction: currentDirection.value,
+    }, { preserveState: true });
+};
+
+const sortBy = (field) => {
+    const direction = currentSort.value === field && currentDirection.value === 'asc' ? 'desc' : 'asc';
+    router.get(route('admin.cfm.weeks.index'), {
+        study_year_id: selectedYear.value,
+        sort: field,
+        direction: direction,
+    }, { preserveState: true });
+};
+
+const getSortIcon = (field) => {
+    if (currentSort.value !== field) return '↕';
+    return currentDirection.value === 'asc' ? '↑' : '↓';
 };
 
 const deleteWeek = (week) => {
@@ -48,11 +68,31 @@ const deleteWeek = (week) => {
                 <table class="w-full">
                     <thead class="bg-navy-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Week</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Title</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Year</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Dates</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Type</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">
+                                <button @click="sortBy('week_number')" class="flex items-center gap-1 hover:text-teal">
+                                    Week <span class="text-xs">{{ getSortIcon('week_number') }}</span>
+                                </button>
+                            </th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">
+                                <button @click="sortBy('title')" class="flex items-center gap-1 hover:text-teal">
+                                    Title <span class="text-xs">{{ getSortIcon('title') }}</span>
+                                </button>
+                            </th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">
+                                <button @click="sortBy('year')" class="flex items-center gap-1 hover:text-teal">
+                                    Year <span class="text-xs">{{ getSortIcon('year') }}</span>
+                                </button>
+                            </th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">
+                                <button @click="sortBy('start_date')" class="flex items-center gap-1 hover:text-teal">
+                                    Dates <span class="text-xs">{{ getSortIcon('start_date') }}</span>
+                                </button>
+                            </th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-navy">
+                                <button @click="sortBy('is_special_topic')" class="flex items-center gap-1 hover:text-teal">
+                                    Type <span class="text-xs">{{ getSortIcon('is_special_topic') }}</span>
+                                </button>
+                            </th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Actions</th>
                         </tr>
                     </thead>
@@ -96,7 +136,7 @@ const deleteWeek = (week) => {
                 <Link
                     v-for="page in weeks.last_page"
                     :key="page"
-                    :href="route('admin.cfm.weeks.index', { ...filters, page })"
+                    :href="route('admin.cfm.weeks.index', { study_year_id: filters.study_year_id, sort: currentSort, direction: currentDirection, page })"
                     class="px-3 py-1 rounded"
                     :class="page === weeks.current_page ? 'bg-teal text-white' : 'bg-navy-50 text-navy hover:bg-navy-100'"
                 >

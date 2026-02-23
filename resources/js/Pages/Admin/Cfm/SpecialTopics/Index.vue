@@ -4,7 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 defineProps({
-    specialTopics: Array,
+    topics: Object,
 });
 
 const deleteTopic = (topic) => {
@@ -34,7 +34,7 @@ const deleteTopic = (topic) => {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-navy-50">
-                        <tr v-for="topic in specialTopics" :key="topic.id">
+                        <tr v-for="topic in topics.data" :key="topic.id">
                             <td class="px-4 py-3">
                                 <Link :href="route('admin.cfm.special-topics.edit', topic.id)" class="text-teal hover:text-navy font-medium">
                                     {{ topic.name }}
@@ -53,13 +53,26 @@ const deleteTopic = (topic) => {
                                 </div>
                             </td>
                         </tr>
-                        <tr v-if="specialTopics.length === 0">
+                        <tr v-if="topics.data.length === 0">
                             <td colspan="4" class="px-4 py-8 text-center text-teal">
                                 No special topics yet.
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div v-if="topics.last_page > 1" class="p-4 border-t border-navy-50 flex gap-2">
+                <Link
+                    v-for="page in topics.last_page"
+                    :key="page"
+                    :href="route('admin.cfm.special-topics.index', { page })"
+                    class="px-3 py-1 rounded"
+                    :class="page === topics.current_page ? 'bg-teal text-white' : 'bg-navy-50 text-navy hover:bg-navy-100'"
+                >
+                    {{ page }}
+                </Link>
             </div>
         </div>
     </AdminLayout>

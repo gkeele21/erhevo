@@ -1,4 +1,5 @@
 <script setup>
+import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -11,6 +12,7 @@ import Checkbox from '@/Components/Checkbox.vue';
 const props = defineProps({
     studyYears: Array,
     specialTopics: Array,
+    volumes: Array,
 });
 
 const form = useForm({
@@ -22,6 +24,19 @@ const form = useForm({
     description: '',
     is_special_topic: false,
     special_topic_ids: [],
+    chapter_ids: [],
+});
+
+const expandedBooks = ref([]);
+
+const selectedStudyYear = computed(() => {
+    return props.studyYears.find(y => y.id === form.study_year_id);
+});
+
+const filteredVolumes = computed(() => {
+    if (!selectedStudyYear.value) return [];
+    const volumeIds = selectedStudyYear.value.volumes.map(v => v.id);
+    return props.volumes.filter(v => volumeIds.includes(v.id));
 });
 
 const submit = () => {
@@ -35,6 +50,40 @@ const toggleTopic = (topicId) => {
     } else {
         form.special_topic_ids.push(topicId);
     }
+};
+
+const toggleBook = (bookId) => {
+    const index = expandedBooks.value.indexOf(bookId);
+    if (index > -1) {
+        expandedBooks.value.splice(index, 1);
+    } else {
+        expandedBooks.value.push(bookId);
+    }
+};
+
+const toggleChapter = (chapterId) => {
+    const index = form.chapter_ids.indexOf(chapterId);
+    if (index > -1) {
+        form.chapter_ids.splice(index, 1);
+    } else {
+        form.chapter_ids.push(chapterId);
+    }
+};
+
+const isBookExpanded = (bookId) => expandedBooks.value.includes(bookId);
+
+const getSelectedChaptersForBook = (book) => {
+    return book.chapters.filter(c => form.chapter_ids.includes(c.id));
+};
+
+const selectChapterRange = (book, startChapter, endChapter) => {
+    book.chapters.forEach(chapter => {
+        if (chapter.chapter_number >= startChapter && chapter.chapter_number <= endChapter) {
+            if (!form.chapter_ids.includes(chapter.id)) {
+                form.chapter_ids.push(chapter.id);
+            }
+        }
+    });
 };
 </script>
 
@@ -128,6 +177,64 @@ const toggleTopic = (topicId) => {
                             <Checkbox v-model:checked="form.is_special_topic" />
                             <span class="text-sm text-navy">This is a special topic week (e.g., Christmas, Easter)</span>
                         </label>
+                    </div>
+
+                    <!-- Chapter Selection (only for regular weeks) -->
+                    <div v-if="!form.is_special_topic && form.study_year_id">
+                        <InputLabel value="Scripture Chapters" />
+                        <p class="text-sm text-teal mb-2">Select the chapters covered in this week's study.</p>
+
+                        <div v-if="filteredVolumes.length === 0" class="text-sm text-gray-500 italic">
+                            No volumes assigned to this study year.
+                        </div>
+
+                        <div v-else class="mt-2 border border-navy-100 rounded-md max-h-96 overflow-y-auto">
+                            <div v-for="volume in filteredVolumes" :key="volume.id" class="border-b border-navy-100 last:border-b-0">
+                                <div class="px-3 py-2 bg-navy-50 font-medium text-navy text-sm">
+                                    {{ volume.name }}
+                                </div>
+                                <div v-for="book in volume.books" :key="book.id" class="border-t border-navy-50">
+                                    <button
+                                        type="button"
+                                        @click="toggleBook(book.id)"
+                                        class="w-full px-3 py-2 flex items-center justify-between hover:bg-gray-50 text-left"
+                                    >
+                                        <span class="text-sm text-navy">
+                                            {{ book.name }}
+                                            <span v-if="getSelectedChaptersForBook(book).length > 0" class="text-teal ml-1">
+                                                ({{ getSelectedChaptersForBook(book).length }} selected)
+                                            </span>
+                                        </span>
+                                        <span class="text-gray-400">{{ isBookExpanded(book.id) ? '−' : '+' }}</span>
+                                    </button>
+                                    <div v-if="isBookExpanded(book.id)" class="px-3 py-2 bg-gray-50">
+                                        <div class="flex flex-wrap gap-1">
+                                            <label
+                                                v-for="chapter in book.chapters"
+                                                :key="chapter.id"
+                                                class="inline-flex items-center justify-center w-10 h-8 text-sm rounded cursor-pointer transition-colors"
+                                                :class="form.chapter_ids.includes(chapter.id)
+                                                    ? 'bg-teal text-white'
+                                                    : 'bg-white border border-navy-200 text-navy hover:border-teal'"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    :checked="form.chapter_ids.includes(chapter.id)"
+                                                    @change="toggleChapter(chapter.id)"
+                                                    class="sr-only"
+                                                />
+                                                {{ chapter.chapter_number }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="form.chapter_ids.length > 0" class="mt-2 text-sm text-teal">
+                            {{ form.chapter_ids.length }} chapter(s) selected
+                        </div>
+                        <InputError :message="form.errors.chapter_ids" class="mt-2" />
                     </div>
 
                     <div v-if="form.is_special_topic">

@@ -97,17 +97,17 @@ Route::middleware([
     Route::post('/categories/{category}/reject', [AdminCategoryController::class, 'reject'])->name('categories.reject');
 
     // CFM Management
-    Route::resource('cfm/study-years', AdminCfmStudyYearController::class);
-    Route::resource('cfm/weeks', AdminCfmWeekController::class);
-    Route::resource('cfm/special-topics', AdminCfmSpecialTopicController::class);
+    Route::resource('cfm/study-years', AdminCfmStudyYearController::class)->names('cfm.study-years');
+    Route::resource('cfm/weeks', AdminCfmWeekController::class)->names('cfm.weeks');
+    Route::resource('cfm/special-topics', AdminCfmSpecialTopicController::class)->names('cfm.special-topics');
 
     // CFM Publishers
-    Route::resource('cfm/publishers', AdminCfmPublisherController::class);
+    Route::resource('cfm/publishers', AdminCfmPublisherController::class)->names('cfm.publishers');
     Route::post('cfm/publishers/{publisher}/toggle-verified', [AdminCfmPublisherController::class, 'toggleVerified'])->name('cfm.publishers.toggle-verified');
     Route::post('cfm/publishers/{publisher}/toggle-active', [AdminCfmPublisherController::class, 'toggleActive'])->name('cfm.publishers.toggle-active');
 
     // CFM Publisher Content
-    Route::resource('cfm/publisher-content', AdminCfmPublisherContentController::class)->except(['show']);
+    Route::resource('cfm/publisher-content', AdminCfmPublisherContentController::class)->except(['show'])->names('cfm.publisher-content');
     Route::post('cfm/publisher-content/{publisher_content}/toggle-featured', [AdminCfmPublisherContentController::class, 'toggleFeatured'])->name('cfm.publisher-content.toggle-featured');
 });
 

@@ -2,29 +2,28 @@
   "year": 2021,
   "title": "Doctrine and Covenants 2021",
   "description": "Come Follow Me study of the Doctrine and Covenants",
-  "volumes": ["doctrine-and-covenants"],
+  "volumes": ["doctrine-and-covenants", "proclamations"],
   "weeks": [
     {
       "week": 1,
       "start_date": "2020-12-28",
       "end_date": "2021-01-03",
-      "title": "Introductory Pages",
-      "description": "Introduction to the Doctrine and Covenants",
-      "chapters": []
+      "title": "D&C 1",
+      "chapters": ["doctrine-and-covenants:1"]
     },
     {
       "week": 2,
       "start_date": "2021-01-04",
       "end_date": "2021-01-10",
-      "title": "D&C 1",
-      "chapters": ["doctrine-and-covenants:1"]
+      "title": "Joseph Smith-History 1:1-26",
+      "chapters": ["joseph-smith-history:1:1-26"]
     },
     {
       "week": 3,
       "start_date": "2021-01-11",
       "end_date": "2021-01-17",
       "title": "D&C 2; Joseph Smith—History 1:27–65",
-      "chapters": ["doctrine-and-covenants:2"]
+      "chapters": ["doctrine-and-covenants:2", "joseph-smith-history:1:27-65"]
     },
     {
       "week": 4,
@@ -52,7 +51,7 @@
       "start_date": "2021-02-08",
       "end_date": "2021-02-14",
       "title": "D&C 12–13; Joseph Smith—History 1:66–75",
-      "chapters": ["doctrine-and-covenants:12", "doctrine-and-covenants:13"]
+      "chapters": ["doctrine-and-covenants:12", "doctrine-and-covenants:13", "joseph-smith-history:1:66-75"]
     },
     {
       "week": 8,
@@ -290,80 +289,80 @@
       "week": 41,
       "start_date": "2021-10-04",
       "end_date": "2021-10-10",
-      "title": "General Conference",
-      "is_special": true,
-      "special_topic": "general-conference"
+      "title": "D&C 111–114",
+      "chapters": ["doctrine-and-covenants:111", "doctrine-and-covenants:112", "doctrine-and-covenants:113", "doctrine-and-covenants:114"]
     },
     {
       "week": 42,
       "start_date": "2021-10-11",
       "end_date": "2021-10-17",
-      "title": "D&C 111–114",
-      "chapters": ["doctrine-and-covenants:111", "doctrine-and-covenants:112", "doctrine-and-covenants:113", "doctrine-and-covenants:114"]
+      "title": "D&C 115–120",
+      "chapters": ["doctrine-and-covenants:115", "doctrine-and-covenants:116", "doctrine-and-covenants:117", "doctrine-and-covenants:118", "doctrine-and-covenants:119", "doctrine-and-covenants:120"]
     },
     {
       "week": 43,
       "start_date": "2021-10-18",
       "end_date": "2021-10-24",
-      "title": "D&C 115–120",
-      "chapters": ["doctrine-and-covenants:115", "doctrine-and-covenants:116", "doctrine-and-covenants:117", "doctrine-and-covenants:118", "doctrine-and-covenants:119", "doctrine-and-covenants:120"]
+      "title": "D&C 121–123",
+      "chapters": ["doctrine-and-covenants:121", "doctrine-and-covenants:122", "doctrine-and-covenants:123"]
     },
     {
       "week": 44,
       "start_date": "2021-10-25",
       "end_date": "2021-10-31",
-      "title": "D&C 121–123",
-      "chapters": ["doctrine-and-covenants:121", "doctrine-and-covenants:122", "doctrine-and-covenants:123"]
+      "title": "D&C 124",
+      "chapters": ["doctrine-and-covenants:124"]
     },
     {
       "week": 45,
       "start_date": "2021-11-01",
       "end_date": "2021-11-07",
-      "title": "D&C 124",
-      "chapters": ["doctrine-and-covenants:124"]
+      "title": "D&C 125–128",
+      "chapters": ["doctrine-and-covenants:125", "doctrine-and-covenants:126", "doctrine-and-covenants:127", "doctrine-and-covenants:128"]
     },
     {
       "week": 46,
       "start_date": "2021-11-08",
       "end_date": "2021-11-14",
-      "title": "D&C 125–128",
-      "chapters": ["doctrine-and-covenants:125", "doctrine-and-covenants:126", "doctrine-and-covenants:127", "doctrine-and-covenants:128"]
+      "title": "D&C 129–132",
+      "chapters": ["doctrine-and-covenants:129", "doctrine-and-covenants:130", "doctrine-and-covenants:131", "doctrine-and-covenants:132"]
     },
     {
       "week": 47,
       "start_date": "2021-11-15",
       "end_date": "2021-11-21",
-      "title": "D&C 129–132",
-      "chapters": ["doctrine-and-covenants:129", "doctrine-and-covenants:130", "doctrine-and-covenants:131", "doctrine-and-covenants:132"]
+      "title": "D&C 133–134",
+      "chapters": ["doctrine-and-covenants:133", "doctrine-and-covenants:134"]
     },
     {
       "week": 48,
       "start_date": "2021-11-22",
       "end_date": "2021-11-28",
-      "title": "D&C 133–134",
-      "chapters": ["doctrine-and-covenants:133", "doctrine-and-covenants:134"]
+      "title": "D&C 135–136",
+      "chapters": ["doctrine-and-covenants:135", "doctrine-and-covenants:136"]
     },
     {
       "week": 49,
       "start_date": "2021-11-29",
       "end_date": "2021-12-05",
-      "title": "D&C 135–136",
-      "chapters": ["doctrine-and-covenants:135", "doctrine-and-covenants:136"]
+      "title": "D&C 137–138",
+      "chapters": ["doctrine-and-covenants:137", "doctrine-and-covenants:138"]
     },
     {
       "week": 50,
       "start_date": "2021-12-06",
       "end_date": "2021-12-12",
-      "title": "D&C 137–138",
-      "chapters": ["doctrine-and-covenants:137", "doctrine-and-covenants:138"]
+      "title": "The Articles of Faith & Official Declarations 1 & 2",
+      "description": "Official Declarations",
+      "chapters": ["od-1:1", "od-2:1"]
     },
     {
       "week": 51,
       "start_date": "2021-12-13",
       "end_date": "2021-12-19",
-      "title": "Official Declarations 1 & 2",
-      "description": "Official Declarations",
-      "chapters": ["od-1:1", "od-2:1"]
+      "title": "The Family: A Proclamation to the World",
+      "description": "The Family Proclamation",
+      "chapters": ["family-proclamation:1"]
     },
     {
       "week": 52,

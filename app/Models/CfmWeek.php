@@ -39,7 +39,7 @@ class CfmWeek extends Model
             'cfm_week_chapters',
             'cfm_week_id',
             'chapter_id'
-        )->withTimestamps();
+        )->withPivot(['start_verse', 'end_verse'])->withTimestamps();
     }
 
     public function specialTopics(): BelongsToMany

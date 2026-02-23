@@ -602,6 +602,32 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Proclamations",
+      "slug": "proclamations",
+      "abbreviation": "Proc.",
+      "sort_order": 4,
+      "books": [
+        {
+          "name": "The Family: A Proclamation to the World",
+          "slug": "family-proclamation",
+          "abbreviation": "Family Proc.",
+          "sort_order": 1,
+          "chapters": [
+            {"number": 1, "verse_count": 1}
+          ]
+        },
+        {
+          "name": "The Living Christ: The Testimony of the Apostles",
+          "slug": "living-christ",
+          "abbreviation": "Living Christ",
+          "sort_order": 2,
+          "chapters": [
+            {"number": 1, "verse_count": 1}
+          ]
+        }
+      ]
     }
   ]
 }

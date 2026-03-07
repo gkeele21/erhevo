@@ -6,9 +6,11 @@ import VisibilitySelector from '@/Components/Story/VisibilitySelector.vue'
 import TagInput from '@/Components/Story/TagInput.vue'
 import PrivacyOptions from '@/Components/Story/PrivacyOptions.vue'
 import AuthorInput from '@/Components/Story/AuthorInput.vue'
+import ImageToText from '@/Components/Story/ImageToText.vue'
 
 const props = defineProps({
     categories: Array,
+    userCategories: Array,
     postTypes: Array,
     visibilityOptions: Array,
     authorTypes: Array
@@ -21,6 +23,7 @@ const form = useForm({
     excerpt: '',
     cover_image: '',
     category_id: '',
+    user_category_id: '',
     tags: [],
     author_type: 'self',
     author_text: '',
@@ -52,6 +55,14 @@ const saveDraft = () => {
 const publishStory = () => {
     form.publish = true
     submit()
+}
+
+const handleExtractedText = (text) => {
+    if (form.content) {
+        form.content += '\n\n' + text
+    } else {
+        form.content = text
+    }
 }
 </script>
 
@@ -114,9 +125,12 @@ const publishStory = () => {
 
                         <!-- Content Editor -->
                         <div>
-                            <label class="block text-sm font-medium text-stone-700 mb-1">
-                                Content
-                            </label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-sm font-medium text-stone-700">
+                                    Content
+                                </label>
+                                <ImageToText @textExtracted="handleExtractedText" />
+                            </div>
                             <StoryEditor v-model="form.content" />
                             <p v-if="form.errors.content" class="mt-1 text-sm text-red-600">{{ form.errors.content }}</p>
                         </div>
@@ -147,6 +161,26 @@ const publishStory = () => {
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                                     {{ cat.name }}
                                 </option>
+                            </select>
+                        </div>
+
+                        <!-- User Category -->
+                        <div v-if="userCategories?.length">
+                            <label class="block text-sm font-medium text-stone-700 mb-1">
+                                My Category
+                                <span class="text-stone-400 font-normal">(for personal organization)</span>
+                            </label>
+                            <select
+                                v-model="form.user_category_id"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            >
+                                <option value="">None</option>
+                                <template v-for="cat in userCategories" :key="cat.id">
+                                    <option :value="cat.id">{{ cat.name }}</option>
+                                    <option v-for="child in cat.children" :key="child.id" :value="child.id">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;{{ child.name }}
+                                    </option>
+                                </template>
                             </select>
                         </div>
 

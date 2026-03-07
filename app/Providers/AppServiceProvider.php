@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Models\Category;
 use App\Models\Friendship;
 use App\Models\Post;
+use App\Models\UserCategory;
 use App\Policies\CategoryPolicy;
 use App\Policies\FriendshipPolicy;
 use App\Policies\PostPolicy;
+use App\Policies\UserCategoryPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,5 +31,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Post::class, PostPolicy::class);
         Gate::policy(Category::class, CategoryPolicy::class);
         Gate::policy(Friendship::class, FriendshipPolicy::class);
+        Gate::policy(UserCategory::class, UserCategoryPolicy::class);
     }
 }

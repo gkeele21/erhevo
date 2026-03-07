@@ -16,7 +16,9 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostShareController;
 use App\Http\Controllers\SharedPostController;
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\UserCategoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -72,6 +74,17 @@ Route::middleware([
 
     // Tags API
     Route::get('/api/tags/search', [TagController::class, 'search'])->name('tags.search');
+
+    // User Categories
+    Route::get('/my-categories', [UserCategoryController::class, 'index'])->name('user-categories.index');
+    Route::post('/my-categories', [UserCategoryController::class, 'store'])->name('user-categories.store');
+    Route::put('/my-categories/{userCategory}', [UserCategoryController::class, 'update'])->name('user-categories.update');
+    Route::delete('/my-categories/{userCategory}', [UserCategoryController::class, 'destroy'])->name('user-categories.destroy');
+
+    // AI Features
+    Route::post('/api/ai/extract-text', [AiController::class, 'extractText'])->name('ai.extract-text');
+    Route::post('/api/ai/generate-excerpt', [AiController::class, 'generateExcerpt'])->name('ai.generate-excerpt');
+    Route::post('/api/ai/suggest-tags', [AiController::class, 'suggestTags'])->name('ai.suggest-tags');
 });
 
 // Admin routes

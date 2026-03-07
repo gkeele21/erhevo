@@ -5,7 +5,7 @@ import StoryCard from '@/Components/Story/StoryCard.vue'
 
 defineProps({
     category: Object,
-    stories: Object
+    posts: Object
 })
 </script>
 
@@ -30,11 +30,11 @@ defineProps({
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div v-if="stories.data?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-if="posts.data?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <StoryCard
-                        v-for="story in stories.data"
-                        :key="story.id"
-                        :story="story"
+                        v-for="post in posts.data"
+                        :key="post.id"
+                        :post="post"
                     />
                 </div>
 
@@ -45,20 +45,20 @@ defineProps({
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="stories.last_page > 1" class="mt-8 flex justify-center gap-2">
+                <div v-if="posts.last_page > 1" class="mt-8 flex justify-center gap-2">
                     <Link
-                        v-if="stories.prev_page_url"
-                        :href="stories.prev_page_url"
+                        v-if="posts.prev_page_url"
+                        :href="posts.prev_page_url"
                         class="px-4 py-2 bg-stone-200 text-stone-700 rounded hover:bg-stone-300"
                     >
                         Previous
                     </Link>
                     <span class="px-4 py-2 text-stone-600">
-                        Page {{ stories.current_page }} of {{ stories.last_page }}
+                        Page {{ posts.current_page }} of {{ posts.last_page }}
                     </span>
                     <Link
-                        v-if="stories.next_page_url"
-                        :href="stories.next_page_url"
+                        v-if="posts.next_page_url"
+                        :href="posts.next_page_url"
                         class="px-4 py-2 bg-stone-200 text-stone-700 rounded hover:bg-stone-300"
                     >
                         Next

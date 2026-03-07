@@ -5,7 +5,7 @@ import GuestEditLayout from '@/Layouts/GuestEditLayout.vue'
 import StoryEditor from '@/Components/Story/StoryEditor.vue'
 
 const props = defineProps({
-    story: Object,
+    post: Object,
     token: String,
     categories: Array,
     expiresAt: String,
@@ -14,11 +14,11 @@ const props = defineProps({
 const page = usePage()
 
 const form = useForm({
-    title: props.story.title,
-    content: props.story.content,
-    excerpt: props.story.excerpt || '',
-    category_id: props.story.category_id || '',
-    tags: props.story.tags || [],
+    title: props.post.title,
+    content: props.post.content,
+    excerpt: props.post.excerpt || '',
+    category_id: props.post.category_id || '',
+    tags: props.post.tags || [],
 })
 
 const tagInput = ref('')

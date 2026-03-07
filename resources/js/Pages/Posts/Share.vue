@@ -4,7 +4,7 @@ import { ref, computed, watch } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
 const props = defineProps({
-    story: Object,
+    post: Object,
     tokens: Array,
 })
 
@@ -27,14 +27,14 @@ watch(() => page.props.flash.shareUrl, (url) => {
 })
 
 const submit = () => {
-    form.post(route('posts.share.store', props.story.slug), {
+    form.post(route('posts.share.store', props.post.slug), {
         preserveScroll: true,
     })
 }
 
 const revokeToken = (tokenId) => {
     if (confirm('Are you sure you want to revoke this link? Anyone with this link will no longer be able to edit.')) {
-        useForm({}).delete(route('posts.share.destroy', [props.story.slug, tokenId]), {
+        useForm({}).delete(route('posts.share.destroy', [props.post.slug, tokenId]), {
             preserveScroll: true,
         })
     }
@@ -62,7 +62,7 @@ const expiredTokens = computed(() => props.tokens.filter(t => !t.is_valid))
         <template #header>
             <div class="flex items-center gap-4">
                 <Link
-                    :href="route('posts.edit', story.slug)"
+                    :href="route('posts.edit', post.slug)"
                     class="text-stone-400 hover:text-stone-600"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +70,7 @@ const expiredTokens = computed(() => props.tokens.filter(t => !t.is_valid))
                     </svg>
                 </Link>
                 <h2 class="font-semibold text-xl text-stone-800 leading-tight">
-                    Share "{{ story.title }}"
+                    Share "{{ post.title }}"
                 </h2>
             </div>
         </template>
@@ -196,7 +196,7 @@ const expiredTokens = computed(() => props.tokens.filter(t => !t.is_valid))
                         Share Link Created
                     </h3>
                     <p class="text-stone-600 mb-4">
-                        Copy this link and send it to your collaborator. They can use it to edit your story.
+                        Copy this link and send it to your collaborator. They can use it to edit your post.
                     </p>
 
                     <div class="flex items-center gap-2 p-3 bg-stone-100 rounded-lg mb-6">

@@ -6,7 +6,8 @@ import StoryCard from '@/Components/Story/StoryCard.vue'
 defineProps({
     myPosts: Object,
     friendPosts: Array,
-    pendingFriendRequestsCount: Number
+    pendingFriendRequestsCount: Number,
+    userCategories: Array
 })
 </script>
 
@@ -156,6 +157,39 @@ defineProps({
                             >
                                 Find friends &rarr;
                             </Link>
+                        </div>
+
+                        <!-- My Categories -->
+                        <div class="mt-8">
+                            <h3 class="text-lg font-semibold text-navy mb-4">
+                                My Categories
+                            </h3>
+
+                            <div class="bg-white rounded-lg shadow border border-navy-50">
+                                <div v-if="userCategories?.length" class="divide-y divide-navy-50">
+                                    <div
+                                        v-for="category in userCategories"
+                                        :key="category.id"
+                                        class="px-4 py-3 flex items-center justify-between"
+                                    >
+                                        <span class="font-medium text-navy">{{ category.name }}</span>
+                                        <span class="text-sm text-teal">
+                                            {{ category.children_count }} subcategories
+                                        </span>
+                                    </div>
+                                </div>
+                                <div v-else class="p-4 text-center text-teal">
+                                    No categories yet
+                                </div>
+                                <div class="px-4 py-3 bg-navy-50 rounded-b-lg">
+                                    <Link
+                                        :href="route('user-categories.index')"
+                                        class="text-amber hover:text-amber-600 font-medium text-sm"
+                                    >
+                                        Manage Categories &rarr;
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

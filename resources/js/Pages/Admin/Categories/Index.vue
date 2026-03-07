@@ -9,17 +9,20 @@ import InputError from '@/Components/InputError.vue';
 
 const props = defineProps({
     categories: Object,
+    parentCategories: Array,
 });
 
 const form = useForm({
     name: '',
     description: '',
+    parent_id: null,
 });
 
 const editingId = ref(null);
 const editForm = useForm({
     name: '',
     description: '',
+    parent_id: null,
 });
 
 const createCategory = () => {
@@ -32,6 +35,7 @@ const startEdit = (category) => {
     editingId.value = category.id;
     editForm.name = category.name;
     editForm.description = category.description || '';
+    editForm.parent_id = category.parent_id;
 };
 
 const cancelEdit = () => {
@@ -71,16 +75,30 @@ const deleteCategory = (category) => {
             <!-- Create New Category -->
             <div class="bg-white rounded-lg shadow border border-navy-50 p-6">
                 <h2 class="text-lg font-semibold text-navy mb-4">Create Category</h2>
-                <form @submit.prevent="createCategory" class="flex gap-4 items-end">
-                    <div class="flex-1">
+                <form @submit.prevent="createCategory" class="flex gap-4 items-end flex-wrap">
+                    <div class="flex-1 min-w-[200px]">
                         <InputLabel for="name" value="Name" />
                         <TextInput id="name" v-model="form.name" class="w-full" required />
                         <InputError :message="form.errors.name" />
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-[200px]">
                         <InputLabel for="description" value="Description" />
                         <TextInput id="description" v-model="form.description" class="w-full" />
                         <InputError :message="form.errors.description" />
+                    </div>
+                    <div class="w-[180px]">
+                        <InputLabel for="parent_id" value="Parent" />
+                        <select
+                            id="parent_id"
+                            v-model="form.parent_id"
+                            class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        >
+                            <option :value="null">None (top-level)</option>
+                            <option v-for="parent in parentCategories" :key="parent.id" :value="parent.id">
+                                {{ parent.name }}
+                            </option>
+                        </select>
+                        <InputError :message="form.errors.parent_id" />
                     </div>
                     <PrimaryButton type="submit" :disabled="form.processing">Create</PrimaryButton>
                 </form>
@@ -93,6 +111,7 @@ const deleteCategory = (category) => {
                         <thead class="bg-navy-50">
                             <tr>
                                 <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Name</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Parent</th>
                                 <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Description</th>
                                 <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Status</th>
                                 <th class="px-4 py-3 text-left text-sm font-semibold text-navy">Suggested By</th>
@@ -105,6 +124,23 @@ const deleteCategory = (category) => {
                                     <td class="px-4 py-3">
                                         <TextInput v-model="editForm.name" class="w-full" />
                                         <InputError :message="editForm.errors.name" />
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <select
+                                            v-model="editForm.parent_id"
+                                            class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                            :disabled="category.children?.length > 0"
+                                        >
+                                            <option :value="null">None</option>
+                                            <option
+                                                v-for="parent in parentCategories.filter(p => p.id !== category.id)"
+                                                :key="parent.id"
+                                                :value="parent.id"
+                                            >
+                                                {{ parent.name }}
+                                            </option>
+                                        </select>
+                                        <InputError :message="editForm.errors.parent_id" />
                                     </td>
                                     <td class="px-4 py-3">
                                         <TextInput v-model="editForm.description" class="w-full" />
@@ -129,7 +165,11 @@ const deleteCategory = (category) => {
                                     </td>
                                 </template>
                                 <template v-else>
-                                    <td class="px-4 py-3 font-medium text-navy">{{ category.name }}</td>
+                                    <td class="px-4 py-3 font-medium text-navy">
+                                        <span v-if="category.parent_id" class="text-teal mr-1">↳</span>
+                                        {{ category.name }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-teal">{{ category.parent?.name || '-' }}</td>
                                     <td class="px-4 py-3 text-sm text-teal">{{ category.description || '-' }}</td>
                                     <td class="px-4 py-3">
                                         <span v-if="category.is_approved" class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Approved</span>
@@ -159,7 +199,7 @@ const deleteCategory = (category) => {
                                 </template>
                             </tr>
                             <tr v-if="categories.data.length === 0">
-                                <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
                                     No categories found.
                                 </td>
                             </tr>

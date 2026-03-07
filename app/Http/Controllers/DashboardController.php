@@ -30,10 +30,17 @@ class DashboardController extends Controller
             ->with('requester')
             ->count();
 
+        $userCategories = $user->userCategories()
+            ->root()
+            ->withCount('children')
+            ->orderBy('sort_order')
+            ->get();
+
         return Inertia::render('Dashboard', [
             'myPosts' => $myPosts,
             'friendPosts' => $friendPosts,
             'pendingFriendRequestsCount' => $pendingFriendRequests,
+            'userCategories' => $userCategories,
         ]);
     }
 }

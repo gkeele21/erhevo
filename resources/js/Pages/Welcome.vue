@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import StoryCard from '@/Components/Story/StoryCard.vue'
 
 defineProps({
-    featuredStories: Array,
+    featuredPosts: Array,
     categories: Array,
     popularTags: Array
 })
@@ -106,11 +106,11 @@ defineProps({
                 <h2 class="text-2xl font-bold text-navy mb-8">
                     Featured Posts
                 </h2>
-                <div v-if="featuredStories?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-if="featuredPosts?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <StoryCard
-                        v-for="story in featuredStories"
-                        :key="story.id"
-                        :story="story"
+                        v-for="post in featuredPosts"
+                        :key="post.id"
+                        :post="post"
                     />
                 </div>
                 <div v-else class="text-center py-8 text-teal">
@@ -144,7 +144,7 @@ defineProps({
                             {{ category.name }}
                         </h3>
                         <p class="text-sm text-teal">
-                            {{ category.stories_count || 0 }} stories
+                            {{ category.posts_count || 0 }} posts
                         </p>
                     </Link>
                 </div>
@@ -168,7 +168,7 @@ defineProps({
                         class="px-4 py-2 bg-navy-50 text-teal rounded-full hover:bg-aqua-50 hover:text-navy transition-colors"
                     >
                         #{{ tag.name }}
-                        <span class="text-xs text-teal-300 ml-1">({{ tag.stories_count }})</span>
+                        <span class="text-xs text-teal-300 ml-1">({{ tag.posts_count }})</span>
                     </Link>
                 </div>
             </div>

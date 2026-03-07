@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->hasMany(Category::class);
     }
 
+    public function userCategories(): HasMany
+    {
+        return $this->hasMany(UserCategory::class);
+    }
+
     public function sentFriendRequests(): HasMany
     {
         return $this->hasMany(Friendship::class, 'requester_id');

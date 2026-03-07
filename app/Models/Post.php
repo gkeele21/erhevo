@@ -31,6 +31,7 @@ class Post extends Model
         'author_text',
         'author_user_id',
         'category_id',
+        'user_category_id',
         'visibility',
         'hide_creator',
         'hide_author',
@@ -81,6 +82,11 @@ class Post extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function userCategory(): BelongsTo
+    {
+        return $this->belongsTo(UserCategory::class);
     }
 
     public function tags(): BelongsToMany

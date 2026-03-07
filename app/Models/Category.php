@@ -16,6 +16,8 @@ class Category extends Model
         'name',
         'slug',
         'description',
+        'parent_id',
+        'sort_order',
         'user_id',
         'is_approved',
     ];
@@ -41,9 +43,29 @@ class Category extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id')->orderBy('sort_order');
+    }
+
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function scopeRoot($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+
+    public function isRoot(): bool
+    {
+        return is_null($this->parent_id);
     }
 
     public function scopeApproved($query)

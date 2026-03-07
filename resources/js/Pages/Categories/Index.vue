@@ -31,7 +31,7 @@ defineProps({
                             {{ category.description }}
                         </p>
                         <p class="text-amber-600 font-medium">
-                            {{ category.stories_count || 0 }} stories
+                            {{ category.posts_count || 0 }} posts
                         </p>
                     </Link>
                 </div>

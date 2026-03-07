@@ -9,30 +9,32 @@ import PrivacyOptions from '@/Components/Story/PrivacyOptions.vue'
 import AuthorInput from '@/Components/Story/AuthorInput.vue'
 
 const props = defineProps({
-    story: Object,
+    post: Object,
     categories: Array,
+    userCategories: Array,
     postTypes: Array,
     visibilityOptions: Array,
     authorTypes: Array
 })
 
 const form = useForm({
-    post_type: props.story.post_type || 'story',
-    title: props.story.title,
-    content: props.story.content,
-    excerpt: props.story.excerpt || '',
-    cover_image: props.story.cover_image || '',
-    category_id: props.story.category_id || '',
-    tags: props.story.tags?.map(t => t.name) || [],
-    author_type: props.story.author_type,
-    author_text: props.story.author_text || '',
-    author_user_id: props.story.author_user_id,
-    visibility: props.story.visibility,
-    hide_creator: props.story.hide_creator,
-    hide_author: props.story.hide_author,
-    anonymize_names: props.story.anonymize_names,
-    name_mappings: props.story.name_mappings,
-    publish: !!props.story.published_at
+    post_type: props.post.post_type || 'story',
+    title: props.post.title,
+    content: props.post.content,
+    excerpt: props.post.excerpt || '',
+    cover_image: props.post.cover_image || '',
+    category_id: props.post.category_id || '',
+    user_category_id: props.post.user_category_id || '',
+    tags: props.post.tags?.map(t => t.name) || [],
+    author_type: props.post.author_type,
+    author_text: props.post.author_text || '',
+    author_user_id: props.post.author_user_id,
+    visibility: props.post.visibility,
+    hide_creator: props.post.hide_creator,
+    hide_author: props.post.hide_author,
+    anonymize_names: props.post.anonymize_names,
+    name_mappings: props.post.name_mappings,
+    publish: !!props.post.published_at
 })
 
 const showDeleteModal = ref(false)
@@ -45,11 +47,11 @@ const postTypeIcons = {
 }
 
 const submit = () => {
-    form.put(route('posts.update', props.story.slug))
+    form.put(route('posts.update', props.post.slug))
 }
 
-const deleteStory = () => {
-    router.delete(route('posts.destroy', props.story.slug))
+const deletePost = () => {
+    router.delete(route('posts.destroy', props.post.slug))
 }
 </script>
 
@@ -145,6 +147,26 @@ const deleteStory = () => {
                             </select>
                         </div>
 
+                        <!-- User Category -->
+                        <div v-if="userCategories?.length">
+                            <label class="block text-sm font-medium text-stone-700 mb-1">
+                                My Category
+                                <span class="text-stone-400 font-normal">(for personal organization)</span>
+                            </label>
+                            <select
+                                v-model="form.user_category_id"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            >
+                                <option value="">None</option>
+                                <template v-for="cat in userCategories" :key="cat.id">
+                                    <option :value="cat.id">{{ cat.name }}</option>
+                                    <option v-for="child in cat.children" :key="child.id" :value="child.id">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;{{ child.name }}
+                                    </option>
+                                </template>
+                            </select>
+                        </div>
+
                         <!-- Tags -->
                         <TagInput v-model="form.tags" />
 
@@ -184,7 +206,7 @@ const deleteStory = () => {
 
                         <div class="flex gap-4">
                             <Link
-                                :href="route('posts.share.index', story.slug)"
+                                :href="route('posts.share.index', post.slug)"
                                 class="px-6 py-3 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 flex items-center gap-2"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +215,7 @@ const deleteStory = () => {
                                 Share
                             </Link>
                             <Link
-                                :href="route('posts.show', story.slug)"
+                                :href="route('posts.show', post.slug)"
                                 class="px-6 py-3 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
                             >
                                 Cancel
@@ -231,7 +253,7 @@ const deleteStory = () => {
                             Cancel
                         </button>
                         <button
-                            @click="deleteStory"
+                            @click="deletePost"
                             class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                         >
                             Delete

@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
 const props = defineProps({
-    story: Object,
+    post: Object,
     canEdit: Boolean
 })
 
@@ -16,7 +16,7 @@ const formatDate = (date) => {
     })
 }
 
-const postType = computed(() => props.story.post_type || 'story')
+const postType = computed(() => props.post.post_type || 'story')
 
 const typeLabel = computed(() => ({
     story: 'Story',
@@ -27,7 +27,7 @@ const typeLabel = computed(() => ({
 </script>
 
 <template>
-    <AppLayout :title="story.title">
+    <AppLayout :title="post.title">
         <div class="py-12">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
@@ -39,7 +39,7 @@ const typeLabel = computed(() => ({
                             <span class="text-sm text-gold-600">{{ typeLabel }}</span>
                             <Link
                                 v-if="canEdit"
-                                :href="route('posts.edit', story.slug)"
+                                :href="route('posts.edit', post.slug)"
                                 class="text-gold-600 hover:text-gold-800 flex items-center gap-1"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +56,7 @@ const typeLabel = computed(() => ({
                             </svg>
                             <div
                                 class="prose prose-xl prose-stone max-w-none text-center italic text-navy leading-relaxed"
-                                v-html="story.display_content || story.content"
+                                v-html="post.display_content || post.content"
                             ></div>
                             <svg class="absolute bottom-0 right-0 w-16 h-16 text-gold-300 opacity-30 transform rotate-180" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
@@ -65,23 +65,23 @@ const typeLabel = computed(() => ({
 
                         <!-- Attribution -->
                         <div class="text-center mt-8 pt-8 border-t border-gold-200">
-                            <div v-if="story.title" class="text-lg font-medium text-navy mb-2">
-                                &mdash; {{ story.title }}
+                            <div v-if="post.title" class="text-lg font-medium text-navy mb-2">
+                                &mdash; {{ post.title }}
                             </div>
                             <div class="text-gold-700 text-sm">
-                                <span v-if="story.author_name">{{ story.author_name }}</span>
-                                <span v-else-if="story.creator_name">{{ story.creator_name }}</span>
+                                <span v-if="post.author_name">{{ post.author_name }}</span>
+                                <span v-else-if="post.creator_name">{{ post.creator_name }}</span>
                             </div>
                             <div class="text-sm text-gold-600 mt-2">
-                                {{ formatDate(story.published_at || story.created_at) }}
+                                {{ formatDate(post.published_at || post.created_at) }}
                             </div>
                         </div>
 
                         <!-- Tags -->
-                        <div v-if="story.tags && story.tags.length" class="mt-8 pt-8 border-t border-gold-200">
+                        <div v-if="post.tags && post.tags.length" class="mt-8 pt-8 border-t border-gold-200">
                             <div class="flex flex-wrap justify-center gap-2">
                                 <Link
-                                    v-for="tag in story.tags"
+                                    v-for="tag in post.tags"
                                     :key="tag.id"
                                     :href="route('posts.index', { tag: tag.slug })"
                                     class="px-3 py-1 bg-white/50 text-gold-700 rounded-full text-sm hover:bg-white transition-colors"
@@ -102,12 +102,12 @@ const typeLabel = computed(() => ({
                                 <div class="flex items-center gap-4">
                                     <span class="px-3 py-1 bg-amber-50 text-amber-700 rounded text-sm">{{ typeLabel }}</span>
                                     <span class="text-sm text-stone-500">
-                                        {{ formatDate(story.published_at || story.created_at) }}
+                                        {{ formatDate(post.published_at || post.created_at) }}
                                     </span>
                                 </div>
                                 <Link
                                     v-if="canEdit"
-                                    :href="route('posts.edit', story.slug)"
+                                    :href="route('posts.edit', post.slug)"
                                     class="text-amber-600 hover:text-amber-800 flex items-center gap-1"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,28 +118,28 @@ const typeLabel = computed(() => ({
                             </div>
 
                             <div class="text-stone-600">
-                                <span v-if="story.creator_name">{{ story.creator_name }}</span>
+                                <span v-if="post.creator_name">{{ post.creator_name }}</span>
                             </div>
                         </header>
 
                         <!-- Content -->
                         <div
                             class="prose prose-lg prose-stone max-w-none italic prose-headings:text-stone-800 prose-a:text-amber-600 leading-relaxed"
-                            v-html="story.display_content || story.content"
+                            v-html="post.display_content || post.content"
                         ></div>
 
                         <!-- Title (if present, shown at end) -->
-                        <div v-if="story.title" class="mt-8 pt-6 border-t border-stone-100">
+                        <div v-if="post.title" class="mt-8 pt-6 border-t border-stone-100">
                             <h1 class="text-xl font-medium text-stone-700">
-                                {{ story.title }}
+                                {{ post.title }}
                             </h1>
                         </div>
 
                         <!-- Tags -->
-                        <div v-if="story.tags && story.tags.length" class="mt-6 pt-6 border-t border-stone-100">
+                        <div v-if="post.tags && post.tags.length" class="mt-6 pt-6 border-t border-stone-100">
                             <div class="flex flex-wrap gap-2">
                                 <Link
-                                    v-for="tag in story.tags"
+                                    v-for="tag in post.tags"
                                     :key="tag.id"
                                     :href="route('posts.index', { tag: tag.slug })"
                                     class="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-sm hover:bg-amber-100 transition-colors"
@@ -160,16 +160,16 @@ const typeLabel = computed(() => ({
                                 <div class="flex items-center gap-4">
                                     <span class="px-3 py-1 bg-teal-50 text-teal-700 rounded text-sm">{{ typeLabel }}</span>
                                     <Link
-                                        v-if="story.category"
-                                        :href="route('categories.show', story.category.slug)"
+                                        v-if="post.category"
+                                        :href="route('categories.show', post.category.slug)"
                                         class="text-sm font-medium text-teal-600 hover:text-teal-800"
                                     >
-                                        {{ story.category.name }}
+                                        {{ post.category.name }}
                                     </Link>
                                 </div>
                                 <Link
                                     v-if="canEdit"
-                                    :href="route('posts.edit', story.slug)"
+                                    :href="route('posts.edit', post.slug)"
                                     class="text-teal-600 hover:text-teal-800 flex items-center gap-1"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,13 +180,13 @@ const typeLabel = computed(() => ({
                             </div>
 
                             <h1 class="text-2xl font-semibold text-stone-800 mb-2">
-                                {{ story.title }}
+                                {{ post.title }}
                             </h1>
 
                             <div class="text-sm text-stone-500">
-                                {{ formatDate(story.published_at || story.created_at) }}
-                                <span v-if="story.creator_name" class="ml-2">
-                                    &middot; {{ story.creator_name }}
+                                {{ formatDate(post.published_at || post.created_at) }}
+                                <span v-if="post.creator_name" class="ml-2">
+                                    &middot; {{ post.creator_name }}
                                 </span>
                             </div>
                         </header>
@@ -194,14 +194,14 @@ const typeLabel = computed(() => ({
                         <!-- Content -->
                         <div
                             class="prose prose-stone max-w-none prose-headings:text-stone-800 prose-a:text-teal-600 bg-white rounded-lg p-6 border border-stone-200"
-                            v-html="story.display_content || story.content"
+                            v-html="post.display_content || post.content"
                         ></div>
 
                         <!-- Tags -->
-                        <div v-if="story.tags && story.tags.length" class="mt-6">
+                        <div v-if="post.tags && post.tags.length" class="mt-6">
                             <div class="flex flex-wrap gap-2">
                                 <Link
-                                    v-for="tag in story.tags"
+                                    v-for="tag in post.tags"
                                     :key="tag.id"
                                     :href="route('posts.index', { tag: tag.slug })"
                                     class="px-3 py-1 bg-white text-stone-600 rounded-full text-sm hover:bg-teal-50 hover:text-teal-700 transition-colors border border-stone-200"
@@ -216,10 +216,10 @@ const typeLabel = computed(() => ({
                 <!-- Default Story Display -->
                 <template v-else>
                     <!-- Cover Image -->
-                    <div v-if="story.cover_image" class="mb-8 rounded-lg overflow-hidden">
+                    <div v-if="post.cover_image" class="mb-8 rounded-lg overflow-hidden">
                         <img
-                            :src="story.cover_image"
-                            :alt="story.title"
+                            :src="post.cover_image"
+                            :alt="post.title"
                             class="w-full h-64 md:h-96 object-cover"
                         >
                     </div>
@@ -230,34 +230,34 @@ const typeLabel = computed(() => ({
                             <div class="flex items-center gap-4 mb-4">
                                 <span class="px-3 py-1 bg-navy-50 text-navy rounded text-sm">{{ typeLabel }}</span>
                                 <Link
-                                    v-if="story.category"
-                                    :href="route('categories.show', story.category.slug)"
+                                    v-if="post.category"
+                                    :href="route('categories.show', post.category.slug)"
                                     class="text-sm font-medium text-amber-600 hover:text-amber-800"
                                 >
-                                    {{ story.category.name }}
+                                    {{ post.category.name }}
                                 </Link>
                                 <span class="text-sm text-stone-500">
-                                    {{ formatDate(story.published_at || story.created_at) }}
+                                    {{ formatDate(post.published_at || post.created_at) }}
                                 </span>
                             </div>
 
                             <h1 class="text-3xl md:text-4xl font-bold text-stone-800 mb-4">
-                                {{ story.title }}
+                                {{ post.title }}
                             </h1>
 
                             <div class="flex items-center justify-between">
                                 <div class="text-stone-600">
-                                    <span v-if="story.creator_name">
-                                        By {{ story.creator_name }}
+                                    <span v-if="post.creator_name">
+                                        By {{ post.creator_name }}
                                     </span>
-                                    <span v-if="story.author_name && story.author_name !== story.creator_name" class="ml-2">
-                                        &middot; Author: {{ story.author_name }}
+                                    <span v-if="post.author_name && post.author_name !== post.creator_name" class="ml-2">
+                                        &middot; Author: {{ post.author_name }}
                                     </span>
                                 </div>
 
                                 <Link
                                     v-if="canEdit"
-                                    :href="route('posts.edit', story.slug)"
+                                    :href="route('posts.edit', post.slug)"
                                     class="text-amber-600 hover:text-amber-800 flex items-center gap-1"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,14 +271,14 @@ const typeLabel = computed(() => ({
                         <!-- Content -->
                         <div
                             class="prose prose-lg prose-stone max-w-none prose-headings:text-stone-800 prose-a:text-amber-600"
-                            v-html="story.display_content || story.content"
+                            v-html="post.display_content || post.content"
                         ></div>
 
                         <!-- Tags -->
-                        <div v-if="story.tags && story.tags.length" class="mt-8 pt-8 border-t border-stone-200">
+                        <div v-if="post.tags && post.tags.length" class="mt-8 pt-8 border-t border-stone-200">
                             <div class="flex flex-wrap gap-2">
                                 <Link
-                                    v-for="tag in story.tags"
+                                    v-for="tag in post.tags"
                                     :key="tag.id"
                                     :href="route('posts.index', { tag: tag.slug })"
                                     class="px-3 py-1 bg-stone-100 text-stone-700 rounded-full text-sm hover:bg-amber-100 hover:text-amber-700 transition-colors"

@@ -53,10 +53,11 @@ class PostController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Posts/Create', [
             'categories' => Category::approved()->orderBy('name')->get(),
+            'userCategories' => $request->user()->userCategories()->root()->with('children')->orderBy('sort_order')->get(),
             'postTypes' => collect(PostType::cases())->map(fn ($p) => [
                 'value' => $p->value,
                 'label' => $p->label(),
@@ -84,6 +85,7 @@ class PostController extends Controller
             'excerpt' => 'nullable|string|max:500',
             'cover_image' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
+            'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'author_type' => 'required|in:self,text,user',
@@ -135,15 +137,16 @@ class PostController extends Controller
         ]);
     }
 
-    public function edit(Post $post): Response
+    public function edit(Request $request, Post $post): Response
     {
         Gate::authorize('update', $post);
 
-        $post->load(['category', 'tags']);
+        $post->load(['category', 'userCategory', 'tags']);
 
         return Inertia::render('Posts/Edit', [
             'post' => $post,
             'categories' => Category::approved()->orderBy('name')->get(),
+            'userCategories' => $request->user()->userCategories()->root()->with('children')->orderBy('sort_order')->get(),
             'postTypes' => collect(PostType::cases())->map(fn ($p) => [
                 'value' => $p->value,
                 'label' => $p->label(),
@@ -173,6 +176,7 @@ class PostController extends Controller
             'excerpt' => 'nullable|string|max:500',
             'cover_image' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
+            'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'author_type' => 'required|in:self,text,user',

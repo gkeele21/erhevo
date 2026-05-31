@@ -19,6 +19,7 @@ use App\Http\Controllers\SharedPostController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserCategoryController;
+use App\Http\Controllers\UserSettingsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -75,16 +76,27 @@ Route::middleware([
     // Tags API
     Route::get('/api/tags/search', [TagController::class, 'search'])->name('tags.search');
 
+    // Authors API
+    Route::get('/api/authors/search', [PostController::class, 'searchAuthors'])->name('authors.search');
+
     // User Categories
     Route::get('/my-categories', [UserCategoryController::class, 'index'])->name('user-categories.index');
     Route::post('/my-categories', [UserCategoryController::class, 'store'])->name('user-categories.store');
     Route::put('/my-categories/{userCategory}', [UserCategoryController::class, 'update'])->name('user-categories.update');
     Route::delete('/my-categories/{userCategory}', [UserCategoryController::class, 'destroy'])->name('user-categories.destroy');
 
+    // User Settings
+    Route::put('/user/settings', [UserSettingsController::class, 'update'])->name('user-settings.update');
+
     // AI Features
     Route::post('/api/ai/extract-text', [AiController::class, 'extractText'])->name('ai.extract-text');
     Route::post('/api/ai/generate-excerpt', [AiController::class, 'generateExcerpt'])->name('ai.generate-excerpt');
     Route::post('/api/ai/suggest-tags', [AiController::class, 'suggestTags'])->name('ai.suggest-tags');
+    Route::post('/api/ai/suggest-scriptures', [AiController::class, 'suggestScriptures'])->name('ai.suggest-scriptures');
+    Route::post('/api/ai/writing-prompts', [AiController::class, 'generateWritingPrompts'])->name('ai.writing-prompts');
+    Route::post('/api/ai/insights', [AiController::class, 'analyzeInsights'])->name('ai.insights');
+    Route::post('/api/ai/analyze-sensitivity', [AiController::class, 'analyzeContentSensitivity'])->name('ai.analyze-sensitivity');
+    Route::post('/api/ai/suggest-category', [AiController::class, 'suggestCategory'])->name('ai.suggest-category');
 });
 
 // Admin routes

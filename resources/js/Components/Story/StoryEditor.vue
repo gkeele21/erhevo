@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
-import { ref, watch } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
     modelValue: {
@@ -51,6 +51,12 @@ const editor = useEditor({
 watch(() => props.modelValue, (value) => {
     if (editor.value && editor.value.getHTML() !== value) {
         editor.value.commands.setContent(value, false)
+    }
+})
+
+onBeforeUnmount(() => {
+    if (editor.value) {
+        editor.value.destroy()
     }
 })
 

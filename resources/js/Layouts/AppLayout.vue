@@ -35,8 +35,8 @@ const logout = () => {
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <Link :href="route('home')" class="flex items-center gap-2">
-                                    <span class="text-2xl font-bold text-navy">erhevo</span>
+                                <Link :href="route('home')">
+                                    <img src="/images/erhevo-logo.png" alt="Erhevo" class="h-10" />
                                 </Link>
                             </div>
 

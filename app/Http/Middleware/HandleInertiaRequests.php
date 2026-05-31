@@ -42,6 +42,9 @@ class HandleInertiaRequests extends Middleware
                 'shareUrl' => fn () => $request->session()->get('shareUrl'),
             ],
             'isAdmin' => fn () => $request->user()?->isAdmin() ?? false,
+            'userSettings' => fn () => $request->user() ? [
+                'show_lds_content' => $request->user()->show_lds_content,
+            ] : null,
         ];
     }
 }

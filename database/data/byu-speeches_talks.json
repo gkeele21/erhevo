@@ -1,0 +1,192 @@
+{
+    "2024": [
+        {
+            "type": "devotional",
+            "speaker": "Jeffrey R. Holland",
+            "title": "The Ministry of Angels",
+            "slug": "the-ministry-of-angels",
+            "date": "2024-09-10",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        },
+        {
+            "type": "devotional",
+            "speaker": "Gerrit W. Gong",
+            "title": "All Things Denote There Is a God",
+            "slug": "all-things-denote-there-is-a-god",
+            "date": "2024-02-06",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        },
+        {
+            "type": "forum",
+            "speaker": "C. Shane Reese",
+            "title": "The Divine Gift of Agency",
+            "slug": "the-divine-gift-of-agency",
+            "date": "2024-01-16",
+            "speaker_title": "President, Brigham Young University"
+        }
+    ],
+    "2023": [
+        {
+            "type": "devotional",
+            "speaker": "David A. Bednar",
+            "title": "Things as They Really Are",
+            "slug": "things-as-they-really-are-2023",
+            "date": "2023-11-14",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        },
+        {
+            "type": "devotional",
+            "speaker": "Dieter F. Uchtdorf",
+            "title": "Your Happily Ever After",
+            "slug": "your-happily-ever-after-2023",
+            "date": "2023-05-02",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        },
+        {
+            "type": "devotional",
+            "speaker": "Neil L. Andersen",
+            "title": "Faith Is Not by Chance, but by Choice",
+            "slug": "faith-is-not-by-chance-but-by-choice-2023",
+            "date": "2023-03-07",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        },
+        {
+            "type": "commencement",
+            "speaker": "Henry B. Eyring",
+            "title": "A Life Founded on Light and Truth",
+            "slug": "a-life-founded-on-light-and-truth",
+            "date": "2023-04-27",
+            "calling_prefix": "President",
+            "organization": "The First Presidency"
+        }
+    ],
+    "2022": [
+        {
+            "type": "devotional",
+            "speaker": "Russell M. Nelson",
+            "title": "Choices for Eternity",
+            "slug": "choices-for-eternity",
+            "date": "2022-05-15",
+            "calling_prefix": "President",
+            "organization": "The First Presidency"
+        },
+        {
+            "type": "devotional",
+            "speaker": "Dallin H. Oaks",
+            "title": "Timing and Agency",
+            "slug": "timing-and-agency",
+            "date": "2022-09-13",
+            "calling_prefix": "President",
+            "organization": "The First Presidency"
+        },
+        {
+            "type": "devotional",
+            "speaker": "Quentin L. Cook",
+            "title": "The Eternal Everyday",
+            "slug": "the-eternal-everyday",
+            "date": "2022-01-11",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        }
+    ],
+    "2021": [
+        {
+            "type": "devotional",
+            "speaker": "D. Todd Christofferson",
+            "title": "A Sense of the Sacred",
+            "slug": "a-sense-of-the-sacred",
+            "date": "2021-11-02",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        },
+        {
+            "type": "devotional",
+            "speaker": "Ronald A. Rasband",
+            "title": "Recommended to the Lord",
+            "slug": "recommended-to-the-lord",
+            "date": "2021-10-05",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        }
+    ],
+    "2020": [
+        {
+            "type": "devotional",
+            "speaker": "Gary E. Stevenson",
+            "title": "Nourishing and Protecting the Family",
+            "slug": "nourishing-and-protecting-the-family",
+            "date": "2020-03-03",
+            "calling_prefix": "Elder",
+            "organization": "The Quorum of the Twelve Apostles"
+        }
+    ],
+    "1996": [
+        {
+            "type": "devotional",
+            "speaker": "Jeffrey R. Holland",
+            "title": "However Long and Hard the Road",
+            "slug": "however-long-and-hard-the-road",
+            "date": "1996-01-18",
+            "speaker_title": "Member of the Quorum of the Twelve Apostles"
+        },
+        {
+            "type": "devotional",
+            "speaker": "Patricia T. Holland",
+            "title": "One Thing Needful",
+            "slug": "one-thing-needful",
+            "date": "1996-09-10",
+            "speaker_title": "Author and Speaker"
+        }
+    ],
+    "1989": [
+        {
+            "type": "devotional",
+            "speaker": "Ezra Taft Benson",
+            "title": "Beware of Pride",
+            "slug": "beware-of-pride",
+            "date": "1989-02-28",
+            "calling_prefix": "President",
+            "organization": "The First Presidency",
+            "summary": "A classic address on the dangers of pride and the importance of humility."
+        }
+    ],
+    "1980": [
+        {
+            "type": "devotional",
+            "speaker": "Bruce R. McConkie",
+            "title": "The Purifying Power of Gethsemane",
+            "slug": "the-purifying-power-of-gethsemane",
+            "date": "1980-03-04",
+            "speaker_title": "Member of the Quorum of the Twelve Apostles",
+            "summary": "A powerful discourse on the Atonement of Jesus Christ."
+        }
+    ],
+    "1974": [
+        {
+            "type": "devotional",
+            "speaker": "Boyd K. Packer",
+            "title": "The Mediator",
+            "slug": "the-mediator",
+            "date": "1974-02-05",
+            "speaker_title": "Assistant to the Quorum of the Twelve Apostles",
+            "summary": "The parable of the debtor and the mediator, illustrating the Atonement."
+        }
+    ],
+    "1967": [
+        {
+            "type": "devotional",
+            "speaker": "Hugh B. Brown",
+            "title": "The Profile of a Prophet",
+            "slug": "the-profile-of-a-prophet",
+            "date": "1967-10-04",
+            "calling_prefix": "President",
+            "organization": "The First Presidency",
+            "summary": "A testimony of prophets and how to recognize them."
+        }
+    ]
+}

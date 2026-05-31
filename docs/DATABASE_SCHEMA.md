@@ -5,7 +5,7 @@
 ### users (Jetstream default)
 Standard Laravel Jetstream users table.
 
-### categories
+### categories (Community Categories)
 | Column | Type | Description |
 |--------|------|-------------|
 | id | bigint | Primary key |
@@ -41,7 +41,7 @@ Standard Laravel Jetstream users table.
 | author_type | enum | 'self', 'text', 'user' |
 | author_text | string (nullable) | Free text author name |
 | author_user_id | bigint (nullable) | Reference to users table |
-| category_id | bigint (nullable) | Foreign key to categories |
+| category_id | bigint (nullable) | Community category (foreign key to categories) |
 | visibility | enum | 'public', 'private', 'friends' |
 | hide_creator | boolean | Hide creator name on public stories |
 | hide_author | boolean | Hide author attribution |

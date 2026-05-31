@@ -10,8 +10,8 @@ import { Head, Link } from '@inertiajs/vue3'
         <header class="bg-white shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex justify-between items-center">
-                    <Link href="/" class="text-2xl font-bold text-navy">
-                        erhevo
+                    <Link href="/">
+                        <img src="/images/erhevo-logo.png" alt="Erhevo" class="h-12" />
                     </Link>
                     <nav class="flex items-center gap-6">
                         <Link
@@ -210,7 +210,7 @@ import { Head, Link } from '@inertiajs/vue3'
         <footer class="bg-navy py-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
-                    <h3 class="text-xl font-bold text-gold mb-2">erhevo</h3>
+                    <img src="/images/erhevo-logo.png" alt="Erhevo" class="h-24 mx-auto mb-2" />
                     <p class="text-aqua mb-4 italic">
                         A place where words lift you.
                     </p>

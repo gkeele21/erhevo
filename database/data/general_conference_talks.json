@@ -1,0 +1,327 @@
+{
+    "2024": {
+        "october": {
+            "saturday-morning": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "The Lord Jesus Christ Will Come Again",
+                    "slug": "the-lord-jesus-christ-will-come-again",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Henry B. Eyring",
+                    "title": "The Power of Spiritual Momentum",
+                    "slug": "the-power-of-spiritual-momentum",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Dallin H. Oaks",
+                    "title": "Kingdoms of Glory",
+                    "slug": "kingdoms-of-glory",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Patrick Kearon",
+                    "title": "Welcome to the Church of Joy",
+                    "slug": "welcome-to-the-church-of-joy",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "D. Todd Christofferson",
+                    "title": "The Savior's Abiding Compassion",
+                    "slug": "the-saviors-abiding-compassion",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "saturday-afternoon": [
+                {
+                    "speaker": "David A. Bednar",
+                    "title": "In the Strength of the Lord",
+                    "slug": "in-the-strength-of-the-lord",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "Quentin L. Cook",
+                    "title": "God's Plan Is a Perfect Plan!",
+                    "slug": "gods-plan-is-a-perfect-plan",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "Neil L. Andersen",
+                    "title": "Temples: Designed by God",
+                    "slug": "temples-designed-by-god",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "priesthood": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "The Priesthood: A Sacred Trust",
+                    "slug": "the-priesthood-a-sacred-trust",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Jeffrey R. Holland",
+                    "title": "The Ministry of Reconciliation",
+                    "slug": "the-ministry-of-reconciliation",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "sunday-morning": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "The Sealings of the Lord",
+                    "slug": "the-sealings-of-the-lord",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Gerrit W. Gong",
+                    "title": "Hosanna and Hallelujah—The Living Jesus Christ: The Heart of Restoration and Easter",
+                    "slug": "hosanna-and-hallelujah",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "Ulisses Soares",
+                    "title": "Yes, Lord, I Will Follow Thee",
+                    "slug": "yes-lord-i-will-follow-thee",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "sunday-afternoon": [
+                {
+                    "speaker": "Gary E. Stevenson",
+                    "title": "Bridging the Two Great Commandments",
+                    "slug": "bridging-the-two-great-commandments",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "Dale G. Renlund",
+                    "title": "The Peace of Christ Abolishes Enmity",
+                    "slug": "the-peace-of-christ-abolishes-enmity",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "Ronald A. Rasband",
+                    "title": "How Great Will Be Your Joy",
+                    "slug": "how-great-will-be-your-joy",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ]
+        },
+        "april": {
+            "saturday-morning": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "Welcome Message",
+                    "slug": "welcome-message",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Dallin H. Oaks",
+                    "title": "Covenants and Responsibilities",
+                    "slug": "covenants-and-responsibilities",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Henry B. Eyring",
+                    "title": "Steady in the Storms",
+                    "slug": "steady-in-the-storms",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Dieter F. Uchtdorf",
+                    "title": "A Higher Joy",
+                    "slug": "a-higher-joy",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "saturday-afternoon": [
+                {
+                    "speaker": "Jeffrey R. Holland",
+                    "title": "Our Personal Savior",
+                    "slug": "our-personal-savior",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "David A. Bednar",
+                    "title": "Seek Learning by Faith",
+                    "slug": "seek-learning-by-faith",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "priesthood": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "Priesthood Power",
+                    "slug": "priesthood-power",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ],
+            "sunday-morning": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "Living a Christ-Centered Life",
+                    "slug": "living-a-christ-centered-life",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Quentin L. Cook",
+                    "title": "Paths to the Celestial Kingdom",
+                    "slug": "paths-to-the-celestial-kingdom",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "sunday-afternoon": [
+                {
+                    "speaker": "D. Todd Christofferson",
+                    "title": "The Gift of Grace",
+                    "slug": "the-gift-of-grace",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "Neil L. Andersen",
+                    "title": "Following Jesus Christ",
+                    "slug": "following-jesus-christ",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                },
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "Closing Remarks",
+                    "slug": "closing-remarks",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ]
+        }
+    },
+    "2023": {
+        "october": {
+            "saturday-morning": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "Think Celestial!",
+                    "slug": "think-celestial",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                },
+                {
+                    "speaker": "Dallin H. Oaks",
+                    "title": "Decisions for Eternity",
+                    "slug": "decisions-for-eternity",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ],
+            "saturday-afternoon": [
+                {
+                    "speaker": "Jeffrey R. Holland",
+                    "title": "The Message, the Meaning, and the Multitude",
+                    "slug": "the-message-the-meaning-and-the-multitude",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "priesthood": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "The Power of the Priesthood",
+                    "slug": "the-power-of-the-priesthood",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ],
+            "sunday-morning": [
+                {
+                    "speaker": "Henry B. Eyring",
+                    "title": "The Lord's Promise of Peace",
+                    "slug": "the-lords-promise-of-peace",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ],
+            "sunday-afternoon": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "Following Jesus Christ Is Our Sacred Duty",
+                    "slug": "following-jesus-christ-is-our-sacred-duty",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ]
+        },
+        "april": {
+            "saturday-morning": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "The Answer Is Always Jesus Christ",
+                    "slug": "the-answer-is-always-jesus-christ",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ],
+            "saturday-afternoon": [
+                {
+                    "speaker": "Dieter F. Uchtdorf",
+                    "title": "Jesus Christ Is the Strength of Youth",
+                    "slug": "jesus-christ-is-the-strength-of-youth",
+                    "calling_prefix": "Elder",
+                    "organization": "The Quorum of the Twelve Apostles"
+                }
+            ],
+            "priesthood": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "Keys to Spiritual Momentum",
+                    "slug": "keys-to-spiritual-momentum",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ],
+            "sunday-morning": [
+                {
+                    "speaker": "Dallin H. Oaks",
+                    "title": "The Keys and Authority of the Priesthood",
+                    "slug": "the-keys-and-authority-of-the-priesthood",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ],
+            "sunday-afternoon": [
+                {
+                    "speaker": "Russell M. Nelson",
+                    "title": "A Spiritual Foundation",
+                    "slug": "a-spiritual-foundation",
+                    "calling_prefix": "President",
+                    "organization": "The First Presidency"
+                }
+            ]
+        }
+    }
+}

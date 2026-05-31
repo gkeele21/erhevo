@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryCard from '@/Components/Story/StoryCard.vue'
+import AiInsights from '@/Components/Dashboard/AiInsights.vue'
 
 defineProps({
     myPosts: Object,
@@ -62,6 +63,9 @@ defineProps({
                         </p>
                     </Link>
                 </div>
+
+                <!-- AI Insights -->
+                <AiInsights class="mb-8" />
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- My Posts -->

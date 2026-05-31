@@ -1,10 +1,15 @@
 <script setup>
 import { ref, watch } from 'vue'
+import AiTagSuggest from './AiTagSuggest.vue'
 
 const props = defineProps({
     modelValue: {
         type: Array,
         default: () => []
+    },
+    content: {
+        type: String,
+        default: ''
     }
 })
 
@@ -65,9 +70,16 @@ const handleKeydown = (e) => {
 
 <template>
     <div class="space-y-2">
-        <label class="block text-sm font-medium text-stone-700">
-            Tags
-        </label>
+        <div class="flex items-center justify-between">
+            <label class="block text-sm font-medium text-stone-700">
+                Tags
+            </label>
+            <AiTagSuggest
+                :content="content"
+                :existing-tags="modelValue"
+                @add-tag="addTag"
+            />
+        </div>
         <div class="relative">
             <div class="flex flex-wrap gap-2 p-2 border border-stone-300 rounded-lg bg-white min-h-[42px]">
                 <span

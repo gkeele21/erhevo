@@ -1,4 +1,4 @@
-# AI Features & Future Possibilities
+yes, # AI Features & Future Possibilities
 
 This document outlines the AI capabilities in Erhevo and potential future enhancements.
 

@@ -24,6 +24,12 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             DefaultCategorySeeder::class,
             StorySeeder::class,
+            ChurchOrganizationSeeder::class,
+            SourceSeeder::class,
+            TalkTypeSeeder::class,
+            GeneralConferenceSessionTypeSeeder::class,
+            GeneralConferenceSeeder::class,
+            GeneralConferenceTalkSeeder::class,
         ]);
     }
 }

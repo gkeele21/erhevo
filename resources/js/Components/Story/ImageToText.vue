@@ -69,7 +69,13 @@ const extractText = async () => {
             error.value = response.data.error || 'Failed to extract text.'
         }
     } catch (err) {
-        error.value = err.response?.data?.error || 'Failed to extract text. Please try again.'
+        // Handle validation errors (422)
+        if (err.response?.status === 422 && err.response?.data?.errors) {
+            const errors = err.response.data.errors
+            error.value = Object.values(errors).flat().join(' ')
+        } else {
+            error.value = err.response?.data?.error || 'Failed to extract text. Please try again.'
+        }
     } finally {
         isProcessing.value = false
     }

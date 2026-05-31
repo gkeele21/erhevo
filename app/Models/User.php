@@ -32,6 +32,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'settings',
     ];
 
     /**
@@ -53,6 +54,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'show_lds_content',
     ];
 
     /**
@@ -66,6 +68,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'settings' => 'array',
         ];
     }
 
@@ -194,5 +197,34 @@ class User extends Authenticatable
         ]);
 
         return true;
+    }
+
+    /**
+     * Get a setting value.
+     */
+    public function getSetting(string $key, mixed $default = null): mixed
+    {
+        return data_get($this->settings, $key, $default);
+    }
+
+    /**
+     * Set a setting value.
+     */
+    public function setSetting(string $key, mixed $value): self
+    {
+        $settings = $this->settings ?? [];
+        data_set($settings, $key, $value);
+        $this->settings = $settings;
+
+        return $this;
+    }
+
+    /**
+     * Get whether the user wants to see LDS content.
+     * Defaults to true (opt-out model).
+     */
+    public function getShowLdsContentAttribute(): bool
+    {
+        return $this->getSetting('show_lds_content', true);
     }
 }

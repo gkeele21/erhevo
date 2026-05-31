@@ -32,6 +32,48 @@ const selectedUser = ref(null)
 const showSuggestions = ref(false)
 let debounceTimer = null
 
+// Author text autocomplete
+const authorSuggestions = ref([])
+const showAuthorSuggestions = ref(false)
+let authorDebounceTimer = null
+
+const searchAuthors = async (query) => {
+    if (query.length < 3) {
+        authorSuggestions.value = []
+        return
+    }
+
+    try {
+        const response = await fetch(`/api/authors/search?q=${encodeURIComponent(query)}`)
+        authorSuggestions.value = await response.json()
+        showAuthorSuggestions.value = authorSuggestions.value.length > 0
+    } catch (error) {
+        console.error('Failed to search authors:', error)
+    }
+}
+
+const handleAuthorInput = (e) => {
+    emit('update:authorText', e.target.value)
+    clearTimeout(authorDebounceTimer)
+    authorDebounceTimer = setTimeout(() => {
+        searchAuthors(e.target.value)
+    }, 300)
+}
+
+const selectAuthor = (author) => {
+    emit('update:authorText', author)
+    authorSuggestions.value = []
+    showAuthorSuggestions.value = false
+}
+
+const hideAuthorSuggestions = () => {
+    setTimeout(() => showAuthorSuggestions.value = false, 200)
+}
+
+const hideUserSuggestions = () => {
+    setTimeout(() => showSuggestions.value = false, 200)
+}
+
 const searchUsers = async (query) => {
     if (query.length < 2) {
         userSuggestions.value = []
@@ -106,17 +148,34 @@ watch(() => props.authorType, (newType) => {
         </div>
 
         <!-- Custom Author Text -->
-        <div v-if="authorType === 'text'">
+        <div v-if="authorType === 'text'" class="relative">
             <label class="block text-sm font-medium text-stone-700 mb-1">
                 Author Name
             </label>
             <input
                 type="text"
                 :value="authorText"
-                @input="emit('update:authorText', $event.target.value)"
+                @input="handleAuthorInput"
+                @focus="showAuthorSuggestions = authorSuggestions.length > 0"
+                @blur="hideAuthorSuggestions"
                 placeholder="e.g., Maya Angelou, Unknown, Traditional"
                 class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
             >
+
+            <div
+                v-if="showAuthorSuggestions && authorSuggestions.length"
+                class="absolute z-10 mt-1 w-full bg-white border border-stone-300 rounded-lg shadow-lg max-h-48 overflow-auto"
+            >
+                <button
+                    v-for="author in authorSuggestions"
+                    :key="author"
+                    type="button"
+                    @click="selectAuthor(author)"
+                    class="w-full px-4 py-2 text-left text-sm hover:bg-stone-100"
+                >
+                    <span class="font-medium">{{ author }}</span>
+                </button>
+            </div>
         </div>
 
         <!-- User Selection -->
@@ -129,7 +188,7 @@ watch(() => props.authorType, (newType) => {
                 type="text"
                 @input="handleUserInput"
                 @focus="showSuggestions = true"
-                @blur="setTimeout(() => showSuggestions = false, 200)"
+                @blur="hideUserSuggestions"
                 placeholder="Search for a user..."
                 class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
             >

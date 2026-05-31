@@ -6,6 +6,8 @@ use App\Enums\AuthorType;
 use App\Enums\PostType;
 use App\Enums\Visibility;
 use App\Models\Category;
+use App\Models\CfmStudyYear;
+use App\Models\CfmWeek;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -73,13 +75,15 @@ class PostController extends Controller
                 'value' => $a->value,
                 'label' => $a->label(),
             ]),
+            'cfmWeeks' => $this->getCfmWeeksForSelect(),
+            'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'post_type' => 'required|in:story,thought,note,quote',
+            'post_type' => 'required|in:story,thought,note,quote,meeting_notes',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
@@ -88,6 +92,8 @@ class PostController extends Controller
             'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
+            'cfm_week_ids' => 'nullable|array',
+            'cfm_week_ids.*' => 'exists:cfm_weeks,id',
             'author_type' => 'required|in:self,text,user',
             'author_text' => 'nullable|required_if:author_type,text|string|max:255',
             'author_user_id' => 'nullable|required_if:author_type,user|exists:users,id',
@@ -121,6 +127,8 @@ class PostController extends Controller
             $post->syncTags($validated['tags']);
         }
 
+        $post->cfmWeeks()->sync($validated['cfm_week_ids'] ?? []);
+
         return redirect()->route('posts.show', $post)
             ->with('success', 'Post created successfully.');
     }
@@ -141,7 +149,7 @@ class PostController extends Controller
     {
         Gate::authorize('update', $post);
 
-        $post->load(['category', 'userCategory', 'tags']);
+        $post->load(['category', 'userCategory', 'tags', 'cfmWeeks']);
 
         return Inertia::render('Posts/Edit', [
             'post' => $post,
@@ -162,6 +170,8 @@ class PostController extends Controller
                 'value' => $a->value,
                 'label' => $a->label(),
             ]),
+            'cfmWeeks' => $this->getCfmWeeksForSelect(),
+            'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
         ]);
     }
 
@@ -170,7 +180,7 @@ class PostController extends Controller
         Gate::authorize('update', $post);
 
         $validated = $request->validate([
-            'post_type' => 'required|in:story,thought,note,quote',
+            'post_type' => 'required|in:story,thought,note,quote,meeting_notes',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
@@ -179,6 +189,8 @@ class PostController extends Controller
             'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
+            'cfm_week_ids' => 'nullable|array',
+            'cfm_week_ids.*' => 'exists:cfm_weeks,id',
             'author_type' => 'required|in:self,text,user',
             'author_text' => 'nullable|required_if:author_type,text|string|max:255',
             'author_user_id' => 'nullable|required_if:author_type,user|exists:users,id',
@@ -214,6 +226,8 @@ class PostController extends Controller
             $post->syncTags($validated['tags']);
         }
 
+        $post->cfmWeeks()->sync($validated['cfm_week_ids'] ?? []);
+
         return redirect()->route('posts.show', $post)
             ->with('success', 'Post updated successfully.');
     }
@@ -226,5 +240,40 @@ class PostController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', 'Post deleted successfully.');
+    }
+
+    /**
+     * Search for existing author names (for autocomplete).
+     */
+    public function searchAuthors(Request $request)
+    {
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 3) {
+            return response()->json([]);
+        }
+
+        $authors = Post::whereNotNull('author_text')
+            ->where('author_text', 'like', "%{$query}%")
+            ->distinct()
+            ->orderBy('author_text')
+            ->limit(10)
+            ->pluck('author_text')
+            ->unique()
+            ->values();
+
+        return response()->json($authors);
+    }
+
+    /**
+     * Get CFM weeks for the select dropdown, grouped by study year.
+     */
+    protected function getCfmWeeksForSelect(): array
+    {
+        return CfmWeek::with('studyYear')
+            ->whereHas('studyYear', fn ($q) => $q->where('year', '>=', now()->year - 2))
+            ->orderByDesc('start_date')
+            ->get()
+            ->toArray();
     }
 }

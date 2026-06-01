@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useAi } from '@/Composables/useAi'
 
 const insights = ref(null)
 const loading = ref(false)
@@ -8,7 +9,11 @@ const expanded = ref(false)
 const postCount = ref(0)
 const message = ref('')
 
+const { ensureConnected } = useAi()
+
 const fetchInsights = async () => {
+    if (!ensureConnected(error)) return
+
     loading.value = true
     error.value = ''
 
@@ -46,6 +51,10 @@ const fetchInsights = async () => {
 
 const toggleExpanded = () => {
     if (!expanded.value && !insights.value) {
+        if (!ensureConnected(error)) {
+            expanded.value = true
+            return
+        }
         fetchInsights()
     } else {
         expanded.value = !expanded.value

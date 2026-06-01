@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useAi } from '@/Composables/useAi'
 
 const props = defineProps({
     content: {
@@ -19,7 +20,11 @@ const loading = ref(false)
 const error = ref('')
 const showAnalysis = ref(false)
 
+const { aiConnected, ensureConnected } = useAi()
+
 const analyzeContent = async () => {
+    if (!ensureConnected(error)) return
+
     if (!props.content || props.content.length < 20) {
         error.value = 'Content must be at least 20 characters'
         return
@@ -93,7 +98,8 @@ const sensitivityIcons = {
             @click="analyzeContent"
             :disabled="loading"
             class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-stone-700 bg-stone-100 border border-stone-200 rounded-lg hover:bg-stone-200 disabled:opacity-50"
-            title="Check privacy with AI"
+            :class="{ 'opacity-60': !aiConnected }"
+            :title="aiConnected ? 'Check privacy with AI' : 'Connect an AI account in Profile settings to use AI features'"
         >
             <svg v-if="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>

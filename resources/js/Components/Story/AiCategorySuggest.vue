@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useAi } from '@/Composables/useAi'
 
 const props = defineProps({
     content: {
@@ -36,7 +37,11 @@ const categoryNames = computed(() => {
     return names
 })
 
+const { aiConnected, ensureConnected } = useAi()
+
 const fetchSuggestion = async () => {
+    if (!ensureConnected(error)) return
+
     if (!props.content || props.content.length < 20) {
         error.value = 'Content must be at least 20 characters'
         return
@@ -98,7 +103,8 @@ const closeSuggestion = () => {
             @click="fetchSuggestion"
             :disabled="loading"
             class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100 disabled:opacity-50"
-            title="Suggest category with AI"
+            :class="{ 'opacity-60': !aiConnected }"
+            :title="aiConnected ? 'Suggest category with AI' : 'Connect an AI account in Profile settings to use AI features'"
         >
             <svg v-if="loading" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>

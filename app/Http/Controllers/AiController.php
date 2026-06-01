@@ -2,25 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AiService;
+use App\AI\AiManager;
 use App\Services\ScriptureReferenceParser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class AiController extends Controller
 {
     public function __construct(
-        protected AiService $aiService,
+        protected AiManager $aiManager,
         protected ScriptureReferenceParser $scriptureParser
     ) {}
+
+    /**
+     * Standard response when the user has not connected an AI account.
+     */
+    protected function notConnected(): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'code' => 'ai_not_connected',
+            'error' => 'Connect an AI account in your profile settings to use AI features.',
+        ], 409);
+    }
 
     /**
      * Extract text from an uploaded image.
      */
     public function extractText(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         $request->validate([
             'image' => 'required|file|mimes:jpeg,jpg,png,gif,webp,heic,heif|max:10240', // Max 10MB
         ]);
@@ -29,7 +44,7 @@ class AiController extends Controller
         $mimeType = $image->getMimeType();
         $imagePath = $image->getRealPath();
 
-        // Convert HEIC/HEIF to JPEG since OpenAI doesn't support them
+        // Convert HEIC/HEIF to JPEG since most providers don't accept them
         if (in_array($mimeType, ['image/heic', 'image/heif'])) {
             // Use macOS sips command to convert HEIC to JPEG
             $tempJpeg = sys_get_temp_dir() . '/' . uniqid('heic_') . '.jpg';
@@ -55,7 +70,8 @@ class AiController extends Controller
         }
 
         try {
-            $result = $this->aiService->extractTextFromImage($base64, false, $mimeType);
+            $result = $this->aiManager->serviceFor($request->user())
+                ->extractTextFromImage($base64, false, $mimeType);
 
             return response()->json([
                 'success' => true,
@@ -81,13 +97,17 @@ class AiController extends Controller
      */
     public function generateExcerpt(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         $request->validate([
             'content' => 'required|string|min:50',
             'max_length' => 'nullable|integer|min:50|max:500',
         ]);
 
         try {
-            $excerpt = $this->aiService->generateExcerpt(
+            $excerpt = $this->aiManager->serviceFor($request->user())->generateExcerpt(
                 $request->input('content'),
                 $request->input('max_length', 200)
             );
@@ -109,13 +129,17 @@ class AiController extends Controller
      */
     public function suggestTags(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         $request->validate([
             'content' => 'required|string|min:20',
             'max_tags' => 'nullable|integer|min:1|max:10',
         ]);
 
         try {
-            $tags = $this->aiService->suggestTags(
+            $tags = $this->aiManager->serviceFor($request->user())->suggestTags(
                 $request->input('content'),
                 $request->input('max_tags', 5)
             );
@@ -137,6 +161,10 @@ class AiController extends Controller
      */
     public function suggestScriptures(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         $request->validate([
             'content' => 'required|string|min:20',
             'max_suggestions' => 'nullable|integer|min:1|max:10',
@@ -145,7 +173,7 @@ class AiController extends Controller
         try {
             $includeLdsScriptures = $request->user()->show_lds_content;
 
-            $suggestions = $this->aiService->suggestScriptures(
+            $suggestions = $this->aiManager->serviceFor($request->user())->suggestScriptures(
                 $request->input('content'),
                 $request->input('max_suggestions', 5),
                 $includeLdsScriptures
@@ -180,12 +208,16 @@ class AiController extends Controller
      */
     public function generateWritingPrompts(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         $request->validate([
             'context' => 'nullable|string|max:500',
         ]);
 
         try {
-            $user = Auth::user();
+            $user = $request->user();
 
             // Gather user's recent posts for context
             $recentPosts = $user->posts()
@@ -207,7 +239,7 @@ class AiController extends Controller
                 ->take(10)
                 ->toArray();
 
-            $prompts = $this->aiService->generateWritingPrompts(
+            $prompts = $this->aiManager->serviceFor($user)->generateWritingPrompts(
                 $recentPosts,
                 $userTags,
                 $request->input('context')
@@ -230,8 +262,12 @@ class AiController extends Controller
      */
     public function analyzeInsights(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         try {
-            $user = Auth::user();
+            $user = $request->user();
 
             // Get user's published posts
             $posts = $user->posts()
@@ -253,7 +289,7 @@ class AiController extends Controller
                 ]);
             }
 
-            $insights = $this->aiService->analyzeContentInsights($posts);
+            $insights = $this->aiManager->serviceFor($user)->analyzeContentInsights($posts);
 
             return response()->json([
                 'success' => true,
@@ -273,12 +309,16 @@ class AiController extends Controller
      */
     public function analyzeContentSensitivity(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         $request->validate([
             'content' => 'required|string|min:20',
         ]);
 
         try {
-            $analysis = $this->aiService->analyzeContentSensitivity(
+            $analysis = $this->aiManager->serviceFor($request->user())->analyzeContentSensitivity(
                 $request->input('content')
             );
 
@@ -299,6 +339,10 @@ class AiController extends Controller
      */
     public function suggestCategory(Request $request): JsonResponse
     {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
         $request->validate([
             'content' => 'required|string|min:20',
             'type' => 'required|in:user,public',
@@ -306,7 +350,7 @@ class AiController extends Controller
         ]);
 
         try {
-            $suggestion = $this->aiService->suggestCategory(
+            $suggestion = $this->aiManager->serviceFor($request->user())->suggestCategory(
                 $request->input('content'),
                 $request->input('existing_categories', []),
                 $request->input('type')

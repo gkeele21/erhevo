@@ -6,12 +6,12 @@ use App\Enums\AuthorType;
 use App\Enums\PostType;
 use App\Enums\Visibility;
 use App\Models\Category;
-use App\Models\Story;
+use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class StorySeeder extends Seeder
+class PostSeeder extends Seeder
 {
     public function run(): void
     {
@@ -29,23 +29,23 @@ class StorySeeder extends Seeder
             return;
         }
 
-        $stories = $this->getStories();
+        $posts = $this->getPosts();
 
-        foreach ($stories as $storyData) {
-            $category = $categories->get($storyData['category']);
+        foreach ($posts as $postData) {
+            $category = $categories->get($postData['category']);
 
             if (! $category) {
                 continue;
             }
 
-            $story = Story::create([
-                'post_type' => $storyData['post_type'] ?? PostType::Story,
-                'title' => $storyData['title'],
-                'content' => '<p>' . implode('</p><p>', explode("\n\n", $storyData['content'])) . '</p>',
-                'excerpt' => $storyData['excerpt'] ?? null,
+            $post = Post::create([
+                'post_type' => $postData['post_type'] ?? PostType::Story,
+                'title' => $postData['title'],
+                'content' => '<p>' . implode('</p><p>', explode("\n\n", $postData['content'])) . '</p>',
+                'excerpt' => $postData['excerpt'] ?? null,
                 'user_id' => $user->id,
-                'author_type' => $storyData['author_type'],
-                'author_text' => $storyData['author_text'] ?? null,
+                'author_type' => $postData['author_type'],
+                'author_text' => $postData['author_text'] ?? null,
                 'category_id' => $category->id,
                 'visibility' => Visibility::Public,
                 'hide_creator' => false,
@@ -54,15 +54,15 @@ class StorySeeder extends Seeder
                 'published_at' => now()->subDays(rand(1, 365)),
             ]);
 
-            if (! empty($storyData['tags'])) {
-                $story->syncTags($storyData['tags']);
+            if (! empty($postData['tags'])) {
+                $post->syncTags($postData['tags']);
             }
         }
 
-        $this->command->info('Created ' . count($stories) . ' stories.');
+        $this->command->info('Created ' . count($posts) . ' posts.');
     }
 
-    private function getStories(): array
+    private function getPosts(): array
     {
         return [
             // INSPIRATION (13 stories)

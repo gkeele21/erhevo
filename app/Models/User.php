@@ -33,6 +33,8 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'settings',
+        'ai_provider',
+        'ai_api_key',
     ];
 
     /**
@@ -45,6 +47,7 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'ai_api_key',
     ];
 
     /**
@@ -69,6 +72,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'settings' => 'array',
+            'ai_api_key' => 'encrypted',
         ];
     }
 
@@ -226,5 +230,13 @@ class User extends Authenticatable
     public function getShowLdsContentAttribute(): bool
     {
         return $this->getSetting('show_lds_content', true);
+    }
+
+    /**
+     * Whether the user has connected their own AI account.
+     */
+    public function hasAiConnection(): bool
+    {
+        return filled($this->ai_provider) && filled($this->ai_api_key);
     }
 }

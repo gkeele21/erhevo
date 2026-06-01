@@ -17,6 +17,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostShareController;
 use App\Http\Controllers\SharedPostController;
 use App\Http\Controllers\AiController;
+use App\Http\Controllers\AiConnectionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserCategoryController;
 use App\Http\Controllers\UserSettingsController;
@@ -87,6 +88,10 @@ Route::middleware([
 
     // User Settings
     Route::put('/user/settings', [UserSettingsController::class, 'update'])->name('user-settings.update');
+
+    // AI Connection (bring-your-own AI account)
+    Route::put('/user/ai-connection', [AiConnectionController::class, 'update'])->name('ai-connection.update');
+    Route::delete('/user/ai-connection', [AiConnectionController::class, 'destroy'])->name('ai-connection.destroy');
 
     // AI Features
     Route::post('/api/ai/extract-text', [AiController::class, 'extractText'])->name('ai.extract-text');

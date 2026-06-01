@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useAi } from '@/Composables/useAi'
 
 const emit = defineEmits(['selectPrompt'])
 
@@ -8,7 +9,11 @@ const loading = ref(false)
 const error = ref('')
 const expanded = ref(false)
 
+const { ensureConnected } = useAi()
+
 const fetchPrompts = async () => {
+    if (!ensureConnected(error)) return
+
     loading.value = true
     error.value = ''
 
@@ -49,6 +54,10 @@ const selectPrompt = (prompt) => {
 
 const toggleExpanded = () => {
     if (!expanded.value && prompts.value.length === 0) {
+        if (!ensureConnected(error)) {
+            expanded.value = true
+            return
+        }
         fetchPrompts()
     } else {
         expanded.value = !expanded.value

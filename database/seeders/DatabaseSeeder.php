@@ -23,13 +23,16 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CategorySeeder::class,
             DefaultCategorySeeder::class,
-            StorySeeder::class,
+            PostSeeder::class,
             ChurchOrganizationSeeder::class,
             SourceSeeder::class,
             TalkTypeSeeder::class,
             GeneralConferenceSessionTypeSeeder::class,
             GeneralConferenceSeeder::class,
             GeneralConferenceTalkSeeder::class,
+            CfmScheduleSeeder::class,
+            CfmSpecialTopicSeeder::class,
+            ScriptureSeeder::class,
         ]);
     }
 }

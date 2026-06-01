@@ -45,6 +45,11 @@ class HandleInertiaRequests extends Middleware
             'userSettings' => fn () => $request->user() ? [
                 'show_lds_content' => $request->user()->show_lds_content,
             ] : null,
+            'ai' => fn () => [
+                'connected' => $request->user()?->hasAiConnection() ?? false,
+                'provider' => $request->user()?->ai_provider,
+                'providers' => app(\App\AI\AiManager::class)->providerOptions(),
+            ],
         ];
     }
 }

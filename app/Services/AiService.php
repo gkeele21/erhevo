@@ -2,121 +2,76 @@
 
 namespace App\Services;
 
-use OpenAI\Laravel\Facades\OpenAI;
+use App\AI\Contracts\AiProvider;
 
 class AiService
 {
+    public function __construct(
+        protected AiProvider $provider,
+    ) {}
+
     /**
-     * Extract text from an image using GPT-4o vision.
+     * Extract text from an image using the provider's vision model.
      *
-     * @param string $imageData Base64 encoded image data or URL
-     * @param bool $isUrl Whether the image data is a URL
+     * @param string $imageData Base64 encoded image data
+     * @param bool $isUrl Unused; retained for backwards compatibility (only base64 is supported)
      * @param string $mimeType The MIME type of the image (e.g., 'image/jpeg', 'image/png')
-     * @return array{text: string, confidence: string}
+     * @return array{text: string, usage: array{prompt_tokens: int, completion_tokens: int, total_tokens: int}}
      */
     public function extractTextFromImage(string $imageData, bool $isUrl = false, string $mimeType = 'image/jpeg'): array
     {
-        $imageContent = $isUrl
-            ? ['type' => 'image_url', 'image_url' => ['url' => $imageData]]
-            : ['type' => 'image_url', 'image_url' => ['url' => "data:{$mimeType};base64,{$imageData}"]];
-
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are an OCR assistant for a personal journaling application. Your task is to transcribe text from photos of journal entries, letters, notes, and documents. Transcribe all visible text exactly as written, preserving paragraph breaks and formatting. For handwritten text, interpret the writing as accurately as possible. Return only the transcribed text without commentary.',
-                ],
-                [
-                    'role' => 'user',
-                    'content' => [
-                        ['type' => 'text', 'text' => 'Please transcribe the text from this journal entry or document image. Preserve the original formatting and paragraph structure.'],
-                        $imageContent,
-                    ],
-                ],
+        $text = $this->provider->complete(
+            'You are an OCR assistant for a personal journaling application. Your task is to transcribe text from photos of journal entries, letters, notes, and documents. Transcribe all visible text exactly as written, preserving paragraph breaks and formatting. For handwritten text, interpret the writing as accurately as possible. Return only the transcribed text without commentary.',
+            [
+                ['type' => 'text', 'text' => 'Please transcribe the text from this journal entry or document image. Preserve the original formatting and paragraph structure.'],
+                ['type' => 'image', 'mime' => $mimeType, 'data' => $imageData],
             ],
-            'max_tokens' => 4096,
-        ]);
-
-        $text = $response->choices[0]->message->content ?? '';
+            ['max_tokens' => 4096, 'vision' => true],
+        );
 
         return [
             'text' => trim($text),
             'usage' => [
-                'prompt_tokens' => $response->usage->promptTokens ?? 0,
-                'completion_tokens' => $response->usage->completionTokens ?? 0,
-                'total_tokens' => $response->usage->totalTokens ?? 0,
+                'prompt_tokens' => 0,
+                'completion_tokens' => 0,
+                'total_tokens' => 0,
             ],
         ];
     }
 
     /**
      * Generate a summary/excerpt from content.
-     *
-     * @param string $content The content to summarize
-     * @param int $maxLength Maximum length of the summary
-     * @return string
      */
     public function generateExcerpt(string $content, int $maxLength = 200): string
     {
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a helpful assistant that creates brief, engaging excerpts. Create a summary that captures the essence of the content in {$maxLength} characters or less. Do not use quotes around the excerpt.",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Create a brief excerpt for this content:\n\n{$content}",
-                ],
-            ],
-            'max_tokens' => 150,
-        ]);
-
-        return trim($response->choices[0]->message->content ?? '');
+        return trim($this->provider->complete(
+            "You are a helpful assistant that creates brief, engaging excerpts. Create a summary that captures the essence of the content in {$maxLength} characters or less. Do not use quotes around the excerpt.",
+            [['type' => 'text', 'text' => "Create a brief excerpt for this content:\n\n{$content}"]],
+            ['max_tokens' => 150],
+        ));
     }
 
     /**
      * Suggest tags for content.
      *
-     * @param string $content The content to analyze
-     * @param int $maxTags Maximum number of tags to suggest
      * @return array<string>
      */
     public function suggestTags(string $content, int $maxTags = 5): array
     {
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a helpful assistant that suggests relevant tags for content. Return only a JSON array of {$maxTags} or fewer single-word or short-phrase tags. Tags should be lowercase. Example: [\"gratitude\", \"family\", \"personal growth\"]",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Suggest tags for this content:\n\n{$content}",
-                ],
-            ],
-            'max_tokens' => 100,
-        ]);
+        $result = $this->provider->complete(
+            "You are a helpful assistant that suggests relevant tags for content. Return only a JSON array of {$maxTags} or fewer single-word or short-phrase tags. Tags should be lowercase. Example: [\"gratitude\", \"family\", \"personal growth\"]",
+            [['type' => 'text', 'text' => "Suggest tags for this content:\n\n{$content}"]],
+            ['max_tokens' => 100, 'json' => true],
+        );
 
-        $result = $response->choices[0]->message->content ?? '[]';
+        $tags = $this->decodeJson($result);
 
-        try {
-            $tags = json_decode($result, true);
-            return is_array($tags) ? array_slice($tags, 0, $maxTags) : [];
-        } catch (\Exception $e) {
-            return [];
-        }
+        return is_array($tags) ? array_slice($tags, 0, $maxTags) : [];
     }
 
     /**
      * Suggest relevant scripture references for content.
      *
-     * @param string $content The content to analyze
-     * @param int $maxSuggestions Maximum number of suggestions
-     * @param bool $includeLdsScriptures Whether to include LDS scriptures (Book of Mormon, D&C, Pearl of Great Price)
      * @return array<array{reference: string, reason: string}>
      */
     public function suggestScriptures(string $content, int $maxSuggestions = 5, bool $includeLdsScriptures = true): array
@@ -129,37 +84,20 @@ class AiService
             ? "'1 Nephi 3:7' or 'D&C 121:7-8' or 'John 3:16'"
             : "'John 3:16' or 'Psalm 23:1' or 'Romans 8:28'";
 
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a helpful assistant that suggests relevant scripture references from {$scriptureSource} for personal journal entries or faith-related content. Return a JSON array of up to {$maxSuggestions} objects, each with 'reference' (formatted like {$formatExample}) and 'reason' (brief explanation of relevance, 10-15 words). Only suggest scriptures that genuinely connect to the content's themes.",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Suggest relevant scripture references for this content:\n\n{$content}",
-                ],
-            ],
-            'max_tokens' => 500,
-        ]);
+        $result = $this->provider->complete(
+            "You are a helpful assistant that suggests relevant scripture references from {$scriptureSource} for personal journal entries or faith-related content. Return a JSON array of up to {$maxSuggestions} objects, each with 'reference' (formatted like {$formatExample}) and 'reason' (brief explanation of relevance, 10-15 words). Only suggest scriptures that genuinely connect to the content's themes.",
+            [['type' => 'text', 'text' => "Suggest relevant scripture references for this content:\n\n{$content}"]],
+            ['max_tokens' => 500, 'json' => true],
+        );
 
-        $result = $response->choices[0]->message->content ?? '[]';
+        $suggestions = $this->decodeJson($result);
 
-        try {
-            $suggestions = json_decode($result, true);
-            return is_array($suggestions) ? array_slice($suggestions, 0, $maxSuggestions) : [];
-        } catch (\Exception $e) {
-            return [];
-        }
+        return is_array($suggestions) ? array_slice($suggestions, 0, $maxSuggestions) : [];
     }
 
     /**
      * Generate personalized writing prompts.
      *
-     * @param array $recentPosts Recent post summaries for context
-     * @param array $userTags Common tags used by the user
-     * @param string|null $currentContext Optional current context or partial content
      * @return array<array{prompt: string, theme: string}>
      */
     public function generateWritingPrompts(array $recentPosts = [], array $userTags = [], ?string $currentContext = null): array
@@ -175,141 +113,87 @@ class AiService
             $context .= "Current writing context: {$currentContext}\n";
         }
 
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a thoughtful writing prompt generator for a faith-focused journaling app. Generate personalized, reflective prompts that encourage spiritual growth and self-reflection. Return a JSON array of 5 objects, each with 'prompt' (the writing prompt, 15-25 words) and 'theme' (single word or short phrase like 'gratitude', 'faith', 'family').",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => $context ?: "Generate 5 inspiring writing prompts for spiritual journaling.",
-                ],
-            ],
-            'max_tokens' => 400,
-        ]);
+        $result = $this->provider->complete(
+            "You are a thoughtful writing prompt generator for a faith-focused journaling app. Generate personalized, reflective prompts that encourage spiritual growth and self-reflection. Return a JSON array of 5 objects, each with 'prompt' (the writing prompt, 15-25 words) and 'theme' (single word or short phrase like 'gratitude', 'faith', 'family').",
+            [['type' => 'text', 'text' => $context ?: "Generate 5 inspiring writing prompts for spiritual journaling."]],
+            ['max_tokens' => 400, 'json' => true],
+        );
 
-        $result = $response->choices[0]->message->content ?? '[]';
+        $prompts = $this->decodeJson($result);
 
-        try {
-            $prompts = json_decode($result, true);
-            return is_array($prompts) ? array_slice($prompts, 0, 5) : [];
-        } catch (\Exception $e) {
-            return [];
-        }
+        return is_array($prompts) ? array_slice($prompts, 0, 5) : [];
     }
 
     /**
      * Analyze content insights across multiple posts.
      *
-     * @param array $posts Array of post content/summaries
      * @return array{themes: array, emotions: array, growth: string, recommendations: array}
      */
     public function analyzeContentInsights(array $posts): array
     {
+        $empty = [
+            'themes' => [],
+            'emotions' => [],
+            'growth' => '',
+            'recommendations' => [],
+        ];
+
         if (count($posts) < 3) {
-            return [
-                'themes' => [],
-                'emotions' => [],
-                'growth' => '',
-                'recommendations' => [],
-            ];
+            return $empty;
         }
 
         $postsText = implode("\n---\n", array_slice($posts, 0, 20));
 
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are an insightful journal analyst. Analyze these journal entries and return a JSON object with: 'themes' (array of 3-5 recurring themes), 'emotions' (array of 2-4 predominant emotional tones), 'growth' (one sentence observing spiritual or personal growth), 'recommendations' (array of 2-3 suggestions for future reflection topics).",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Analyze these journal entries:\n\n{$postsText}",
-                ],
-            ],
-            'max_tokens' => 400,
-        ]);
+        $result = $this->provider->complete(
+            "You are an insightful journal analyst. Analyze these journal entries and return a JSON object with: 'themes' (array of 3-5 recurring themes), 'emotions' (array of 2-4 predominant emotional tones), 'growth' (one sentence observing spiritual or personal growth), 'recommendations' (array of 2-3 suggestions for future reflection topics).",
+            [['type' => 'text', 'text' => "Analyze these journal entries:\n\n{$postsText}"]],
+            ['max_tokens' => 400, 'json' => true],
+        );
 
-        $result = $response->choices[0]->message->content ?? '{}';
+        $insights = $this->decodeJson($result);
 
-        try {
-            $insights = json_decode($result, true);
-            return is_array($insights) ? $insights : [
-                'themes' => [],
-                'emotions' => [],
-                'growth' => '',
-                'recommendations' => [],
-            ];
-        } catch (\Exception $e) {
-            return [
-                'themes' => [],
-                'emotions' => [],
-                'growth' => '',
-                'recommendations' => [],
-            ];
-        }
+        return is_array($insights) ? $insights : $empty;
     }
 
     /**
      * Analyze content for privacy sensitivity.
      *
-     * @param string $content The content to analyze
      * @return array{sensitivity: string, reasons: array, suggested_visibility: string, names_detected: array, recommendation: string}
      */
     public function analyzeContentSensitivity(string $content): array
     {
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'temperature' => 0.3, // Lower temperature for consistency
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a privacy advisor for a journaling app. Analyze content for privacy sensitivity. Return a JSON object with: 'sensitivity' ('low', 'medium', or 'high'), 'reasons' (array of specific concerns found), 'suggested_visibility' ('public', 'friends', or 'private'), 'names_detected' (array of any personal names found), 'recommendation' (one sentence privacy advice).",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Analyze this content for privacy concerns:\n\n{$content}",
-                ],
-            ],
-            'max_tokens' => 300,
-        ]);
+        $default = [
+            'sensitivity' => 'low',
+            'reasons' => [],
+            'suggested_visibility' => 'public',
+            'names_detected' => [],
+            'recommendation' => '',
+        ];
 
-        $result = $response->choices[0]->message->content ?? '{}';
+        $result = $this->provider->complete(
+            "You are a privacy advisor for a journaling app. Analyze content for privacy sensitivity. Return a JSON object with: 'sensitivity' ('low', 'medium', or 'high'), 'reasons' (array of specific concerns found), 'suggested_visibility' ('public', 'friends', or 'private'), 'names_detected' (array of any personal names found), 'recommendation' (one sentence privacy advice).",
+            [['type' => 'text', 'text' => "Analyze this content for privacy concerns:\n\n{$content}"]],
+            ['max_tokens' => 300, 'temperature' => 0.3, 'json' => true],
+        );
 
-        try {
-            $analysis = json_decode($result, true);
-            return is_array($analysis) ? $analysis : [
-                'sensitivity' => 'low',
-                'reasons' => [],
-                'suggested_visibility' => 'public',
-                'names_detected' => [],
-                'recommendation' => '',
-            ];
-        } catch (\Exception $e) {
-            return [
-                'sensitivity' => 'low',
-                'reasons' => [],
-                'suggested_visibility' => 'public',
-                'names_detected' => [],
-                'recommendation' => '',
-            ];
-        }
+        $analysis = $this->decodeJson($result);
+
+        return is_array($analysis) ? $analysis : $default;
     }
 
     /**
      * Suggest categories for content.
      *
-     * @param string $content The content to analyze
-     * @param array $existingCategories List of existing category names
-     * @param string $type 'user' for personal categories, 'public' for public categories
      * @return array{name: string, reason: string, is_existing: bool}
      */
     public function suggestCategory(string $content, array $existingCategories = [], string $type = 'user'): array
     {
+        $default = [
+            'name' => '',
+            'reason' => '',
+            'is_existing' => false,
+        ];
+
         $categoryContext = !empty($existingCategories)
             ? "Existing categories: " . implode(', ', $existingCategories) . "."
             : "No existing categories.";
@@ -318,36 +202,31 @@ class AiService
             ? "Suggest a personal organization category for this journal entry. Categories should help the user organize their personal writings (e.g., 'Family Stories', 'Spiritual Experiences', 'Travel Memories', 'Life Lessons')."
             : "Suggest a public category for this post that would help others discover it. Categories should be broad topics (e.g., 'Faith', 'Family', 'Gratitude', 'Service', 'Personal Growth').";
 
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a helpful assistant that suggests categories for journal entries. {$typeContext}\n\n{$categoryContext}\n\nReturn a JSON object with: 'name' (the suggested category name, prefer existing categories if they fit well), 'reason' (brief explanation of why this category fits, 10-15 words), 'is_existing' (boolean, true if suggesting an existing category).",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Suggest a category for this content:\n\n{$content}",
-                ],
-            ],
-            'max_tokens' => 150,
-        ]);
+        $result = $this->provider->complete(
+            "You are a helpful assistant that suggests categories for journal entries. {$typeContext}\n\n{$categoryContext}\n\nReturn a JSON object with: 'name' (the suggested category name, prefer existing categories if they fit well), 'reason' (brief explanation of why this category fits, 10-15 words), 'is_existing' (boolean, true if suggesting an existing category).",
+            [['type' => 'text', 'text' => "Suggest a category for this content:\n\n{$content}"]],
+            ['max_tokens' => 150, 'json' => true],
+        );
 
-        $result = $response->choices[0]->message->content ?? '{}';
+        $suggestion = $this->decodeJson($result);
 
-        try {
-            $suggestion = json_decode($result, true);
-            return is_array($suggestion) ? $suggestion : [
-                'name' => '',
-                'reason' => '',
-                'is_existing' => false,
-            ];
-        } catch (\Exception $e) {
-            return [
-                'name' => '',
-                'reason' => '',
-                'is_existing' => false,
-            ];
+        return is_array($suggestion) ? $suggestion : $default;
+    }
+
+    /**
+     * Decode a JSON response, tolerating markdown code fences that some
+     * providers wrap around JSON output.
+     */
+    protected function decodeJson(string $raw): mixed
+    {
+        $trimmed = trim($raw);
+
+        // Strip ```json ... ``` or ``` ... ``` fences if present.
+        if (str_starts_with($trimmed, '```')) {
+            $trimmed = preg_replace('/^```[a-zA-Z]*\s*/', '', $trimmed);
+            $trimmed = preg_replace('/\s*```$/', '', $trimmed);
         }
+
+        return json_decode($trimmed, true);
     }
 }

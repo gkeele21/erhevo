@@ -36,8 +36,10 @@ class PostController extends Controller
                 $q2->where('title', 'like', "%{$search}%")
                     ->orWhereHas('tags', fn ($q3) => $q3->where('name', 'like', "%{$search}%"))
                     ->orWhere('author_text', 'like', "%{$search}%")
-                    ->orWhereHas('user', fn ($q3) => $q3->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('authorUser', fn ($q3) => $q3->where('name', 'like', "%{$search}%"));
+                    ->orWhereHas('user', fn ($q3) => $q3->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%"))
+                    ->orWhereHas('authorUser', fn ($q3) => $q3->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%"));
             }))
             ->when($request->friends_only && $request->user(), fn ($q) => $q->whereIn('user_id', $request->user()->friendIds()))
             ->latest('published_at')

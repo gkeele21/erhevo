@@ -4,6 +4,12 @@ import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    // The app has no dark-mode toggle and its backgrounds are intentionally
+    // light. Using the 'class' strategy (with no `dark` class ever applied)
+    // keeps OS dark mode from accidentally inverting text and breaking
+    // contrast (e.g. light labels on the white auth cards).
+    darkMode: 'class',
+
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './vendor/laravel/jetstream/**/*.blade.php',

@@ -19,6 +19,7 @@ use App\Http\Controllers\SharedPostController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AiConnectionController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TalkController;
 use App\Http\Controllers\UserCategoryController;
 use App\Http\Controllers\UserSettingsController;
 use Illuminate\Support\Facades\Route;
@@ -85,6 +86,9 @@ Route::middleware([
     Route::post('/my-categories', [UserCategoryController::class, 'store'])->name('user-categories.store');
     Route::put('/my-categories/{userCategory}', [UserCategoryController::class, 'update'])->name('user-categories.update');
     Route::delete('/my-categories/{userCategory}', [UserCategoryController::class, 'destroy'])->name('user-categories.destroy');
+
+    // LDS content library (gated by the user's show_lds_content setting)
+    Route::get('/library', [TalkController::class, 'index'])->name('talks.index');
 
     // User Settings
     Route::put('/user/settings', [UserSettingsController::class, 'update'])->name('user-settings.update');

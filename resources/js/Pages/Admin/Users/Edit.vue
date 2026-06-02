@@ -13,7 +13,8 @@ const props = defineProps({
 });
 
 const form = useForm({
-    name: props.user.name,
+    first_name: props.user.first_name,
+    last_name: props.user.last_name,
     email: props.user.email,
 });
 
@@ -28,15 +29,27 @@ const submit = () => {
             <div class="bg-white rounded-lg shadow border border-navy-50 p-6">
                 <form @submit.prevent="submit" class="space-y-6">
                     <div>
-                        <InputLabel for="name" value="Name" />
+                        <InputLabel for="first_name" value="First name" />
                         <TextInput
-                            id="name"
-                            v-model="form.name"
+                            id="first_name"
+                            v-model="form.first_name"
                             type="text"
                             class="mt-1 block w-full"
                             required
                         />
-                        <InputError :message="form.errors.name" class="mt-2" />
+                        <InputError :message="form.errors.first_name" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="last_name" value="Last name" />
+                        <TextInput
+                            id="last_name"
+                            v-model="form.last_name"
+                            type="text"
+                            class="mt-1 block w-full"
+                            required
+                        />
+                        <InputError :message="form.errors.last_name" class="mt-2" />
                     </div>
 
                     <div>

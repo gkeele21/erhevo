@@ -9,10 +9,12 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 const form = useForm({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     password_confirmation: '',
+    show_lds_content: true,
     terms: false,
 });
 
@@ -33,17 +35,30 @@ const submit = () => {
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="first_name" value="First name" />
                 <TextInput
-                    id="name"
-                    v-model="form.name"
+                    id="first_name"
+                    v-model="form.first_name"
                     type="text"
                     class="mt-1 block w-full"
                     required
                     autofocus
-                    autocomplete="name"
+                    autocomplete="given-name"
                 />
-                <InputError class="mt-2" :message="form.errors.name" />
+                <InputError class="mt-2" :message="form.errors.first_name" />
+            </div>
+
+            <div class="mt-4">
+                <InputLabel for="last_name" value="Last name" />
+                <TextInput
+                    id="last_name"
+                    v-model="form.last_name"
+                    type="text"
+                    class="mt-1 block w-full"
+                    required
+                    autocomplete="family-name"
+                />
+                <InputError class="mt-2" :message="form.errors.last_name" />
             </div>
 
             <div class="mt-4">
@@ -83,6 +98,18 @@ const submit = () => {
                     autocomplete="new-password"
                 />
                 <InputError class="mt-2" :message="form.errors.password_confirmation" />
+            </div>
+
+            <div class="mt-4">
+                <label class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <Checkbox id="show_lds_content" v-model:checked="form.show_lds_content" name="show_lds_content" />
+                    </div>
+                    <div class="ms-2 text-sm text-stone-600">
+                        Show content for The Church of Jesus Christ of Latter-day Saints, including Come Follow Me study weeks and scripture suggestions from the Book of Mormon, Doctrine and Covenants, and Pearl of Great Price. You can change this anytime in your profile.
+                    </div>
+                </label>
+                <InputError class="mt-2" :message="form.errors.show_lds_content" />
             </div>
 
             <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature" class="mt-4">

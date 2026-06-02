@@ -54,6 +54,9 @@ const logout = () => {
                                 <NavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                                     Friends
                                 </NavLink>
+                                <NavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
+                                    Library
+                                </NavLink>
                                 <NavLink :href="route('about')" :active="route().current('about')">
                                     About
                                 </NavLink>
@@ -184,6 +187,9 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                             Friends
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
+                            Library
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('about')" :active="route().current('about')">
                             About

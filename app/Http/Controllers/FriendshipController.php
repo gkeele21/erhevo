@@ -104,11 +104,12 @@ class FriendshipController extends Controller
 
         $users = User::where('id', '!=', $request->user()->id)
             ->where(function ($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
+                $q->where('first_name', 'like', "%{$query}%")
+                    ->orWhere('last_name', 'like', "%{$query}%")
                     ->orWhere('email', 'like', "%{$query}%");
             })
             ->limit(10)
-            ->get(['id', 'name', 'email', 'profile_photo_path']);
+            ->get(['id', 'first_name', 'last_name', 'email', 'profile_photo_path']);
 
         return response()->json($users);
     }

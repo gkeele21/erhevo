@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
@@ -40,7 +41,8 @@ class RegistrationTest extends TestCase
         }
 
         $response = $this->post('/register', [
-            'name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
@@ -49,5 +51,42 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_lds_content_preference_is_saved_at_registration(): void
+    {
+        if (! Features::enabled(Features::registration())) {
+            $this->markTestSkipped('Registration support is not enabled.');
+        }
+
+        $this->post('/register', [
+            'first_name' => 'No',
+            'last_name' => 'Lds',
+            'email' => 'nolds@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'show_lds_content' => false,
+            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
+        ]);
+
+        $this->assertFalse(User::where('email', 'nolds@example.com')->first()->show_lds_content);
+    }
+
+    public function test_lds_content_preference_defaults_on_when_omitted(): void
+    {
+        if (! Features::enabled(Features::registration())) {
+            $this->markTestSkipped('Registration support is not enabled.');
+        }
+
+        $this->post('/register', [
+            'first_name' => 'Yes',
+            'last_name' => 'Lds',
+            'email' => 'yeslds@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
+        ]);
+
+        $this->assertTrue(User::where('email', 'yeslds@example.com')->first()->show_lds_content);
     }
 }

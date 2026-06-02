@@ -28,7 +28,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'is_admin',
@@ -58,6 +59,7 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
         'show_lds_content',
+        'name',
     ];
 
     /**
@@ -79,6 +81,18 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->is_admin === true;
+    }
+
+    /**
+     * The user's full name, derived from first and last name.
+     *
+     * Kept as a computed, read-only accessor (and appended to array/JSON form)
+     * so display code, Jetstream's profile-photo initials, and the frontend can
+     * keep using `name`. Writes go to first_name / last_name.
+     */
+    public function getNameAttribute(): string
+    {
+        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
     }
 
     public function posts(): HasMany

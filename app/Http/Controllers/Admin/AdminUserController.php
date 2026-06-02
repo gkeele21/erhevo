@@ -14,8 +14,10 @@ class AdminUserController extends Controller
     public function index(Request $request): Response
     {
         $users = User::query()
-            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%")
-                ->orWhere('email', 'like', "%{$s}%"))
+            ->when($request->search, fn ($q, $s) => $q->where(fn ($w) => $w
+                ->where('first_name', 'like', "%{$s}%")
+                ->orWhere('last_name', 'like', "%{$s}%")
+                ->orWhere('email', 'like', "%{$s}%")))
             ->when($request->boolean('admin_only'), fn ($q) => $q->where('is_admin', true))
             ->withCount('posts')
             ->orderByDesc('created_at')
@@ -48,7 +50,8 @@ class AdminUserController extends Controller
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 

@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Models\Friendship;
+use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\UserCategory;
 use App\Policies\CategoryPolicy;
 use App\Policies\FriendshipPolicy;
+use App\Policies\LessonPolicy;
 use App\Policies\PostPolicy;
 use App\Policies\UserCategoryPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -29,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Post::class, PostPolicy::class);
+        Gate::policy(Lesson::class, LessonPolicy::class);
         Gate::policy(Category::class, CategoryPolicy::class);
         Gate::policy(Friendship::class, FriendshipPolicy::class);
         Gate::policy(UserCategory::class, UserCategoryPolicy::class);

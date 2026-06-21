@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostShareController;
 use App\Http\Controllers\SharedPostController;
@@ -29,6 +30,7 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 
@@ -53,6 +55,15 @@ Route::middleware([
     Route::get('/posts/{post:slug}/edit', [PostController::class, 'edit'])->name('posts.edit');
     Route::put('/posts/{post:slug}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('/posts/{post:slug}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+    // Lessons CRUD (except public index and show)
+    Route::get('/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
+    Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
+    Route::get('/lessons/{lesson:slug}/edit', [LessonController::class, 'edit'])->name('lessons.edit');
+    Route::put('/lessons/{lesson:slug}', [LessonController::class, 'update'])->name('lessons.update');
+    Route::delete('/lessons/{lesson:slug}', [LessonController::class, 'destroy'])->name('lessons.destroy');
+    Route::get('/lessons/{lesson:slug}/teach', [LessonController::class, 'teach'])->name('lessons.teach');
+    Route::get('/api/lessons/talk-search', [LessonController::class, 'searchTalks'])->name('lessons.talk-search');
 
     // Post sharing
     Route::get('/posts/{post:slug}/share', [PostShareController::class, 'index'])->name('posts.share.index');
@@ -147,3 +158,6 @@ Route::middleware([
 
 // Post show route (must be after /posts/create to avoid slug collision)
 Route::get('/posts/{post:slug}', [PostController::class, 'show'])->name('posts.show');
+
+// Lesson show route (must be after /lessons/create to avoid slug collision)
+Route::get('/lessons/{lesson:slug}', [LessonController::class, 'show'])->name('lessons.show');

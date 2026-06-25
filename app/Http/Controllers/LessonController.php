@@ -6,6 +6,9 @@ use App\Enums\LessonItemType;
 use App\Enums\Visibility;
 use App\Models\CfmWeek;
 use App\Models\Lesson;
+use App\Models\ScriptureChapter;
+use App\Models\ScriptureVerse;
+use App\Models\ScriptureVolume;
 use App\Models\Talk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -37,6 +40,7 @@ class LessonController extends Controller
             'visibilityOptions' => $this->visibilityOptions(),
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
+            'scriptureBooks' => $this->scriptureBooksTree(),
         ]);
     }
 
@@ -93,6 +97,7 @@ class LessonController extends Controller
             'visibilityOptions' => $this->visibilityOptions(),
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
+            'scriptureBooks' => $this->scriptureBooksTree(),
         ]);
     }
 
@@ -153,6 +158,80 @@ class LessonController extends Controller
             ]);
 
         return response()->json($talks);
+    }
+
+    /**
+     * Return the verse text + display reference for a chapter/verse range,
+     * used by the lesson Scripture-block picker to auto-fill the passage.
+     */
+    public function scriptureText(Request $request)
+    {
+        $validated = $request->validate([
+            'chapter_id' => 'required|exists:scripture_chapters,id',
+            'start_verse' => 'nullable|integer|min:1',
+            'end_verse' => 'nullable|integer|min:1',
+        ]);
+
+        $chapter = ScriptureChapter::with('book')->findOrFail($validated['chapter_id']);
+        $start = $validated['start_verse'] ?? null;
+        $end = $validated['end_verse'] ?? null;
+
+        $verses = ScriptureVerse::where('chapter_id', $chapter->id)
+            ->when($start, fn ($q) => $q->where('verse_number', '>=', $start))
+            ->when($end, fn ($q) => $q->where('verse_number', '<=', $end))
+            ->orderBy('verse_number')
+            ->get();
+
+        $text = $verses
+            ->map(fn ($v) => trim("{$v->verse_number} " . ($v->text ?? '')))
+            ->implode("\n");
+
+        return response()->json([
+            'reference' => $this->formatReference($chapter, $start, $end),
+            'text' => $text,
+        ]);
+    }
+
+    /**
+     * Build a display reference like "1 Nephi 3", "1 Nephi 3:7" or "1 Nephi 3:7-12".
+     */
+    protected function formatReference(ScriptureChapter $chapter, ?int $start, ?int $end): string
+    {
+        $ref = "{$chapter->book->name} {$chapter->chapter_number}";
+
+        if ($start && $end && $end !== $start) {
+            return "{$ref}:{$start}-{$end}";
+        }
+
+        if ($start) {
+            return "{$ref}:{$start}";
+        }
+
+        return $ref;
+    }
+
+    /**
+     * Volumes → books → chapters (with verse_count) for the scripture picker.
+     */
+    protected function scriptureBooksTree(): array
+    {
+        return ScriptureVolume::query()
+            ->orderBy('sort_order')
+            ->with(['books' => fn ($q) => $q->orderBy('sort_order')
+                ->with(['chapters' => fn ($q2) => $q2->orderBy('chapter_number')])])
+            ->get()
+            ->map(fn ($volume) => [
+                'name' => $volume->name,
+                'books' => $volume->books->map(fn ($book) => [
+                    'id' => $book->id,
+                    'name' => $book->name,
+                    'chapters' => $book->chapters->map(fn ($c) => [
+                        'id' => $c->id,
+                        'number' => $c->chapter_number,
+                        'verse_count' => $c->verse_count,
+                    ])->values(),
+                ])->values(),
+            ])->values()->toArray();
     }
 
     protected function validateLesson(Request $request): array

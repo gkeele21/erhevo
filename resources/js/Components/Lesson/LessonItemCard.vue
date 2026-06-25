@@ -1,6 +1,7 @@
 <script setup>
 import StoryEditor from '@/Components/Story/StoryEditor.vue'
 import TalkPicker from '@/Components/Lesson/TalkPicker.vue'
+import ScripturePicker from '@/Components/Lesson/ScripturePicker.vue'
 
 const props = defineProps({
     item: {
@@ -10,6 +11,10 @@ const props = defineProps({
     typeMeta: {
         type: Object,
         default: () => ({})
+    },
+    scriptureBooks: {
+        type: Array,
+        default: () => []
     }
 })
 
@@ -47,25 +52,13 @@ if (!props.item.config) {
 
         <div class="p-4">
             <!-- Scripture -->
-            <div v-if="item.type === 'scripture'" class="space-y-3">
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-stone-700">Reference</label>
-                    <input
-                        v-model="item.config.reference"
-                        type="text"
-                        class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-                        placeholder="e.g. 1 Nephi 3:7"
-                    >
-                </div>
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-stone-700">Passage (optional)</label>
-                    <textarea
-                        v-model="item.config.passage"
-                        rows="3"
-                        class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-                        placeholder="Paste the verse text if you want it shown in the lesson..."
-                    ></textarea>
-                </div>
+            <div v-if="item.type === 'scripture'">
+                <ScripturePicker
+                    v-model="item.config"
+                    :passage="item.content"
+                    @update:passage="item.content = $event"
+                    :scripture-books="scriptureBooks"
+                />
             </div>
 
             <!-- Talk / Quote -->

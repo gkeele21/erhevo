@@ -20,6 +20,10 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
+    scriptureBooks: {
+        type: Array,
+        default: () => []
+    },
 })
 
 const page = usePage()
@@ -64,6 +68,7 @@ const weekLabel = (week) => {
             <LessonBuilder
                 :items="form.items"
                 :item-types="itemTypes"
+                :scripture-books="scriptureBooks"
                 @update:items="form.items = $event"
             />
             <p v-if="form.errors.items" class="mt-1 text-sm text-red-600">{{ form.errors.items }}</p>

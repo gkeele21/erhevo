@@ -11,6 +11,10 @@ const props = defineProps({
     itemTypes: {
         type: Array,
         default: () => []
+    },
+    scriptureBooks: {
+        type: Array,
+        default: () => []
     }
 })
 
@@ -99,6 +103,7 @@ const removeBlock = (index) => {
                 <LessonItemCard
                     :item="element"
                     :type-meta="typeMetaFor(element.type)"
+                    :scripture-books="scriptureBooks"
                     @remove="removeBlock(index)"
                 />
             </template>

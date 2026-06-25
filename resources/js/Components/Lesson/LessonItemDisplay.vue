@@ -19,11 +19,11 @@ defineProps({
             {{ item.config?.reference }}
         </p>
         <blockquote
-            v-if="item.config?.passage"
-            class="mt-2 border-l-4 border-amber-300 pl-4 italic text-stone-700"
+            v-if="item.content || item.config?.passage"
+            class="mt-2 whitespace-pre-line border-l-4 border-amber-300 pl-4 italic text-stone-700"
             :class="teaching ? 'text-lg' : ''"
         >
-            {{ item.config.passage }}
+            {{ item.content || item.config?.passage }}
         </blockquote>
     </div>
 

@@ -32,6 +32,12 @@ class ScriptureSeeder extends Seeder
             }
         }
 
+        // Backfill verse text from the public-domain bcbooks flat files.
+        if (is_dir(database_path('data/scripture-text'))) {
+            $this->command->info('Importing verse text...');
+            $this->command->call('scriptures:import-text');
+        }
+
         $this->command->info('Scripture seeding complete!');
         $this->command->info('  Volumes: ' . ScriptureVolume::count());
         $this->command->info('  Books: ' . ScriptureBook::count());

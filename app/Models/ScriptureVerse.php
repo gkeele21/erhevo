@@ -10,6 +10,7 @@ class ScriptureVerse extends Model
     protected $fillable = [
         'chapter_id',
         'verse_number',
+        'text',
     ];
 
     public function chapter(): BelongsTo

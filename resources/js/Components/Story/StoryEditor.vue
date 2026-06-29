@@ -4,6 +4,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
+import Highlight from '@tiptap/extension-highlight'
 import { ref, watch, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
@@ -36,6 +37,12 @@ const editor = useEditor({
         }),
         Placeholder.configure({
             placeholder: props.placeholder
+        }),
+        Highlight.configure({
+            multicolor: true,
+            HTMLAttributes: {
+                class: 'rounded px-0.5'
+            }
         })
     ],
     editorProps: {
@@ -99,6 +106,27 @@ const addLink = () => {
         editor.value.chain().focus().setLink({ href: url }).run()
     }
 }
+
+const showHighlightMenu = ref(false)
+
+const highlightColors = [
+    { name: 'Yellow', value: '#fef08a' },
+    { name: 'Green', value: '#bbf7d0' },
+    { name: 'Blue', value: '#bfdbfe' },
+    { name: 'Pink', value: '#fbcfe8' },
+    { name: 'Orange', value: '#fed7aa' },
+    { name: 'Purple', value: '#e9d5ff' },
+]
+
+const applyHighlight = (color) => {
+    editor.value.chain().focus().setHighlight({ color }).run()
+    showHighlightMenu.value = false
+}
+
+const removeHighlight = () => {
+    editor.value.chain().focus().unsetHighlight().run()
+    showHighlightMenu.value = false
+}
 </script>
 
 <template>
@@ -128,6 +156,49 @@ const addLink = () => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l-4 4m-4 4l4-4"/>
                 </svg>
             </button>
+
+            <div class="relative">
+                <button
+                    type="button"
+                    @click="showHighlightMenu = !showHighlightMenu"
+                    :class="{ 'bg-stone-200': editor.isActive('highlight') }"
+                    class="p-2 rounded hover:bg-stone-200 flex items-center"
+                    title="Highlight"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                    <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <template v-if="showHighlightMenu">
+                    <div class="fixed inset-0 z-10" @click="showHighlightMenu = false"></div>
+                    <div class="absolute left-0 top-full z-20 mt-1 flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white p-2 shadow-lg">
+                        <button
+                            v-for="color in highlightColors"
+                            :key="color.value"
+                            type="button"
+                            @click="applyHighlight(color.value)"
+                            class="h-6 w-6 rounded border border-stone-300 hover:ring-2 hover:ring-stone-400"
+                            :style="{ backgroundColor: color.value }"
+                            :title="color.name"
+                        ></button>
+                        <span class="mx-0.5 h-6 w-px bg-stone-200"></span>
+                        <button
+                            type="button"
+                            @click="removeHighlight"
+                            class="flex h-6 w-6 items-center justify-center rounded border border-stone-300 text-stone-500 hover:bg-stone-100"
+                            title="Remove highlight"
+                        >
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </template>
+            </div>
 
             <div class="w-px h-6 bg-stone-300 mx-1"></div>
 

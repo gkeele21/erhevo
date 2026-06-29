@@ -10,6 +10,7 @@ const props = defineProps({
     cfmWeeks: Array,
     currentCfmWeek: Object,
     scriptureBooks: Array,
+    uploadLimits: Object,
 })
 
 const mapLeaf = (item) => ({
@@ -60,6 +61,7 @@ const submit = (publish) => {
                         :visibility-options="visibilityOptions"
                         :cfm-weeks="cfmWeeks"
                         :scripture-books="scriptureBooks"
+                        :upload-limits="uploadLimits"
                     />
 
                     <div class="flex items-center justify-between">

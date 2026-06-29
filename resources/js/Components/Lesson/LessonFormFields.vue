@@ -24,6 +24,10 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
+    uploadLimits: {
+        type: Object,
+        default: () => ({})
+    },
 })
 
 const page = usePage()
@@ -69,6 +73,7 @@ const weekLabel = (week) => {
                 :items="form.items"
                 :item-types="itemTypes"
                 :scripture-books="scriptureBooks"
+                :upload-limits="uploadLimits"
                 @update:items="form.items = $event"
             />
             <p v-if="form.errors.items" class="mt-1 text-sm text-red-600">{{ form.errors.items }}</p>

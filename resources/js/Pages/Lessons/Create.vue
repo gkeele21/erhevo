@@ -9,6 +9,7 @@ defineProps({
     cfmWeeks: Array,
     currentCfmWeek: Object,
     scriptureBooks: Array,
+    uploadLimits: Object,
 })
 
 const form = useForm({
@@ -44,6 +45,7 @@ const submit = (publish) => {
                         :visibility-options="visibilityOptions"
                         :cfm-weeks="cfmWeeks"
                         :scripture-books="scriptureBooks"
+                        :upload-limits="uploadLimits"
                     />
 
                     <div class="flex items-center justify-between">

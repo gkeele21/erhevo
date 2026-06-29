@@ -19,6 +19,10 @@ use Inertia\Response;
 
 class LessonController extends Controller
 {
+    /** Upload size caps (KB) for lesson media. */
+    private const VIDEO_MAX_KB = 20480; // 20 MB
+    private const IMAGE_MAX_KB = 10240; // 10 MB
+
     public function index(Request $request): Response
     {
         $lessons = Lesson::with(['user', 'cfmWeek'])
@@ -43,6 +47,7 @@ class LessonController extends Controller
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'scriptureBooks' => $this->scriptureBooksTree(),
+            'uploadLimits' => $this->uploadLimits(),
         ]);
     }
 
@@ -100,6 +105,7 @@ class LessonController extends Controller
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'scriptureBooks' => $this->scriptureBooksTree(),
+            'uploadLimits' => $this->uploadLimits(),
         ]);
     }
 
@@ -169,9 +175,8 @@ class LessonController extends Controller
     public function uploadVideo(Request $request)
     {
         $request->validate([
-            // Server upload limit is governed by php.ini (upload_max_filesize /
-            // post_max_size); 20MB matches the current default here.
-            'video' => 'required|file|mimetypes:video/mp4,video/webm,video/ogg,video/quicktime|max:20480',
+            // Server upload limit is also governed by php.ini (upload_max_filesize / post_max_size).
+            'video' => 'required|file|mimetypes:video/mp4,video/webm,video/ogg,video/quicktime|max:' . self::VIDEO_MAX_KB,
         ]);
 
         $file = $request->file('video');
@@ -196,6 +201,44 @@ class LessonController extends Controller
         ]);
 
         $prefix = 'lesson-videos/' . $request->user()->id . '/';
+        if (! str_starts_with($validated['path'], $prefix)) {
+            abort(403);
+        }
+
+        Storage::disk('public')->delete($validated['path']);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Upload a local image file for a lesson Image block.
+     */
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,gif,webp|max:' . self::IMAGE_MAX_KB,
+        ]);
+
+        $file = $request->file('image');
+        $path = $file->store('lesson-images/' . $request->user()->id, 'public');
+
+        return response()->json([
+            'path' => $path,
+            'url' => Storage::disk('public')->url($path),
+            'filename' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    /**
+     * Delete a previously uploaded image file, scoped to the current user.
+     */
+    public function deleteImage(Request $request)
+    {
+        $validated = $request->validate([
+            'path' => 'required|string',
+        ]);
+
+        $prefix = 'lesson-images/' . $request->user()->id . '/';
         if (! str_starts_with($validated['path'], $prefix)) {
             abort(403);
         }
@@ -266,6 +309,44 @@ class LessonController extends Controller
     }
 
     /**
+     * Effective max upload size (in MB) for each media type — the smaller of
+     * our validation cap and the server's PHP limits — so the UI shows the
+     * real, accurate limit.
+     */
+    protected function uploadLimits(): array
+    {
+        $iniMaxKb = min(
+            $this->iniBytes(ini_get('upload_max_filesize')),
+            $this->iniBytes(ini_get('post_max_size'))
+        ) / 1024;
+
+        return [
+            'video_mb' => (int) round(min(self::VIDEO_MAX_KB, $iniMaxKb) / 1024),
+            'image_mb' => (int) round(min(self::IMAGE_MAX_KB, $iniMaxKb) / 1024),
+        ];
+    }
+
+    /**
+     * Convert a php.ini size shorthand (e.g. "20M", "1G", "512K") to bytes.
+     */
+    private function iniBytes(?string $value): int
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return PHP_INT_MAX;
+        }
+
+        $number = (int) $value;
+
+        return match (strtolower(substr($value, -1))) {
+            'g' => $number * 1024 * 1024 * 1024,
+            'm' => $number * 1024 * 1024,
+            'k' => $number * 1024,
+            default => (int) $value,
+        };
+    }
+
+    /**
      * Volumes → books → chapters (with verse_count) for the scripture picker.
      */
     protected function scriptureBooksTree(): array
@@ -298,12 +379,12 @@ class LessonController extends Controller
             'visibility' => 'required|in:public,private,friends',
             'publish' => 'boolean',
             'items' => 'nullable|array',
-            'items.*.type' => 'required|in:scripture,talk,video,text,question,group',
+            'items.*.type' => 'required|in:scripture,talk,video,image,text,question,group',
             'items.*.content' => 'nullable|string',
             'items.*.config' => 'nullable|array',
             // Group children (one level deep; children may not themselves be groups).
             'items.*.children' => 'nullable|array',
-            'items.*.children.*.type' => 'required|in:scripture,talk,video,text,question',
+            'items.*.children.*.type' => 'required|in:scripture,talk,video,image,text,question',
             'items.*.children.*.content' => 'nullable|string',
             'items.*.children.*.config' => 'nullable|array',
         ]);

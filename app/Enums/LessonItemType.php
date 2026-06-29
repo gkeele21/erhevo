@@ -7,6 +7,7 @@ enum LessonItemType: string
     case Scripture = 'scripture';
     case Talk = 'talk';
     case Video = 'video';
+    case Image = 'image';
     case Text = 'text';
     case Question = 'question';
     case Group = 'group';
@@ -17,6 +18,7 @@ enum LessonItemType: string
             self::Scripture => 'Scripture',
             self::Talk => 'Talk / Quote',
             self::Video => 'Video / Link',
+            self::Image => 'Image',
             self::Text => 'My Words',
             self::Question => 'Question',
             self::Group => 'Group',
@@ -29,6 +31,7 @@ enum LessonItemType: string
             self::Scripture => 'A scripture reference or passage',
             self::Talk => 'A talk or quote from the library',
             self::Video => 'A video or external link',
+            self::Image => 'A picture, with an optional caption',
             self::Text => 'Your own writing',
             self::Question => 'A question to ask the class',
             self::Group => 'A named group of items',
@@ -41,6 +44,7 @@ enum LessonItemType: string
             self::Scripture => 'book-open',
             self::Talk => 'chat-bubble-bottom-center-text',
             self::Video => 'film',
+            self::Image => 'photo',
             self::Text => 'document-text',
             self::Question => 'question-mark-circle',
             self::Group => 'folder',

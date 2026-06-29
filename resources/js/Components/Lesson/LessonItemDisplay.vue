@@ -84,6 +84,20 @@ defineProps({
         <p v-if="item.config?.note" class="mt-1 text-sm text-stone-500">{{ item.config.note }}</p>
     </div>
 
+    <!-- Image -->
+    <figure v-else-if="item.type === 'image'">
+        <img
+            v-if="item.config?.file_url || item.config?.url"
+            :src="item.config.file_url || item.config.url"
+            :alt="item.config?.caption || ''"
+            class="rounded-lg"
+            :class="teaching ? 'max-h-[70vh]' : 'max-h-96'"
+        >
+        <figcaption v-if="item.config?.caption" class="mt-2 text-sm italic text-stone-500">
+            {{ item.config.caption }}
+        </figcaption>
+    </figure>
+
     <!-- My Words (rich text) -->
     <div
         v-else-if="item.type === 'text'"

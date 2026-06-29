@@ -249,6 +249,55 @@ class LessonBuilderTest extends TestCase
         Storage::disk('public')->assertExists($path);
     }
 
+    public function test_a_user_can_upload_and_delete_a_lesson_image(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $path = $this->actingAs($user)
+            ->postJson(route('lessons.image-upload'), ['image' => UploadedFile::fake()->image('slide.png', 800, 600)])
+            ->assertOk()
+            ->json('path');
+        Storage::disk('public')->assertExists($path);
+
+        $this->actingAs($user)
+            ->deleteJson(route('lessons.image-delete'), ['path' => $path])
+            ->assertOk();
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_image_upload_rejects_non_image_files(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->postJson(route('lessons.image-upload'), ['image' => UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')])
+            ->assertStatus(422);
+    }
+
+    public function test_a_lesson_can_contain_an_image_block(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'Lesson with image',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [
+                ['type' => 'image', 'content' => null, 'config' => [
+                    'source' => 'url',
+                    'url' => 'https://example.com/pic.jpg',
+                    'caption' => 'A sunrise',
+                ]],
+            ],
+        ]);
+
+        $item = Lesson::firstOrFail()->items()->firstOrFail();
+        $this->assertSame('image', $item->type->value);
+        $this->assertSame('A sunrise', $item->config['caption']);
+    }
+
     public function test_a_private_lesson_is_hidden_from_other_users(): void
     {
         $owner = User::factory()->create();

@@ -89,7 +89,7 @@ class LessonScriptureTest extends TestCase
 
         $this->actingAs($user)
             ->getJson(route('lessons.scripture-text', [
-                'chapter_id' => $chapter->id,
+                'start_chapter_id' => $chapter->id,
                 'start_verse' => 1,
                 'end_verse' => 2,
             ]))
@@ -106,10 +106,50 @@ class LessonScriptureTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->getJson(route('lessons.scripture-text', ['chapter_id' => $chapter->id]))
+            ->getJson(route('lessons.scripture-text', ['start_chapter_id' => $chapter->id]))
             ->assertOk()
             ->assertJsonPath('reference', '1 Nephi 3')
             ->assertJsonPath('text', "1 Verse 1 text.\n2 Verse 2 text.\n3 Verse 3 text.");
+    }
+
+    public function test_scripture_text_endpoint_spans_chapters(): void
+    {
+        $chapter3 = $this->seedScripture();           // 1 Nephi 3, verses 1-3
+        $book = $chapter3->book;
+        $chapter4 = $book->chapters()->create(['chapter_number' => 4, 'verse_count' => 2]);
+        foreach ([1, 2] as $n) {
+            ScriptureVerse::create(['chapter_id' => $chapter4->id, 'verse_number' => $n, 'text' => "Ch4 verse {$n}."]);
+        }
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->getJson(route('lessons.scripture-text', [
+                'start_chapter_id' => $chapter3->id,
+                'start_verse' => 2,
+                'end_chapter_id' => $chapter4->id,
+                'end_verse' => 1,
+            ]))
+            ->assertOk()
+            // Cross-chapter reference, with a chapter label before each chapter's verses.
+            ->assertJsonPath('reference', '1 Nephi 3:2-4:1')
+            ->assertJsonPath('text', "1 Nephi 3\n2 Verse 2 text.\n3 Verse 3 text.\n1 Nephi 4\n1 Ch4 verse 1.");
+    }
+
+    public function test_scripture_text_endpoint_rejects_backward_or_cross_book_range(): void
+    {
+        $chapter3 = $this->seedScripture();
+        $book = $chapter3->book;
+        $chapter4 = $book->chapters()->create(['chapter_number' => 4, 'verse_count' => 2]);
+        $user = User::factory()->create();
+
+        // End chapter before start chapter.
+        $this->actingAs($user)
+            ->getJson(route('lessons.scripture-text', [
+                'start_chapter_id' => $chapter4->id,
+                'end_chapter_id' => $chapter3->id,
+            ]))
+            ->assertStatus(422);
     }
 
     public function test_a_lesson_scripture_block_persists_db_references(): void
@@ -128,8 +168,9 @@ class LessonScriptureTest extends TestCase
                     'config' => [
                         'book_id' => $chapter->book_id,
                         'book_name' => '1 Nephi',
-                        'chapter_id' => $chapter->id,
-                        'chapter_number' => 3,
+                        'start_chapter_id' => $chapter->id,
+                        'start_chapter_number' => 3,
+                        'end_chapter_id' => null,
                         'start_verse' => 1,
                         'end_verse' => 2,
                         'reference' => '1 Nephi 3:1-2',
@@ -141,7 +182,7 @@ class LessonScriptureTest extends TestCase
         $item = Lesson::firstOrFail()->items()->firstOrFail();
 
         $this->assertSame('scripture', $item->type->value);
-        $this->assertSame($chapter->id, $item->config['chapter_id']);
+        $this->assertSame($chapter->id, $item->config['start_chapter_id']);
         $this->assertSame(1, $item->config['start_verse']);
         $this->assertSame('1 Nephi 3:1-2', $item->config['reference']);
         $this->assertStringContainsString('Verse 1 text.', $item->content);

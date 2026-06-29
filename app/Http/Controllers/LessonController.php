@@ -10,8 +10,10 @@ use App\Models\ScriptureChapter;
 use App\Models\ScriptureVerse;
 use App\Models\ScriptureVolume;
 use App\Models\Talk;
+use App\Services\ScriptureReferenceParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +22,7 @@ class LessonController extends Controller
     public function index(Request $request): Response
     {
         $lessons = Lesson::with(['user', 'cfmWeek'])
-            ->withCount('items')
+            ->withCount(['allItems as items_count' => fn ($q) => $q->where('type', '!=', 'group')])
             ->visibleTo($request->user())
             ->when($request->search, fn ($q, $search) => $q->where('title', 'like', "%{$search}%"))
             ->latest()
@@ -66,7 +68,7 @@ class LessonController extends Controller
     {
         Gate::authorize('view', $lesson);
 
-        $lesson->load(['user', 'cfmWeek.studyYear', 'items']);
+        $lesson->load(['user', 'cfmWeek.studyYear', 'items.children']);
 
         return Inertia::render('Lessons/Show', [
             'lesson' => $lesson,
@@ -78,7 +80,7 @@ class LessonController extends Controller
     {
         Gate::authorize('view', $lesson);
 
-        $lesson->load(['cfmWeek.studyYear', 'items']);
+        $lesson->load(['cfmWeek.studyYear', 'items.children']);
 
         return Inertia::render('Lessons/Teach', [
             'lesson' => $lesson,
@@ -89,7 +91,7 @@ class LessonController extends Controller
     {
         Gate::authorize('update', $lesson);
 
-        $lesson->load(['cfmWeek', 'items']);
+        $lesson->load(['cfmWeek', 'items.children']);
 
         return Inertia::render('Lessons/Edit', [
             'lesson' => $lesson,
@@ -161,53 +163,106 @@ class LessonController extends Controller
     }
 
     /**
-     * Return the verse text + display reference for a chapter/verse range,
-     * used by the lesson Scripture-block picker to auto-fill the passage.
+     * Upload a local video file for a lesson Video block.
+     * Returns a public URL + the stored path.
      */
-    public function scriptureText(Request $request)
+    public function uploadVideo(Request $request)
     {
-        $validated = $request->validate([
-            'chapter_id' => 'required|exists:scripture_chapters,id',
-            'start_verse' => 'nullable|integer|min:1',
-            'end_verse' => 'nullable|integer|min:1',
+        $request->validate([
+            // Server upload limit is governed by php.ini (upload_max_filesize /
+            // post_max_size); 20MB matches the current default here.
+            'video' => 'required|file|mimetypes:video/mp4,video/webm,video/ogg,video/quicktime|max:20480',
         ]);
 
-        $chapter = ScriptureChapter::with('book')->findOrFail($validated['chapter_id']);
-        $start = $validated['start_verse'] ?? null;
-        $end = $validated['end_verse'] ?? null;
-
-        $verses = ScriptureVerse::where('chapter_id', $chapter->id)
-            ->when($start, fn ($q) => $q->where('verse_number', '>=', $start))
-            ->when($end, fn ($q) => $q->where('verse_number', '<=', $end))
-            ->orderBy('verse_number')
-            ->get();
-
-        $text = $verses
-            ->map(fn ($v) => trim("{$v->verse_number} " . ($v->text ?? '')))
-            ->implode("\n");
+        $file = $request->file('video');
+        // Store under a per-user folder so deletes can be scoped to the owner.
+        $path = $file->store('lesson-videos/' . $request->user()->id, 'public');
 
         return response()->json([
-            'reference' => $this->formatReference($chapter, $start, $end),
-            'text' => $text,
+            'path' => $path,
+            'url' => Storage::disk('public')->url($path),
+            'filename' => $file->getClientOriginalName(),
         ]);
     }
 
     /**
-     * Build a display reference like "1 Nephi 3", "1 Nephi 3:7" or "1 Nephi 3:7-12".
+     * Delete a previously uploaded video file. Scoped to the current user's
+     * upload folder so a user can only remove their own files.
      */
-    protected function formatReference(ScriptureChapter $chapter, ?int $start, ?int $end): string
+    public function deleteVideo(Request $request)
     {
-        $ref = "{$chapter->book->name} {$chapter->chapter_number}";
+        $validated = $request->validate([
+            'path' => 'required|string',
+        ]);
 
-        if ($start && $end && $end !== $start) {
-            return "{$ref}:{$start}-{$end}";
+        $prefix = 'lesson-videos/' . $request->user()->id . '/';
+        if (! str_starts_with($validated['path'], $prefix)) {
+            abort(403);
         }
 
-        if ($start) {
-            return "{$ref}:{$start}";
+        Storage::disk('public')->delete($validated['path']);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Return the verse text + display reference for a (possibly cross-chapter)
+     * range, used by the lesson Scripture-block picker to auto-fill the passage.
+     */
+    public function scriptureText(Request $request, ScriptureReferenceParser $parser)
+    {
+        $validated = $request->validate([
+            'start_chapter_id' => 'required|exists:scripture_chapters,id',
+            'start_verse' => 'nullable|integer|min:1',
+            'end_chapter_id' => 'nullable|exists:scripture_chapters,id',
+            'end_verse' => 'nullable|integer|min:1',
+        ]);
+
+        $startChapter = ScriptureChapter::with('book')->findOrFail($validated['start_chapter_id']);
+        $endChapter = ! empty($validated['end_chapter_id'])
+            ? ScriptureChapter::with('book')->findOrFail($validated['end_chapter_id'])
+            : $startChapter;
+
+        // A range must stay within one book and run forward.
+        if ($endChapter->book_id !== $startChapter->book_id
+            || $endChapter->chapter_number < $startChapter->chapter_number) {
+            return response()->json(['message' => 'The end chapter must be in the same book and after the start chapter.'], 422);
         }
 
-        return $ref;
+        $startVerse = $validated['start_verse'] ?? null;
+        $endVerse = $validated['end_verse'] ?? null;
+
+        $chapters = ScriptureChapter::where('book_id', $startChapter->book_id)
+            ->whereBetween('chapter_number', [$startChapter->chapter_number, $endChapter->chapter_number])
+            ->orderBy('chapter_number')
+            ->get();
+
+        $multiChapter = $chapters->count() > 1;
+        $lines = [];
+
+        foreach ($chapters as $chapter) {
+            $verses = ScriptureVerse::where('chapter_id', $chapter->id)
+                ->when($chapter->id === $startChapter->id && $startVerse,
+                    fn ($q) => $q->where('verse_number', '>=', $startVerse))
+                ->when($chapter->id === $endChapter->id && $endVerse,
+                    fn ($q) => $q->where('verse_number', '<=', $endVerse))
+                ->orderBy('verse_number')
+                ->get();
+
+            // Label each chapter when the passage spans more than one.
+            if ($multiChapter) {
+                $lines[] = "{$startChapter->book->name} {$chapter->chapter_number}";
+            }
+
+            foreach ($verses as $v) {
+                $lines[] = trim("{$v->verse_number} " . ($v->text ?? ''));
+            }
+        }
+
+        return response()->json([
+            'reference' => $parser->format($startChapter, $startVerse, $endChapter, $endVerse),
+            'text' => implode("\n", $lines),
+        ]);
     }
 
     /**
@@ -243,20 +298,25 @@ class LessonController extends Controller
             'visibility' => 'required|in:public,private,friends',
             'publish' => 'boolean',
             'items' => 'nullable|array',
-            'items.*.type' => 'required|in:scripture,talk,video,text,question',
+            'items.*.type' => 'required|in:scripture,talk,video,text,question,group',
             'items.*.content' => 'nullable|string',
             'items.*.config' => 'nullable|array',
+            // Group children (one level deep; children may not themselves be groups).
+            'items.*.children' => 'nullable|array',
+            'items.*.children.*.type' => 'required|in:scripture,talk,video,text,question',
+            'items.*.children.*.content' => 'nullable|string',
+            'items.*.children.*.config' => 'nullable|array',
         ]);
     }
 
     protected function itemTypeOptions(): array
     {
-        return collect(LessonItemType::cases())->map(fn ($t) => [
+        return collect(LessonItemType::contentCases())->map(fn ($t) => [
             'value' => $t->value,
             'label' => $t->label(),
             'description' => $t->description(),
             'icon' => $t->icon(),
-        ])->toArray();
+        ])->values()->toArray();
     }
 
     protected function visibilityOptions(): array

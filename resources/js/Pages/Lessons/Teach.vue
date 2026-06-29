@@ -29,10 +29,28 @@ defineProps({
                 Come Follow Me · {{ lesson.cfm_week.title }}
             </p>
 
-            <div v-if="lesson.items.length" class="space-y-12">
-                <section v-for="item in lesson.items" :key="item.id">
-                    <LessonItemDisplay :item="item" teaching />
-                </section>
+            <div v-if="lesson.items.length">
+                <template v-for="(item, index) in lesson.items" :key="item.id">
+                    <!-- Decorative separator between blocks -->
+                    <div v-if="index > 0" class="flex items-center justify-center gap-2 py-10" aria-hidden="true">
+                        <span class="h-1 w-1 rounded-full bg-amber-300"></span>
+                        <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                        <span class="h-1 w-1 rounded-full bg-amber-300"></span>
+                    </div>
+                    <!-- Group: a named section with its child items -->
+                    <section v-if="item.type === 'group'">
+                        <h2 v-if="item.config?.title" class="mb-6 border-b border-stone-200 pb-2 text-2xl font-bold text-stone-800">
+                            {{ item.config.title }}
+                        </h2>
+                        <div class="space-y-10">
+                            <LessonItemDisplay v-for="child in item.children" :key="child.id" :item="child" teaching />
+                        </div>
+                    </section>
+                    <!-- Loose item -->
+                    <section v-else>
+                        <LessonItemDisplay :item="item" teaching />
+                    </section>
+                </template>
             </div>
             <p v-else class="text-stone-400">This lesson has no content yet.</p>
         </main>

@@ -65,6 +65,8 @@ Route::middleware([
     Route::get('/lessons/{lesson:slug}/teach', [LessonController::class, 'teach'])->name('lessons.teach');
     Route::get('/api/lessons/talk-search', [LessonController::class, 'searchTalks'])->name('lessons.talk-search');
     Route::get('/api/lessons/scripture-text', [LessonController::class, 'scriptureText'])->name('lessons.scripture-text');
+    Route::post('/api/lessons/video-upload', [LessonController::class, 'uploadVideo'])->name('lessons.video-upload');
+    Route::delete('/api/lessons/video', [LessonController::class, 'deleteVideo'])->name('lessons.video-delete');
 
     // Post sharing
     Route::get('/posts/{post:slug}/share', [PostShareController::class, 'index'])->name('posts.share.index');

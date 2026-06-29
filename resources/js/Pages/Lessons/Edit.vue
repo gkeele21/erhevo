@@ -12,17 +12,28 @@ const props = defineProps({
     scriptureBooks: Array,
 })
 
+const mapLeaf = (item) => ({
+    type: item.type,
+    content: item.content ?? '',
+    config: item.config ?? {},
+})
+
+const mapNode = (item) => item.type === 'group'
+    ? {
+        type: 'group',
+        content: '',
+        config: item.config ?? {},
+        children: (item.children ?? []).map(mapLeaf),
+    }
+    : mapLeaf(item)
+
 const form = useForm({
     title: props.lesson.title,
     description: props.lesson.description ?? '',
     cfm_week_id: props.lesson.cfm_week_id ?? null,
     visibility: props.lesson.visibility,
     publish: !!props.lesson.published_at,
-    items: (props.lesson.items ?? []).map((item) => ({
-        type: item.type,
-        content: item.content ?? '',
-        config: item.config ?? {},
-    })),
+    items: (props.lesson.items ?? []).map(mapNode),
 })
 
 const submit = (publish) => {

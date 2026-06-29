@@ -20,10 +20,13 @@ defineProps({
         </p>
         <blockquote
             v-if="item.content || item.config?.passage"
-            class="mt-2 whitespace-pre-line border-l-4 border-amber-300 pl-4 italic text-stone-700"
-            :class="teaching ? 'text-lg' : ''"
+            class="mt-2 border-l-4 border-amber-300 pl-4 text-stone-700"
         >
-            {{ item.content || item.config?.passage }}
+            <div
+                class="prose prose-stone max-w-none"
+                :class="teaching ? 'prose-lg' : ''"
+                v-html="item.content || item.config?.passage"
+            ></div>
         </blockquote>
     </div>
 
@@ -53,7 +56,18 @@ defineProps({
 
     <!-- Video / Link -->
     <div v-else-if="item.type === 'video'">
+        <!-- Uploaded local video -->
+        <div v-if="item.config?.file_url">
+            <p v-if="item.config?.title" class="mb-2 font-medium text-stone-800" :class="teaching ? 'text-xl' : ''">
+                {{ item.config.title }}
+                <span v-if="item.config?.duration" class="text-sm font-normal text-stone-400">({{ item.config.duration }})</span>
+            </p>
+            <video :src="item.config.file_url" controls class="w-full rounded-lg bg-black" :class="teaching ? 'max-h-[70vh]' : 'max-h-96'"></video>
+        </div>
+
+        <!-- External link -->
         <a
+            v-else
             :href="item.config?.url"
             target="_blank"
             rel="noopener"
@@ -65,6 +79,7 @@ defineProps({
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             {{ item.config?.title || item.config?.url }}
+            <span v-if="item.config?.duration" class="text-sm font-normal text-stone-400">({{ item.config.duration }})</span>
         </a>
         <p v-if="item.config?.note" class="mt-1 text-sm text-stone-500">{{ item.config.note }}</p>
     </div>

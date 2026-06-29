@@ -14,6 +14,30 @@ const search = ref(props.filters?.search ?? '')
 const runSearch = () => {
     router.get(route('lessons.index'), { search: search.value }, { preserveState: true, replace: true })
 }
+
+const formatDateTime = (value) => {
+    if (!value) return ''
+    return new Date(value).toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+    })
+}
+
+const formatDate = (value) => {
+    if (!value) return ''
+    return new Date(value).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    })
+}
+
+const cfmDateRange = (week) => {
+    if (!week?.start_date) return ''
+    const start = formatDate(week.start_date)
+    const end = week.end_date ? formatDate(week.end_date) : ''
+    return end && end !== start ? `${start} – ${end}` : start
+}
 </script>
 
 <template>
@@ -60,8 +84,14 @@ const runSearch = () => {
                                 </p>
                                 <p class="mt-2 text-xs text-stone-400">
                                     {{ lesson.items_count }} {{ lesson.items_count === 1 ? 'block' : 'blocks' }}
-                                    <span v-if="lesson.cfm_week"> · {{ lesson.cfm_week.title }}</span>
+                                    <span> · Created {{ formatDateTime(lesson.created_at) }}</span>
                                     <span v-if="!lesson.published_at" class="ml-2 rounded bg-stone-100 px-2 py-0.5 text-stone-500">Draft</span>
+                                </p>
+                                <p v-if="lesson.cfm_week" class="mt-1 text-xs text-amber-700">
+                                    Come Follow Me · {{ lesson.cfm_week.title }}
+                                    <span v-if="cfmDateRange(lesson.cfm_week)" class="text-amber-600">
+                                        ({{ cfmDateRange(lesson.cfm_week) }})
+                                    </span>
                                 </p>
                             </div>
                         </div>

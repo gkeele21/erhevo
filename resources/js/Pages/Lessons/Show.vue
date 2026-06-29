@@ -55,9 +55,19 @@ const destroy = () => {
                         Come Follow Me · {{ lesson.cfm_week.title }}
                     </p>
 
-                    <div v-if="lesson.items.length" class="space-y-8">
-                        <div v-for="item in lesson.items" :key="item.id">
-                            <LessonItemDisplay :item="item" />
+                    <div v-if="lesson.items.length" class="divide-y divide-stone-200">
+                        <div v-for="item in lesson.items" :key="item.id" class="py-6 first:pt-0 last:pb-0">
+                            <!-- Group: a named section with its child items -->
+                            <section v-if="item.type === 'group'">
+                                <h3 v-if="item.config?.title" class="mb-4 text-lg font-bold text-stone-800">
+                                    {{ item.config.title }}
+                                </h3>
+                                <div class="space-y-6">
+                                    <LessonItemDisplay v-for="child in item.children" :key="child.id" :item="child" />
+                                </div>
+                            </section>
+                            <!-- Loose item -->
+                            <LessonItemDisplay v-else :item="item" />
                         </div>
                     </div>
                     <p v-else class="text-stone-400">This lesson has no content yet.</p>

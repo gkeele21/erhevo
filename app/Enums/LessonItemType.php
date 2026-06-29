@@ -9,6 +9,7 @@ enum LessonItemType: string
     case Video = 'video';
     case Text = 'text';
     case Question = 'question';
+    case Group = 'group';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum LessonItemType: string
             self::Video => 'Video / Link',
             self::Text => 'My Words',
             self::Question => 'Question',
+            self::Group => 'Group',
         };
     }
 
@@ -29,6 +31,7 @@ enum LessonItemType: string
             self::Video => 'A video or external link',
             self::Text => 'Your own writing',
             self::Question => 'A question to ask the class',
+            self::Group => 'A named group of items',
         };
     }
 
@@ -40,6 +43,15 @@ enum LessonItemType: string
             self::Video => 'film',
             self::Text => 'document-text',
             self::Question => 'question-mark-circle',
+            self::Group => 'folder',
         };
+    }
+
+    /**
+     * Content block types (everything except the Group container).
+     */
+    public static function contentCases(): array
+    {
+        return array_filter(self::cases(), fn (self $t) => $t !== self::Group);
     }
 }

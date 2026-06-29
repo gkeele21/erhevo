@@ -53,29 +53,57 @@ class Lesson extends Model
     }
 
     /**
-     * Ordered blocks that make up this lesson.
+     * Top-level blocks (loose items and groups) that make up this lesson,
+     * in order. Group children are loaded via the item's children() relation.
      */
     public function items(): HasMany
     {
-        return $this->hasMany(LessonItem::class)->orderBy('sort_order');
+        return $this->hasMany(LessonItem::class)
+            ->whereNull('parent_id')
+            ->orderBy('sort_order');
     }
 
     /**
-     * Replace this lesson's items with the given ordered array.
-     * The array order becomes the sort_order, so reordering on the
-     * client persists by simply re-saving.
+     * Every block in the lesson regardless of nesting level.
      */
-    public function syncItems(array $items): void
+    public function allItems(): HasMany
     {
-        $this->items()->delete();
+        return $this->hasMany(LessonItem::class);
+    }
 
-        foreach ($items as $index => $item) {
-            $this->items()->create([
-                'type' => $item['type'],
+    /**
+     * Replace this lesson's blocks with the given ordered tree.
+     *
+     * Each node is a loose item or a group; a group node carries a
+     * "children" array of items. The array order becomes the sort_order at
+     * each level, so reordering on the client persists by simply re-saving.
+     */
+    public function syncItems(array $nodes): void
+    {
+        $this->allItems()->delete();
+
+        foreach ($nodes as $index => $node) {
+            $item = LessonItem::create([
+                'lesson_id' => $this->id,
+                'parent_id' => null,
+                'type' => $node['type'],
                 'sort_order' => $index,
-                'content' => $item['content'] ?? null,
-                'config' => $item['config'] ?? null,
+                'content' => $node['content'] ?? null,
+                'config' => $node['config'] ?? null,
             ]);
+
+            if (($node['type'] ?? null) === 'group') {
+                foreach ($node['children'] ?? [] as $childIndex => $child) {
+                    LessonItem::create([
+                        'lesson_id' => $this->id,
+                        'parent_id' => $item->id,
+                        'type' => $child['type'],
+                        'sort_order' => $childIndex,
+                        'content' => $child['content'] ?? null,
+                        'config' => $child['config'] ?? null,
+                    ]);
+                }
+            }
         }
     }
 

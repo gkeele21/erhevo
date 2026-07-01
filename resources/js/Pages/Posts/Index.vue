@@ -77,7 +77,7 @@ watch(friendsOnly, applyFilters)
                                 ? 'bg-amber-600 text-white'
                                 : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'"
                         >
-                            {{ type.label }}s
+                            {{ type.plural }}
                         </button>
                     </div>
                 </div>

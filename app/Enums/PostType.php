@@ -21,6 +21,17 @@ enum PostType: string
         };
     }
 
+    public function pluralLabel(): string
+    {
+        return match ($this) {
+            self::Story => 'Stories',
+            self::Thought => 'Thoughts',
+            self::Note => 'Notes',
+            self::Quote => 'Quotes',
+            self::MeetingNotes => 'Meeting Notes',
+        };
+    }
+
     public function description(): string
     {
         return match ($this) {

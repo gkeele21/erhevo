@@ -52,6 +52,7 @@ class PostController extends Controller
             'postTypes' => collect(PostType::cases())->map(fn ($p) => [
                 'value' => $p->value,
                 'label' => $p->label(),
+                'plural' => $p->pluralLabel(),
             ]),
             'filters' => $request->only(['category', 'tag', 'search', 'friends_only', 'type']),
         ]);

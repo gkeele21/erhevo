@@ -13,18 +13,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->withPersonalTeam()->create();
-
-        User::factory()->create([
-            'first_name' => 'Test',
-            'last_name' => 'User',
-            'email' => 'test@example.com',
-        ]);
-
+        // Reference data — safe to seed everywhere, including production.
         $this->call([
             CategorySeeder::class,
             DefaultCategorySeeder::class,
-            PostSeeder::class,
             ChurchOrganizationSeeder::class,
             SourceSeeder::class,
             TalkTypeSeeder::class,
@@ -35,5 +27,20 @@ class DatabaseSeeder extends Seeder
             CfmSpecialTopicSeeder::class,
             ScriptureSeeder::class,
         ]);
+
+        // Sample/demo data relies on model factories (faker), which is a
+        // dev-only dependency and absent in production (composer install
+        // --no-dev). Also, we don't want a test user or fake posts in prod.
+        if (! app()->isProduction()) {
+            User::factory()->create([
+                'first_name' => 'Test',
+                'last_name' => 'User',
+                'email' => 'test@example.com',
+            ]);
+
+            $this->call([
+                PostSeeder::class,
+            ]);
+        }
     }
 }

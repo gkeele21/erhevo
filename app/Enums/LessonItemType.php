@@ -6,6 +6,7 @@ enum LessonItemType: string
 {
     case Scripture = 'scripture';
     case Talk = 'talk';
+    case Quote = 'quote';
     case Video = 'video';
     case Image = 'image';
     case Text = 'text';
@@ -16,7 +17,8 @@ enum LessonItemType: string
     {
         return match ($this) {
             self::Scripture => 'Scripture',
-            self::Talk => 'Talk / Quote',
+            self::Talk => 'Talk',
+            self::Quote => 'Quote',
             self::Video => 'Video / Link',
             self::Image => 'Image',
             self::Text => 'My Words',
@@ -29,7 +31,8 @@ enum LessonItemType: string
     {
         return match ($this) {
             self::Scripture => 'A scripture reference or passage',
-            self::Talk => 'A talk or quote from the library',
+            self::Talk => 'A talk from the library',
+            self::Quote => 'A quote you can save, tag, and reuse',
             self::Video => 'A video or external link',
             self::Image => 'A picture, with an optional caption',
             self::Text => 'Your own writing',
@@ -43,6 +46,7 @@ enum LessonItemType: string
         return match ($this) {
             self::Scripture => 'book-open',
             self::Talk => 'chat-bubble-bottom-center-text',
+            self::Quote => 'chat-bubble-left-right',
             self::Video => 'film',
             self::Image => 'photo',
             self::Text => 'document-text',

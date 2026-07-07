@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminCfmStudyYearController;
 use App\Http\Controllers\Admin\AdminCfmWeekController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FriendshipController;
@@ -31,6 +32,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index');
+Route::get('/authors', [AuthorController::class, 'index'])->name('authors.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 
@@ -64,6 +66,8 @@ Route::middleware([
     Route::delete('/lessons/{lesson:slug}', [LessonController::class, 'destroy'])->name('lessons.destroy');
     Route::get('/lessons/{lesson:slug}/teach', [LessonController::class, 'teach'])->name('lessons.teach');
     Route::get('/api/lessons/talk-search', [LessonController::class, 'searchTalks'])->name('lessons.talk-search');
+    Route::get('/api/lessons/quote-search', [LessonController::class, 'searchQuotes'])->name('lessons.quote-search');
+    Route::post('/api/lessons/quotes', [LessonController::class, 'storeQuote'])->name('lessons.quote-store');
     Route::get('/api/lessons/scripture-text', [LessonController::class, 'scriptureText'])->name('lessons.scripture-text');
     Route::post('/api/lessons/video-upload', [LessonController::class, 'uploadVideo'])->name('lessons.video-upload');
     Route::delete('/api/lessons/video', [LessonController::class, 'deleteVideo'])->name('lessons.video-delete');
@@ -96,6 +100,7 @@ Route::middleware([
 
     // Authors API
     Route::get('/api/authors/search', [PostController::class, 'searchAuthors'])->name('authors.search');
+    Route::post('/authors/merge', [AuthorController::class, 'merge'])->name('authors.merge');
 
     // User Categories
     Route::get('/my-categories', [UserCategoryController::class, 'index'])->name('user-categories.index');
@@ -166,3 +171,6 @@ Route::get('/posts/{post:slug}', [PostController::class, 'show'])->name('posts.s
 
 // Lesson show route (must be after /lessons/create to avoid slug collision)
 Route::get('/lessons/{lesson:slug}', [LessonController::class, 'show'])->name('lessons.show');
+
+// Author profile (after /authors index + /authors/merge to avoid collisions)
+Route::get('/authors/{author:slug}', [AuthorController::class, 'show'])->name('authors.show');

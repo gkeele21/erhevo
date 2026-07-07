@@ -46,7 +46,8 @@ const allCollapsed = computed(
 function typeLabel(item) {
     switch (item.type) {
         case 'scripture': return 'Scripture'
-        case 'talk': return 'Quote'
+        case 'talk': return 'Talk'
+        case 'quote': return 'Quote'
         case 'video': return 'Video'
         case 'image': return 'Image'
         case 'text': return 'My Words'
@@ -63,7 +64,8 @@ function summary(item) {
     const c = item.config || {}
     switch (item.type) {
         case 'scripture': return c.reference || 'Scripture reference'
-        case 'talk': return c.title || 'Talk / quote'
+        case 'talk': return c.title || 'Talk'
+        case 'quote': return c.source_title || c.author || stripHtml(item.content) || 'Quote'
         case 'video': return c.title || c.filename || c.url || 'Video / link'
         case 'image': return c.caption || c.filename || c.url || 'Image'
         case 'text': return stripHtml(item.content) || 'Empty'

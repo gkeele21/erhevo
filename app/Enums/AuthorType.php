@@ -5,15 +5,13 @@ namespace App\Enums;
 enum AuthorType: string
 {
     case Self = 'self';
-    case Text = 'text';
-    case User = 'user';
+    case Author = 'author';
 
     public function label(): string
     {
         return match ($this) {
             self::Self => 'Myself',
-            self::Text => 'Custom Author',
-            self::User => 'Another User',
+            self::Author => 'Someone else',
         };
     }
 }

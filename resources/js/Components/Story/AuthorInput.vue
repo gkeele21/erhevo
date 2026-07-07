@@ -1,16 +1,19 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
+import AuthorSelect from '@/Components/Story/AuthorSelect.vue'
 
 const props = defineProps({
     authorType: {
         type: String,
         default: 'self'
     },
+    // The typed author name; carries a new author's name to the server, which
+    // find-or-creates the Author entity when no authorId is chosen.
     authorText: {
         type: String,
         default: ''
     },
-    authorUserId: {
+    authorId: {
         type: [Number, String, null],
         default: null
     },
@@ -23,95 +26,14 @@ const props = defineProps({
 const emit = defineEmits([
     'update:authorType',
     'update:authorText',
-    'update:authorUserId'
+    'update:authorId'
 ])
 
-const userQuery = ref('')
-const userSuggestions = ref([])
-const selectedUser = ref(null)
-const showSuggestions = ref(false)
-let debounceTimer = null
-
-// Author text autocomplete
-const authorSuggestions = ref([])
-const showAuthorSuggestions = ref(false)
-let authorDebounceTimer = null
-
-const searchAuthors = async (query) => {
-    if (query.length < 3) {
-        authorSuggestions.value = []
-        return
-    }
-
-    try {
-        const response = await fetch(`/api/authors/search?q=${encodeURIComponent(query)}`)
-        authorSuggestions.value = await response.json()
-        showAuthorSuggestions.value = authorSuggestions.value.length > 0
-    } catch (error) {
-        console.error('Failed to search authors:', error)
-    }
-}
-
-const handleAuthorInput = (e) => {
-    emit('update:authorText', e.target.value)
-    clearTimeout(authorDebounceTimer)
-    authorDebounceTimer = setTimeout(() => {
-        searchAuthors(e.target.value)
-    }, 300)
-}
-
-const selectAuthor = (author) => {
-    emit('update:authorText', author)
-    authorSuggestions.value = []
-    showAuthorSuggestions.value = false
-}
-
-const hideAuthorSuggestions = () => {
-    setTimeout(() => showAuthorSuggestions.value = false, 200)
-}
-
-const hideUserSuggestions = () => {
-    setTimeout(() => showSuggestions.value = false, 200)
-}
-
-const searchUsers = async (query) => {
-    if (query.length < 2) {
-        userSuggestions.value = []
-        return
-    }
-
-    try {
-        const response = await fetch(`/users/search?q=${encodeURIComponent(query)}`)
-        userSuggestions.value = await response.json()
-        showSuggestions.value = true
-    } catch (error) {
-        console.error('Failed to search users:', error)
-    }
-}
-
-const handleUserInput = (e) => {
-    clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => {
-        searchUsers(e.target.value)
-    }, 300)
-}
-
-const selectUser = (user) => {
-    selectedUser.value = user
-    userQuery.value = user.name
-    emit('update:authorUserId', user.id)
-    userSuggestions.value = []
-    showSuggestions.value = false
-}
-
-watch(() => props.authorType, (newType) => {
-    if (newType !== 'user') {
-        selectedUser.value = null
-        userQuery.value = ''
-        emit('update:authorUserId', null)
-    }
-    if (newType !== 'text') {
+// Leaving "Someone else" clears the chosen/typed author.
+watch(() => props.authorType, (type) => {
+    if (type !== 'author') {
         emit('update:authorText', '')
+        emit('update:authorId', null)
     }
 })
 </script>
@@ -122,7 +44,7 @@ watch(() => props.authorType, (newType) => {
             <label class="block text-sm font-medium text-stone-700 mb-2">
                 Author Attribution
             </label>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-2 gap-3">
                 <label
                     v-for="type in authorTypes"
                     :key="type.value"
@@ -147,67 +69,18 @@ watch(() => props.authorType, (newType) => {
             </div>
         </div>
 
-        <!-- Custom Author Text -->
-        <div v-if="authorType === 'text'" class="relative">
+        <!-- Author entity (search existing or add new) -->
+        <div v-if="authorType === 'author'">
             <label class="block text-sm font-medium text-stone-700 mb-1">
-                Author Name
+                Author
             </label>
-            <input
-                type="text"
-                :value="authorText"
-                @input="handleAuthorInput"
-                @focus="showAuthorSuggestions = authorSuggestions.length > 0"
-                @blur="hideAuthorSuggestions"
-                placeholder="e.g., Maya Angelou, Unknown, Traditional"
-                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-            >
-
-            <div
-                v-if="showAuthorSuggestions && authorSuggestions.length"
-                class="absolute z-10 mt-1 w-full bg-white border border-stone-300 rounded-lg shadow-lg max-h-48 overflow-auto"
-            >
-                <button
-                    v-for="author in authorSuggestions"
-                    :key="author"
-                    type="button"
-                    @click="selectAuthor(author)"
-                    class="w-full px-4 py-2 text-left text-sm hover:bg-stone-100"
-                >
-                    <span class="font-medium">{{ author }}</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- User Selection -->
-        <div v-if="authorType === 'user'" class="relative">
-            <label class="block text-sm font-medium text-stone-700 mb-1">
-                Select User
-            </label>
-            <input
-                v-model="userQuery"
-                type="text"
-                @input="handleUserInput"
-                @focus="showSuggestions = true"
-                @blur="hideUserSuggestions"
-                placeholder="Search for a user..."
-                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-            >
-
-            <div
-                v-if="showSuggestions && userSuggestions.length"
-                class="absolute z-10 mt-1 w-full bg-white border border-stone-300 rounded-lg shadow-lg max-h-48 overflow-auto"
-            >
-                <button
-                    v-for="user in userSuggestions"
-                    :key="user.id"
-                    type="button"
-                    @click="selectUser(user)"
-                    class="w-full px-4 py-2 text-left text-sm hover:bg-stone-100 flex items-center gap-2"
-                >
-                    <span class="font-medium">{{ user.name }}</span>
-                    <span class="text-stone-500 text-xs">{{ user.email }}</span>
-                </button>
-            </div>
+            <AuthorSelect
+                :model-value="authorId"
+                @update:model-value="emit('update:authorId', $event)"
+                :name="authorText"
+                @update:name="emit('update:authorText', $event)"
+                placeholder="e.g. Maya Angelou — search or add a new author..."
+            />
         </div>
     </div>
 </template>

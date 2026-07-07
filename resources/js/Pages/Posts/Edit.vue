@@ -22,7 +22,8 @@ const props = defineProps({
     visibilityOptions: Array,
     authorTypes: Array,
     cfmWeeks: Array,
-    currentCfmWeek: Object
+    currentCfmWeek: Object,
+    churchCallings: Array
 })
 
 const form = useForm({
@@ -36,8 +37,12 @@ const form = useForm({
     tags: props.post.tags?.map(t => t.name) || [],
     cfm_week_ids: props.post.cfm_weeks?.map(w => w.id) || [],
     author_type: props.post.author_type,
-    author_text: props.post.author_text || '',
-    author_user_id: props.post.author_user_id,
+    // Name shown in the author picker; sourced from the linked author entity.
+    author_text: props.post.author?.full_name || '',
+    author_id: props.post.author_id,
+    church_calling_id: props.post.church_calling_id || '',
+    // date_given serializes as an ISO datetime; the date input needs YYYY-MM-DD.
+    date_given: props.post.date_given ? props.post.date_given.slice(0, 10) : '',
     visibility: props.post.visibility,
     hide_creator: props.post.hide_creator,
     hide_author: props.post.hide_author,
@@ -182,9 +187,37 @@ const handleCategoryCreated = () => {
                         <AuthorInput
                             v-model:author-type="form.author_type"
                             v-model:author-text="form.author_text"
-                            v-model:author-user-id="form.author_user_id"
+                            v-model:author-id="form.author_id"
                             :author-types="authorTypes"
                         />
+
+                        <!-- Date given + calling (quotes) -->
+                        <div v-if="form.post_type === 'quote'" class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1">
+                                    Date given (optional)
+                                </label>
+                                <input
+                                    v-model="form.date_given"
+                                    type="date"
+                                    class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                >
+                                <p class="mt-1 text-xs text-stone-500">When the quote was originally said or written.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1">
+                                    Calling when given (optional)
+                                </label>
+                                <select
+                                    v-model="form.church_calling_id"
+                                    class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                >
+                                    <option value="">— None —</option>
+                                    <option v-for="c in churchCallings" :key="c.id" :value="c.id">{{ c.label }}</option>
+                                </select>
+                                <p class="mt-1 text-xs text-stone-500">The author's calling at the time.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- LDS Content Section -->

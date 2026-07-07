@@ -28,6 +28,10 @@ const props = defineProps({
         type: Object,
         default: () => ({})
     },
+    churchCallings: {
+        type: Array,
+        default: () => []
+    },
 })
 
 const page = usePage()
@@ -74,6 +78,7 @@ const weekLabel = (week) => {
                 :item-types="itemTypes"
                 :scripture-books="scriptureBooks"
                 :upload-limits="uploadLimits"
+                :church-callings="churchCallings"
                 @update:items="form.items = $event"
             />
             <p v-if="form.errors.items" class="mt-1 text-sm text-red-600">{{ form.errors.items }}</p>

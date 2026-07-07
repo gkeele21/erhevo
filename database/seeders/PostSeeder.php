@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\AuthorType;
 use App\Enums\PostType;
 use App\Enums\Visibility;
+use App\Models\Author;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
@@ -38,14 +39,19 @@ class PostSeeder extends Seeder
                 continue;
             }
 
+            $authorType = $postData['author_type'];
+            $authorId = $authorType === AuthorType::Author && ! empty($postData['author_text'])
+                ? Author::findOrCreateByName($postData['author_text'])->id
+                : ($authorType === AuthorType::Self ? Author::forUser($user)->id : null);
+
             $post = Post::create([
                 'post_type' => $postData['post_type'] ?? PostType::Story,
                 'title' => $postData['title'],
                 'content' => '<p>' . implode('</p><p>', explode("\n\n", $postData['content'])) . '</p>',
                 'excerpt' => $postData['excerpt'] ?? null,
                 'user_id' => $user->id,
-                'author_type' => $postData['author_type'],
-                'author_text' => $postData['author_text'] ?? null,
+                'author_type' => $authorType,
+                'author_id' => $authorId,
                 'category_id' => $category->id,
                 'visibility' => Visibility::Public,
                 'hide_creator' => false,
@@ -665,7 +671,7 @@ class PostSeeder extends Seeder
                 'content' => "I was planning to end my life. I'd chosen the day, the method, the note I'd leave behind. I was certain no one would miss me.\n\nThat morning, my neighbor knocked on my door. Her dog had puppies, and she wanted to show me. For twenty minutes, I held a tiny life in my hands. Something in me cracked open.\n\nI didn't go through with my plan. I called a helpline instead. That was three years ago.\n\nIf you're struggling, please hold on. You don't know what knock on the door tomorrow might bring. You don't know what reason to stay is waiting just around the corner.",
                 'excerpt' => 'An unexpected knock became the reason to keep living.',
                 'category' => 'faith-hope',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Anonymous',
                 'tags' => ['suicide-prevention', 'hope', 'healing', 'intervention'],
             ],
@@ -1004,7 +1010,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "Try not to become a person of success, but rather try to become a person of value.",
                 'category' => 'inspiration',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Albert Einstein',
                 'tags' => ['success', 'value', 'character'],
             ],
@@ -1013,7 +1019,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "People will forget what you said, people will forget what you did, but people will never forget how you made them feel.",
                 'category' => 'personal-growth',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Maya Angelou',
                 'tags' => ['impact', 'kindness', 'legacy'],
             ],
@@ -1022,7 +1028,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "The happiness of your life depends upon the quality of your thoughts.",
                 'category' => 'personal-growth',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Marcus Aurelius',
                 'tags' => ['mindset', 'happiness', 'stoicism'],
             ],
@@ -1031,7 +1037,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "How wonderful it is that nobody need wait a single moment before starting to improve the world.",
                 'category' => 'inspiration',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Anne Frank',
                 'tags' => ['action', 'change', 'hope'],
             ],
@@ -1040,7 +1046,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "The wound is the place where the Light enters you.",
                 'category' => 'personal-growth',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Rumi',
                 'tags' => ['healing', 'growth', 'wisdom'],
             ],
@@ -1049,7 +1055,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "Comparison is the thief of joy.",
                 'category' => 'personal-growth',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Theodore Roosevelt',
                 'tags' => ['comparison', 'joy', 'contentment'],
             ],
@@ -1058,7 +1064,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "Although the world is full of suffering, it is also full of the overcoming of it.",
                 'category' => 'inspiration',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Helen Keller',
                 'tags' => ['resilience', 'hope', 'overcoming'],
             ],
@@ -1067,7 +1073,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "Vulnerability is not winning or losing; it's having the courage to show up and be seen when we have no control over the outcome.",
                 'category' => 'personal-growth',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Brené Brown',
                 'tags' => ['vulnerability', 'courage', 'authenticity'],
             ],
@@ -1076,7 +1082,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "When I was a boy and I would see scary things in the news, my mother would say to me, 'Look for the helpers. You will always find people who are helping.'",
                 'category' => 'kindness',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Fred Rogers',
                 'tags' => ['helpers', 'hope', 'community'],
             ],
@@ -1085,7 +1091,7 @@ class PostSeeder extends Seeder
                 'post_type' => PostType::Quote,
                 'content' => "A journey of a thousand miles begins with a single step.",
                 'category' => 'inspiration',
-                'author_type' => AuthorType::Text,
+                'author_type' => AuthorType::Author,
                 'author_text' => 'Lao Tzu',
                 'tags' => ['journey', 'beginnings', 'action'],
             ],

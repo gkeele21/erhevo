@@ -28,8 +28,8 @@ class Post extends Model
         'cover_image',
         'user_id',
         'author_type',
-        'author_text',
-        'author_user_id',
+        'author_id',
+        'church_calling_id',
         'category_id',
         'user_category_id',
         'visibility',
@@ -38,6 +38,7 @@ class Post extends Model
         'anonymize_names',
         'name_mappings',
         'published_at',
+        'date_given',
     ];
 
     protected $casts = [
@@ -49,6 +50,7 @@ class Post extends Model
         'anonymize_names' => 'boolean',
         'name_mappings' => 'array',
         'published_at' => 'datetime',
+        'date_given' => 'date',
     ];
 
     protected $appends = [
@@ -74,9 +76,16 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function authorUser(): BelongsTo
+    /** First-class author entity this post is attributed to. */
+    public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_user_id');
+        return $this->belongsTo(Author::class);
+    }
+
+    /** The calling the author held when this post was authored. */
+    public function calling(): BelongsTo
+    {
+        return $this->belongsTo(ChurchCalling::class, 'church_calling_id');
     }
 
     public function category(): BelongsTo
@@ -97,6 +106,15 @@ class Post extends Model
     public function images(): HasMany
     {
         return $this->hasMany(PostImage::class);
+    }
+
+    /**
+     * Lesson blocks that reference this post (e.g. Quote blocks). Used to show
+     * where a post is being used across lessons.
+     */
+    public function lessonItems(): HasMany
+    {
+        return $this->hasMany(LessonItem::class);
     }
 
     public function editTokens(): HasMany
@@ -158,11 +176,7 @@ class Post extends Model
             return null;
         }
 
-        return match ($this->author_type) {
-            AuthorType::Self => $this->user?->name,
-            AuthorType::Text => $this->author_text,
-            AuthorType::User => $this->authorUser?->name,
-        };
+        return $this->author?->full_name;
     }
 
     public function getCreatorNameAttribute(): ?string

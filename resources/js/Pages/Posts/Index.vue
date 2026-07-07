@@ -8,12 +8,17 @@ const props = defineProps({
     posts: Object,
     categories: Array,
     postTypes: Array,
+    churchCallings: {
+        type: Array,
+        default: () => []
+    },
     filters: Object
 })
 
 const search = ref(props.filters?.search || '')
 const selectedCategory = ref(props.filters?.category || '')
 const selectedType = ref(props.filters?.type || '')
+const selectedCalling = ref(props.filters?.calling || '')
 const friendsOnly = ref(props.filters?.friends_only === '1' || props.filters?.friends_only === true)
 
 const applyFilters = () => {
@@ -21,6 +26,7 @@ const applyFilters = () => {
         search: search.value || undefined,
         category: selectedCategory.value || undefined,
         type: selectedType.value || undefined,
+        calling: selectedCalling.value || undefined,
         tag: props.filters?.tag || undefined,
         friends_only: friendsOnly.value ? '1' : undefined
     }, {
@@ -43,6 +49,7 @@ watch(search, () => {
 })
 
 watch(selectedCategory, applyFilters)
+watch(selectedCalling, applyFilters)
 watch(friendsOnly, applyFilters)
 </script>
 
@@ -102,6 +109,16 @@ watch(friendsOnly, applyFilters)
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.slug">
                                     {{ cat.name }}
                                 </option>
+                            </select>
+                        </div>
+                        <div v-if="churchCallings.length" class="w-full md:w-56">
+                            <select
+                                v-model="selectedCalling"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                title="Filter by the author's calling when the content was given"
+                            >
+                                <option value="">Any calling</option>
+                                <option v-for="c in churchCallings" :key="c.id" :value="c.id">{{ c.label }}</option>
                             </select>
                         </div>
                         <div v-if="page.props.auth?.user" class="flex items-center">

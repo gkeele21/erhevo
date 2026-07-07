@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             DefaultCategorySeeder::class,
             ChurchOrganizationSeeder::class,
+            ChurchLeadershipSeeder::class,
             SourceSeeder::class,
             TalkTypeSeeder::class,
             GeneralConferenceSessionTypeSeeder::class,

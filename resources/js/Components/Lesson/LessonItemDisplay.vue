@@ -10,6 +10,15 @@ defineProps({
         default: false
     }
 })
+
+// date_given is a date-only string (YYYY-MM-DD); anchor to local midnight so
+// it doesn't shift a day in negative timezones.
+const formatGivenDate = (date) => {
+    if (!date) return ''
+    return new Date(`${date}T00:00:00`).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric',
+    })
+}
 </script>
 
 <template>
@@ -52,6 +61,37 @@ defineProps({
         >
             Read the talk →
         </a>
+    </div>
+
+    <!-- Quote (references a saved Quote post) -->
+    <div v-else-if="item.type === 'quote'">
+        <blockquote
+            v-if="item.content"
+            class="border-l-4 border-amber-300 pl-4 italic text-stone-700"
+        >
+            <div
+                class="prose prose-stone max-w-none"
+                :class="teaching ? 'prose-lg' : ''"
+                v-html="item.content"
+            ></div>
+        </blockquote>
+        <p
+            v-if="item.config?.author || item.config?.source_title || item.config?.date_given || item.config?.church_calling"
+            class="mt-2 text-sm text-stone-500"
+            :class="teaching ? 'text-base' : ''"
+        >
+            <span v-if="item.config?.author" class="font-medium text-stone-700">{{ item.config.author }}</span>
+            <span v-if="item.config?.church_calling" class="text-stone-400"> ({{ item.config.church_calling }})</span>
+            <span v-if="item.config?.source_title">{{ item.config?.author ? ', ' : '' }}{{ item.config.source_title }}</span>
+            <span v-if="item.config?.date_given"> · {{ formatGivenDate(item.config.date_given) }}</span>
+        </p>
+        <div v-if="item.config?.tags && item.config.tags.length" class="mt-2 flex flex-wrap gap-1">
+            <span
+                v-for="tag in item.config.tags"
+                :key="tag"
+                class="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700"
+            >#{{ tag }}</span>
+        </div>
     </div>
 
     <!-- Video / Link -->

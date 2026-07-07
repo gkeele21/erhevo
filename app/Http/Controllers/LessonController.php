@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AuthorType;
 use App\Enums\LessonItemType;
+use App\Enums\PostType;
 use App\Enums\Visibility;
+use App\Models\Author;
 use App\Models\CfmWeek;
+use App\Models\ChurchCalling;
 use App\Models\Lesson;
+use App\Models\Post;
 use App\Models\ScriptureChapter;
 use App\Models\ScriptureVerse;
 use App\Models\ScriptureVolume;
@@ -14,6 +19,7 @@ use App\Services\ScriptureReferenceParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -48,6 +54,7 @@ class LessonController extends Controller
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'scriptureBooks' => $this->scriptureBooksTree(),
             'uploadLimits' => $this->uploadLimits(),
+            'churchCallings' => $this->churchCallings(),
         ]);
     }
 
@@ -106,6 +113,7 @@ class LessonController extends Controller
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'scriptureBooks' => $this->scriptureBooksTree(),
             'uploadLimits' => $this->uploadLimits(),
+            'churchCallings' => $this->churchCallings(),
         ]);
     }
 
@@ -166,6 +174,102 @@ class LessonController extends Controller
             ]);
 
         return response()->json($talks);
+    }
+
+    /**
+     * Search the current user's Quote posts for the lesson Quote-block picker.
+     * An empty query returns their most recent quotes so the picker can show
+     * something useful before the user types.
+     */
+    public function searchQuotes(Request $request)
+    {
+        $query = trim((string) $request->input('q', ''));
+
+        $quotes = Post::where('user_id', $request->user()->id)
+            ->where('post_type', PostType::Quote)
+            ->when(strlen($query) >= 2, fn ($qb) => $qb->where(function ($q2) use ($query) {
+                $q2->where('title', 'like', "%{$query}%")
+                    ->orWhere('content', 'like', "%{$query}%")
+                    ->orWhereHas('author', fn ($q3) => $q3->search($query))
+                    ->orWhereHas('tags', fn ($q3) => $q3->where('name', 'like', "%{$query}%"));
+            }))
+            ->with(['tags', 'author', 'calling'])
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn (Post $post) => $this->quotePayload($post));
+
+        return response()->json($quotes);
+    }
+
+    /**
+     * Create a Quote post inline from the lesson builder and return it so the
+     * Quote block can snapshot + link to it.
+     */
+    public function storeQuote(Request $request)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string',
+            'title' => 'nullable|string|max:255',
+            'author' => 'nullable|string|max:255',
+            'author_id' => 'nullable|exists:authors,id',
+            'church_calling_id' => 'nullable|exists:church_callings,id',
+            'date_given' => 'nullable|date',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
+        ]);
+
+        $author = trim((string) ($validated['author'] ?? ''));
+
+        // Resolve the author entity: a chosen author, else find-or-create from
+        // the typed name, else attribute the quote to the creator themselves.
+        if (! empty($validated['author_id'])) {
+            $authorEntity = Author::find($validated['author_id']);
+        } elseif ($author !== '') {
+            $authorEntity = Author::findOrCreateByName($author);
+        } else {
+            $authorEntity = Author::forUser($request->user());
+        }
+
+        $post = new Post([
+            'post_type' => PostType::Quote,
+            // Title doubles as the quote's attribution/heading; fall back to a
+            // trimmed snippet of the quote text so the post is always titled.
+            'title' => ($validated['title'] ?? null) ?: Str::limit(strip_tags($validated['content']), 60, ''),
+            'content' => $validated['content'],
+            'author_type' => $author !== '' || ! empty($validated['author_id']) ? AuthorType::Author : AuthorType::Self,
+            'author_id' => $authorEntity?->id,
+            'church_calling_id' => $validated['church_calling_id'] ?? null,
+            'date_given' => $validated['date_given'] ?? null,
+            'visibility' => Visibility::Private,
+        ]);
+        $post->user_id = $request->user()->id;
+        $post->published_at = now();
+        $post->save();
+
+        if (! empty($validated['tags'])) {
+            $post->syncTags($validated['tags']);
+        }
+
+        return response()->json($this->quotePayload($post->load(['tags', 'author', 'calling'])));
+    }
+
+    /**
+     * Shape a Quote post for the lesson Quote-block picker / snapshot.
+     */
+    private function quotePayload(Post $post): array
+    {
+        return [
+            'post_id' => $post->id,
+            'slug' => $post->slug,
+            'title' => $post->title,
+            'author' => $post->author_name,
+            'author_id' => $post->author_id,
+            'church_calling' => $post->calling?->name,
+            'date_given' => $post->date_given?->toDateString(),
+            'content' => $post->display_content ?: $post->content,
+            'tags' => $post->tags->pluck('name')->values(),
+        ];
     }
 
     /**
@@ -379,14 +483,16 @@ class LessonController extends Controller
             'visibility' => 'required|in:public,private,friends',
             'publish' => 'boolean',
             'items' => 'nullable|array',
-            'items.*.type' => 'required|in:scripture,talk,video,image,text,question,group',
+            'items.*.type' => 'required|in:scripture,talk,quote,video,image,text,question,group',
             'items.*.content' => 'nullable|string',
             'items.*.config' => 'nullable|array',
+            'items.*.post_id' => 'nullable|exists:posts,id',
             // Group children (one level deep; children may not themselves be groups).
             'items.*.children' => 'nullable|array',
-            'items.*.children.*.type' => 'required|in:scripture,talk,video,image,text,question',
+            'items.*.children.*.type' => 'required|in:scripture,talk,quote,video,image,text,question',
             'items.*.children.*.content' => 'nullable|string',
             'items.*.children.*.config' => 'nullable|array',
+            'items.*.children.*.post_id' => 'nullable|exists:posts,id',
         ]);
     }
 
@@ -418,6 +524,18 @@ class LessonController extends Controller
             ->whereHas('studyYear', fn ($q) => $q->where('year', '>=', now()->year - 2))
             ->orderByDesc('start_date')
             ->get()
+            ->toArray();
+    }
+
+    /**
+     * Active church callings for the Quote-block calling picker.
+     */
+    protected function churchCallings(): array
+    {
+        return ChurchCalling::query()
+            ->orderBy('name')
+            ->get()
+            ->map(fn (ChurchCalling $c) => ['id' => $c->id, 'label' => $c->full_title])
             ->toArray();
     }
 }

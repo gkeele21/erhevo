@@ -11,6 +11,7 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Enums\FriendshipStatus;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -98,6 +99,12 @@ class User extends Authenticatable
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /** The author entity representing this user (when they author content as themselves). */
+    public function author(): HasOne
+    {
+        return $this->hasOne(Author::class);
     }
 
     public function categories(): HasMany

@@ -86,6 +86,7 @@ class Lesson extends Model
             $item = LessonItem::create([
                 'lesson_id' => $this->id,
                 'parent_id' => null,
+                'post_id' => $node['post_id'] ?? null,
                 'type' => $node['type'],
                 'sort_order' => $index,
                 'content' => $node['content'] ?? null,
@@ -97,6 +98,7 @@ class Lesson extends Model
                     LessonItem::create([
                         'lesson_id' => $this->id,
                         'parent_id' => $item->id,
+                        'post_id' => $child['post_id'] ?? null,
                         'type' => $child['type'],
                         'sort_order' => $childIndex,
                         'content' => $child['content'] ?? null,

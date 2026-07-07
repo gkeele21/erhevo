@@ -3,6 +3,7 @@ import { ref, computed, inject, watch } from 'vue'
 import axios from 'axios'
 import StoryEditor from '@/Components/Story/StoryEditor.vue'
 import TalkPicker from '@/Components/Lesson/TalkPicker.vue'
+import QuotePicker from '@/Components/Lesson/QuotePicker.vue'
 import ScripturePicker from '@/Components/Lesson/ScripturePicker.vue'
 
 const props = defineProps({
@@ -133,6 +134,7 @@ const summary = computed(() => {
     switch (props.item.type) {
         case 'scripture': return c.reference || 'Scripture reference'
         case 'talk': return c.title || 'Talk / quote'
+        case 'quote': return c.source_title || c.author || stripHtml(props.item.content) || 'Quote'
         case 'video': return c.title || c.filename || c.url || 'Video / link'
         case 'image': return c.caption || c.filename || c.url || 'Image'
         case 'text': return stripHtml(props.item.content) || 'Empty'
@@ -202,6 +204,20 @@ const summary = computed(() => {
                         class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
                         placeholder="Pull a quote from the talk, or add a note about how you'll use it..."
                     ></textarea>
+                </div>
+            </div>
+
+            <!-- Quote (references a saved Quote post) -->
+            <div v-else-if="item.type === 'quote'" class="space-y-3">
+                <QuotePicker :item="item" />
+                <div v-if="item.post_id">
+                    <label class="mb-1 block text-sm font-medium text-stone-700">
+                        Your copy of the quote — highlight or trim it for this lesson
+                    </label>
+                    <StoryEditor v-model="item.content" placeholder="The quote text..." />
+                    <p class="mt-1 text-xs text-stone-400">
+                        Edits and highlights here only affect this lesson; the saved quote stays unchanged.
+                    </p>
                 </div>
             </div>
 

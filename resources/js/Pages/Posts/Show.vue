@@ -5,7 +5,11 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 
 const props = defineProps({
     post: Object,
-    canEdit: Boolean
+    canEdit: Boolean,
+    usedInLessons: {
+        type: Array,
+        default: () => []
+    }
 })
 
 const formatDate = (date) => {
@@ -17,6 +21,7 @@ const formatDate = (date) => {
 }
 
 const postType = computed(() => props.post.post_type || 'story')
+const authorSlug = computed(() => props.post.author?.slug || null)
 
 const typeLabel = computed(() => ({
     story: 'Story',
@@ -69,7 +74,8 @@ const typeLabel = computed(() => ({
                                 &mdash; {{ post.title }}
                             </div>
                             <div class="text-gold-700 text-sm">
-                                <span v-if="post.author_name">{{ post.author_name }}</span>
+                                <Link v-if="post.author_name && authorSlug" :href="route('authors.show', authorSlug)" class="hover:underline">{{ post.author_name }}</Link>
+                                <span v-else-if="post.author_name">{{ post.author_name }}</span>
                                 <span v-else-if="post.creator_name">{{ post.creator_name }}</span>
                             </div>
                             <div class="text-sm text-gold-600 mt-2">
@@ -251,7 +257,9 @@ const typeLabel = computed(() => ({
                                         By {{ post.creator_name }}
                                     </span>
                                     <span v-if="post.author_name && post.author_name !== post.creator_name" class="ml-2">
-                                        &middot; Author: {{ post.author_name }}
+                                        &middot; Author:
+                                        <Link v-if="authorSlug" :href="route('authors.show', authorSlug)" class="hover:underline">{{ post.author_name }}</Link>
+                                        <span v-else>{{ post.author_name }}</span>
                                     </span>
                                 </div>
 
@@ -289,6 +297,26 @@ const typeLabel = computed(() => ({
                         </div>
                     </article>
                 </template>
+
+                <!-- Used in lessons -->
+                <div v-if="usedInLessons.length" class="mt-8 rounded-lg border border-stone-200 bg-white p-6">
+                    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">
+                        Used in {{ usedInLessons.length }} {{ usedInLessons.length === 1 ? 'lesson' : 'lessons' }}
+                    </h2>
+                    <ul class="space-y-2">
+                        <li v-for="lesson in usedInLessons" :key="lesson.slug">
+                            <Link
+                                :href="route('lessons.show', lesson.slug)"
+                                class="flex items-center gap-2 text-amber-700 hover:text-amber-900"
+                            >
+                                <svg class="h-4 w-4 flex-shrink-0 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                {{ lesson.title }}
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
 
                 <!-- Navigation -->
                 <div class="mt-8 flex justify-between">

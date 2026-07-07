@@ -12,6 +12,7 @@ class LessonItem extends Model
     protected $fillable = [
         'lesson_id',
         'parent_id',
+        'post_id',
         'type',
         'sort_order',
         'content',
@@ -27,6 +28,15 @@ class LessonItem extends Model
     public function lesson(): BelongsTo
     {
         return $this->belongsTo(Lesson::class);
+    }
+
+    /**
+     * The Post this block references, if any (e.g. a Quote block linked to a
+     * Quote-type post). Null for blocks that carry their own inline content.
+     */
+    public function post(): BelongsTo
+    {
+        return $this->belongsTo(Post::class);
     }
 
     /**

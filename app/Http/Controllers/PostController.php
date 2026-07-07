@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Enums\AuthorType;
 use App\Enums\PostType;
 use App\Enums\Visibility;
+use App\Models\Author;
 use App\Models\Category;
 use App\Models\CfmStudyYear;
 use App\Models\CfmWeek;
+use App\Models\ChurchCalling;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -32,13 +34,12 @@ class PostController extends Controller
             ->when($request->type, fn ($q, $type) => $q->where('post_type', $type))
             ->when($request->category, fn ($q, $category) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $category)))
             ->when($request->tag, fn ($q, $tag) => $q->whereHas('tags', fn ($q2) => $q2->where('slug', $tag)))
+            ->when($request->calling, fn ($q, $calling) => $q->where('church_calling_id', $calling))
             ->when($request->search, fn ($q, $search) => $q->where(function ($q2) use ($search) {
                 $q2->where('title', 'like', "%{$search}%")
                     ->orWhereHas('tags', fn ($q3) => $q3->where('name', 'like', "%{$search}%"))
-                    ->orWhere('author_text', 'like', "%{$search}%")
+                    ->orWhereHas('author', fn ($q3) => $q3->search($search))
                     ->orWhereHas('user', fn ($q3) => $q3->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%"))
-                    ->orWhereHas('authorUser', fn ($q3) => $q3->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%"));
             }))
             ->when($request->friends_only && $request->user(), fn ($q) => $q->whereIn('user_id', $request->user()->friendIds()))
@@ -54,7 +55,8 @@ class PostController extends Controller
                 'label' => $p->label(),
                 'plural' => $p->pluralLabel(),
             ]),
-            'filters' => $request->only(['category', 'tag', 'search', 'friends_only', 'type']),
+            'churchCallings' => $this->churchCallings(),
+            'filters' => $request->only(['category', 'tag', 'search', 'friends_only', 'type', 'calling']),
         ]);
     }
 
@@ -80,6 +82,7 @@ class PostController extends Controller
             ]),
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
+            'churchCallings' => $this->churchCallings(),
         ]);
     }
 
@@ -97,19 +100,22 @@ class PostController extends Controller
             'tags.*' => 'string|max:50',
             'cfm_week_ids' => 'nullable|array',
             'cfm_week_ids.*' => 'exists:cfm_weeks,id',
-            'author_type' => 'required|in:self,text,user',
-            'author_text' => 'nullable|required_if:author_type,text|string|max:255',
-            'author_user_id' => 'nullable|required_if:author_type,user|exists:users,id',
+            'author_type' => 'required|in:self,author',
+            'author_text' => 'nullable|string|max:255',
+            'author_id' => 'nullable|exists:authors,id',
+            'church_calling_id' => 'nullable|exists:church_callings,id',
             'visibility' => 'required|in:public,private,friends',
             'hide_creator' => 'boolean',
             'hide_author' => 'boolean',
             'anonymize_names' => 'boolean',
             'name_mappings' => 'nullable|array',
+            'date_given' => 'nullable|date',
             'publish' => 'boolean',
         ]);
 
         $post = new Post($validated);
         $post->user_id = $request->user()->id;
+        $post->author_id = $this->resolveAuthorId($validated, $post);
 
         if ($validated['anonymize_names'] ?? false) {
             $result = $this->nameAnonymizer->anonymize(
@@ -140,11 +146,24 @@ class PostController extends Controller
     {
         Gate::authorize('view', $post);
 
-        $post->load(['user', 'authorUser', 'category', 'tags']);
+        $post->load(['user', 'author', 'category', 'tags']);
+
+        // Lessons that reference this post (e.g. via a Quote block), limited to
+        // those the viewer is allowed to see.
+        $usedInLessons = $post->lessonItems()
+            ->with('lesson')
+            ->get()
+            ->pluck('lesson')
+            ->filter()
+            ->unique('id')
+            ->filter(fn ($lesson) => $lesson->isVisibleTo(auth()->user()))
+            ->map(fn ($lesson) => ['title' => $lesson->title, 'slug' => $lesson->slug])
+            ->values();
 
         return Inertia::render('Posts/Show', [
             'post' => $post,
             'canEdit' => $post->user_id === auth()->id(),
+            'usedInLessons' => $usedInLessons,
         ]);
     }
 
@@ -152,7 +171,7 @@ class PostController extends Controller
     {
         Gate::authorize('update', $post);
 
-        $post->load(['category', 'userCategory', 'tags', 'cfmWeeks']);
+        $post->load(['category', 'userCategory', 'tags', 'cfmWeeks', 'author']);
 
         return Inertia::render('Posts/Edit', [
             'post' => $post,
@@ -175,6 +194,7 @@ class PostController extends Controller
             ]),
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
+            'churchCallings' => $this->churchCallings(),
         ]);
     }
 
@@ -194,18 +214,21 @@ class PostController extends Controller
             'tags.*' => 'string|max:50',
             'cfm_week_ids' => 'nullable|array',
             'cfm_week_ids.*' => 'exists:cfm_weeks,id',
-            'author_type' => 'required|in:self,text,user',
-            'author_text' => 'nullable|required_if:author_type,text|string|max:255',
-            'author_user_id' => 'nullable|required_if:author_type,user|exists:users,id',
+            'author_type' => 'required|in:self,author',
+            'author_text' => 'nullable|string|max:255',
+            'author_id' => 'nullable|exists:authors,id',
+            'church_calling_id' => 'nullable|exists:church_callings,id',
             'visibility' => 'required|in:public,private,friends',
             'hide_creator' => 'boolean',
             'hide_author' => 'boolean',
             'anonymize_names' => 'boolean',
             'name_mappings' => 'nullable|array',
+            'date_given' => 'nullable|date',
             'publish' => 'boolean',
         ]);
 
         $post->fill($validated);
+        $post->author_id = $this->resolveAuthorId($validated, $post);
 
         if ($validated['anonymize_names'] ?? false) {
             $result = $this->nameAnonymizer->anonymize(
@@ -250,20 +273,24 @@ class PostController extends Controller
      */
     public function searchAuthors(Request $request)
     {
-        $query = $request->input('q', '');
+        $query = trim((string) $request->input('q', ''));
 
-        if (strlen($query) < 3) {
+        if (strlen($query) < 2) {
             return response()->json([]);
         }
 
-        $authors = Post::whereNotNull('author_text')
-            ->where('author_text', 'like', "%{$query}%")
-            ->distinct()
-            ->orderBy('author_text')
+        $authors = Author::search($query)
+            ->with('calling')
+            ->orderBy('last_name')
+            ->orderBy('display_name')
             ->limit(10)
-            ->pluck('author_text')
-            ->unique()
-            ->values();
+            ->get()
+            ->map(fn (Author $author) => [
+                'id' => $author->id,
+                'full_name' => $author->full_name,
+                'calling' => $author->calling?->name,
+                'is_user' => (bool) $author->user_id,
+            ]);
 
         return response()->json($authors);
     }
@@ -277,6 +304,34 @@ class PostController extends Controller
             ->whereHas('studyYear', fn ($q) => $q->where('year', '>=', now()->year - 2))
             ->orderByDesc('start_date')
             ->get()
+            ->toArray();
+    }
+
+    /**
+     * Resolve the first-class author for a post from the submitted attribution.
+     * Self/User map to the relevant user's Author; Text prefers a chosen author
+     * entity, else find-or-creates one from the typed name.
+     */
+    protected function resolveAuthorId(array $validated, Post $post): ?int
+    {
+        return match ($post->author_type) {
+            AuthorType::Self => $post->user ? Author::forUser($post->user)->id : null,
+            AuthorType::Author => ! empty($validated['author_id'])
+                ? (int) $validated['author_id']
+                : (! empty($validated['author_text']) ? Author::findOrCreateByName($validated['author_text'])->id : null),
+            default => null,
+        };
+    }
+
+    /**
+     * Active church callings for the calling picker.
+     */
+    protected function churchCallings(): array
+    {
+        return ChurchCalling::query()
+            ->orderBy('name')
+            ->get()
+            ->map(fn (ChurchCalling $c) => ['id' => $c->id, 'label' => $c->full_title])
             ->toArray();
     }
 }

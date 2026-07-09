@@ -8,6 +8,16 @@ use App\Models\User;
 
 class PostPolicy
 {
+    /** Admins may do anything to any post. */
+    public function before(?User $user, string $ability): ?bool
+    {
+        if ($user?->isAdmin()) {
+            return true;
+        }
+
+        return null;
+    }
+
     public function viewAny(?User $user): bool
     {
         return true;

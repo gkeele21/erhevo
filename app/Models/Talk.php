@@ -13,9 +13,9 @@ class Talk extends Model
         'talk_type_id',
         'general_conference_session_id',
         'speaker_name',
+        'author_id',
         'speaker_title',
         'church_calling_id',
-        'church_organization_id',
         'title',
         'slug',
         'summary',
@@ -59,6 +59,12 @@ class Talk extends Model
         return $this->belongsTo(Source::class);
     }
 
+    /** The Author entity for this talk's speaker, when linked. */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(Author::class);
+    }
+
     public function talkType(): BelongsTo
     {
         return $this->belongsTo(TalkType::class);
@@ -72,11 +78,6 @@ class Talk extends Model
     public function calling(): BelongsTo
     {
         return $this->belongsTo(ChurchCalling::class, 'church_calling_id');
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(ChurchOrganization::class, 'church_organization_id');
     }
 
     /**

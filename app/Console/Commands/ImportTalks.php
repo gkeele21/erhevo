@@ -104,7 +104,6 @@ class ImportTalks extends Command
             'speaker_name' => $data['speaker'],
             'speaker_title' => $data['speaker_title'] ?? null,
             'church_calling_id' => $calling?->id,
-            'church_organization_id' => $organization['id'] ?? null,
             'title' => $data['title'],
             'slug' => $data['slug'],
             'summary' => $data['summary'] ?? null,

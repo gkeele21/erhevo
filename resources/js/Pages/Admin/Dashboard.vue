@@ -15,10 +15,25 @@ defineProps({
                 <p class="text-3xl font-bold text-teal">{{ stats.users }}</p>
             </Link>
 
-            <div class="bg-white rounded-lg shadow p-6 border border-navy-50">
+            <Link :href="route('admin.posts.index')" class="bg-white rounded-lg shadow p-6 border border-navy-50 hover:shadow-lg transition-shadow">
                 <h3 class="text-lg font-semibold text-navy mb-2">Posts</h3>
                 <p class="text-3xl font-bold text-teal">{{ stats.posts }}</p>
-            </div>
+            </Link>
+
+            <Link :href="route('admin.authors.index')" class="bg-white rounded-lg shadow p-6 border border-navy-50 hover:shadow-lg transition-shadow">
+                <h3 class="text-lg font-semibold text-navy mb-2">Authors</h3>
+                <p class="text-3xl font-bold text-teal">{{ stats.authors }}</p>
+            </Link>
+
+            <Link :href="route('admin.church-callings.index')" class="bg-white rounded-lg shadow p-6 border border-navy-50 hover:shadow-lg transition-shadow">
+                <h3 class="text-lg font-semibold text-navy mb-2">Callings</h3>
+                <p class="text-3xl font-bold text-teal">{{ stats.callings }}</p>
+            </Link>
+
+            <Link :href="route('admin.talks.index')" class="bg-white rounded-lg shadow p-6 border border-navy-50 hover:shadow-lg transition-shadow">
+                <h3 class="text-lg font-semibold text-navy mb-2">Talks</h3>
+                <p class="text-3xl font-bold text-teal">{{ stats.talks }}</p>
+            </Link>
 
             <Link :href="route('admin.categories.index')" class="bg-white rounded-lg shadow p-6 border border-navy-50 hover:shadow-lg transition-shadow">
                 <h3 class="text-lg font-semibold text-navy mb-2">Categories</h3>

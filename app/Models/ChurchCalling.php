@@ -32,6 +32,24 @@ class ChurchCalling extends Model
         return $this->hasMany(GeneralConferenceTalk::class);
     }
 
+    /** Authors whose current (primary) calling this is. */
+    public function authors(): HasMany
+    {
+        return $this->hasMany(Author::class);
+    }
+
+    /**
+     * Label for pickers: "Organization — Name", without the prefix
+     * (e.g. "The Quorum of the Twelve Apostles — Apostle"). Falls back to the
+     * organization or prefix when a name isn't set.
+     */
+    public function getDisplayLabelAttribute(): string
+    {
+        $parts = array_filter([$this->organization?->name, $this->name ?: null]);
+
+        return $parts ? implode(' — ', $parts) : ($this->prefix ?: 'Calling');
+    }
+
     /**
      * Get the full title (prefix + name)
      */

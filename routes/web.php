@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAuthorController;
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminChurchCallingController;
+use App\Http\Controllers\Admin\AdminPostController;
+use App\Http\Controllers\Admin\AdminTalkController;
 use App\Http\Controllers\Admin\AdminCfmPublisherContentController;
 use App\Http\Controllers\Admin\AdminCfmPublisherController;
 use App\Http\Controllers\Admin\AdminCfmSpecialTopicController;
@@ -66,6 +70,7 @@ Route::middleware([
     Route::delete('/lessons/{lesson:slug}', [LessonController::class, 'destroy'])->name('lessons.destroy');
     Route::get('/lessons/{lesson:slug}/teach', [LessonController::class, 'teach'])->name('lessons.teach');
     Route::get('/api/lessons/talk-search', [LessonController::class, 'searchTalks'])->name('lessons.talk-search');
+    Route::get('/api/lessons/talk-library-search', [LessonController::class, 'searchTalkLibrary'])->name('lessons.talk-library-search');
     Route::get('/api/lessons/quote-search', [LessonController::class, 'searchQuotes'])->name('lessons.quote-search');
     Route::post('/api/lessons/quotes', [LessonController::class, 'storeQuote'])->name('lessons.quote-store');
     Route::get('/api/lessons/scripture-text', [LessonController::class, 'scriptureText'])->name('lessons.scripture-text');
@@ -142,6 +147,31 @@ Route::middleware([
     // Users
     Route::resource('users', AdminUserController::class)->except(['create', 'store']);
     Route::post('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+
+    // Authors (bind by id — the Author model's route key is its slug, which admin links don't use)
+    Route::get('/authors', [AdminAuthorController::class, 'index'])->name('authors.index');
+    Route::get('/authors/{author:id}/edit', [AdminAuthorController::class, 'edit'])->name('authors.edit');
+    Route::put('/authors/{author:id}', [AdminAuthorController::class, 'update'])->name('authors.update');
+    Route::delete('/authors/{author:id}', [AdminAuthorController::class, 'destroy'])->name('authors.destroy');
+    Route::post('/authors/{author:id}/callings', [AdminAuthorController::class, 'storeCalling'])->name('authors.callings.store');
+    Route::put('/authors/{author:id}/callings/{calling}', [AdminAuthorController::class, 'updateCalling'])->name('authors.callings.update');
+    Route::delete('/authors/{author:id}/callings/{calling}', [AdminAuthorController::class, 'destroyCalling'])->name('authors.callings.destroy');
+
+    // Church callings
+    Route::get('/church-callings', [AdminChurchCallingController::class, 'index'])->name('church-callings.index');
+    Route::post('/church-callings', [AdminChurchCallingController::class, 'store'])->name('church-callings.store');
+    Route::put('/church-callings/{churchCalling}', [AdminChurchCallingController::class, 'update'])->name('church-callings.update');
+    Route::delete('/church-callings/{churchCalling}', [AdminChurchCallingController::class, 'destroy'])->name('church-callings.destroy');
+
+    // Posts
+    Route::get('/posts', [AdminPostController::class, 'index'])->name('posts.index');
+    Route::delete('/posts/{post}', [AdminPostController::class, 'destroy'])->name('posts.destroy');
+
+    // Talks
+    Route::get('/talks', [AdminTalkController::class, 'index'])->name('talks.index');
+    Route::get('/talks/{talk}/edit', [AdminTalkController::class, 'edit'])->name('talks.edit');
+    Route::put('/talks/{talk}', [AdminTalkController::class, 'update'])->name('talks.update');
+    Route::delete('/talks/{talk}', [AdminTalkController::class, 'destroy'])->name('talks.destroy');
 
     // Categories
     Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');

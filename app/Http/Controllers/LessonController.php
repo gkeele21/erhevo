@@ -177,6 +177,50 @@ class LessonController extends Controller
     }
 
     /**
+     * Richer talk-library search used when sourcing a quote: filter by title,
+     * General Conference session year/month, and (optionally) the author.
+     */
+    public function searchTalkLibrary(Request $request)
+    {
+        abort_unless($request->user()->show_lds_content, 403);
+
+        $q = trim((string) $request->input('q', ''));
+        $year = $request->input('year');
+        $month = $request->input('month');
+        $author = trim((string) $request->input('author', ''));
+        $authorId = $request->input('author_id');
+
+        // Require at least one filter so we don't return the whole library.
+        if ($q === '' && ! $year && ! $month && $author === '' && ! $authorId) {
+            return response()->json([]);
+        }
+
+        $talks = Talk::query()
+            ->when($q !== '', fn ($qb) => $qb->where('title', 'like', "%{$q}%"))
+            ->when($year, fn ($qb, $y) => $qb->whereYear('talk_date', $y))
+            ->when($month, fn ($qb, $m) => $qb->whereMonth('talk_date', $m))
+            // Prefer the exact author link; fall back to the speaker name for
+            // talks that aren't linked to an author yet.
+            ->when($authorId, fn ($qb) => $qb->where(fn ($w) => $w
+                ->where('author_id', $authorId)
+                ->when($author !== '', fn ($w2) => $w2->orWhere('speaker_name', 'like', "%{$author}%"))))
+            ->when(! $authorId && $author !== '', fn ($qb) => $qb->where('speaker_name', 'like', "%{$author}%"))
+            ->ordered()
+            ->limit(15)
+            ->get()
+            ->map(fn (Talk $talk) => [
+                'id' => $talk->id,
+                'title' => $talk->title,
+                'speaker' => $talk->speaker_display_name,
+                'date' => $talk->talk_date?->toDateString(),
+                'church_calling_id' => $talk->church_calling_id,
+                'url' => $talk->url,
+            ]);
+
+        return response()->json($talks);
+    }
+
+    /**
      * Search the current user's Quote posts for the lesson Quote-block picker.
      * An empty query returns their most recent quotes so the picker can show
      * something useful before the user types.
@@ -532,10 +576,11 @@ class LessonController extends Controller
      */
     protected function churchCallings(): array
     {
-        return ChurchCalling::query()
+        return ChurchCalling::with('organization')
+            ->orderBy('church_organization_id')
             ->orderBy('name')
             ->get()
-            ->map(fn (ChurchCalling $c) => ['id' => $c->id, 'label' => $c->full_title])
+            ->map(fn (ChurchCalling $c) => ['id' => $c->id, 'label' => $c->display_label])
             ->toArray();
     }
 }

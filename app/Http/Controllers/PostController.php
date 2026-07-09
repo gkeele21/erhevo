@@ -328,10 +328,11 @@ class PostController extends Controller
      */
     protected function churchCallings(): array
     {
-        return ChurchCalling::query()
+        return ChurchCalling::with('organization')
+            ->orderBy('church_organization_id')
             ->orderBy('name')
             ->get()
-            ->map(fn (ChurchCalling $c) => ['id' => $c->id, 'label' => $c->full_title])
+            ->map(fn (ChurchCalling $c) => ['id' => $c->id, 'label' => $c->display_label])
             ->toArray();
     }
 }

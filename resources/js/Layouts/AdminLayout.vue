@@ -32,6 +32,18 @@ const page = usePage();
                         <NavLink :href="route('admin.users.index')" :active="route().current('admin.users.*')">
                             Users
                         </NavLink>
+                        <NavLink :href="route('admin.authors.index')" :active="route().current('admin.authors.*')">
+                            Authors
+                        </NavLink>
+                        <NavLink :href="route('admin.church-callings.index')" :active="route().current('admin.church-callings.*')">
+                            Callings
+                        </NavLink>
+                        <NavLink :href="route('admin.posts.index')" :active="route().current('admin.posts.*')">
+                            Posts
+                        </NavLink>
+                        <NavLink :href="route('admin.talks.index')" :active="route().current('admin.talks.*')">
+                            Talks
+                        </NavLink>
                         <NavLink :href="route('admin.categories.index')" :active="route().current('admin.categories.*')">
                             Categories
                         </NavLink>

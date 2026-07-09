@@ -121,7 +121,6 @@ class ImportGeneralConferenceTalks extends Command
             'general_conference_session_id' => $session->id,
             'speaker_name' => $data['speaker'],
             'church_calling_id' => $calling?->id,
-            'church_organization_id' => $organization['id'] ?? null,
             'title' => $data['title'],
             'slug' => $data['slug'],
             'summary' => $data['summary'] ?? null,

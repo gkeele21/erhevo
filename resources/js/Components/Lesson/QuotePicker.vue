@@ -1,11 +1,16 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import TagInput from '@/Components/Story/TagInput.vue'
 import AuthorSelect from '@/Components/Story/AuthorSelect.vue'
 
 // Church callings for the calling picker, provided by the lesson builder.
 const churchCallings = inject('lessonChurchCallings', [])
+
+// The talk library is LDS content — only offer the lookup when it's enabled.
+const page = usePage()
+const ldsEnabled = computed(() => !!page.props.userSettings?.show_lds_content)
 
 // Mutates the lesson item directly (matching the rest of the builder): sets
 // item.post_id (the FK), item.content (an editable/highlightable copy of the
@@ -64,6 +69,7 @@ const clear = () => {
     props.item.post_id = null
     props.item.content = ''
     props.item.config = {}
+    selectedTalk.value = null
     mode.value = 'search'
 }
 
@@ -92,6 +98,7 @@ const createQuote = async () => {
         })
         attach(data)
         form.value = emptyForm()
+        selectedTalk.value = null
         mode.value = 'search'
     } catch (e) {
         createError.value = e.response?.data?.message || 'Could not save the quote.'
@@ -103,6 +110,59 @@ const createQuote = async () => {
 const formatDate = (date) => {
     if (!date) return ''
     return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+// --- Talk library lookup (to source the quote) ---
+const showTalkSearch = ref(false)
+const talk = ref({ q: '', year: '', month: '' })
+const talkResults = ref([])
+const talkSearching = ref(false)
+let talkDebounce = null
+
+const hasTalkFilter = () => !!(talk.value.q || talk.value.year || talk.value.month)
+
+const searchTalkLibrary = () => {
+    clearTimeout(talkDebounce)
+    if (!hasTalkFilter()) {
+        talkResults.value = []
+        return
+    }
+    talkDebounce = setTimeout(async () => {
+        talkSearching.value = true
+        try {
+            const { data } = await axios.get(route('lessons.talk-library-search'), {
+                params: {
+                    q: talk.value.q || undefined,
+                    year: talk.value.year || undefined,
+                    month: talk.value.month || undefined,
+                    author: form.value.author || undefined,
+                    author_id: form.value.author_id || undefined,
+                },
+            })
+            talkResults.value = data
+        } catch (e) {
+            talkResults.value = []
+        } finally {
+            talkSearching.value = false
+        }
+    }, 300)
+}
+
+// The talk chosen as the source — kept so we can offer an "open to copy text" link.
+const selectedTalk = ref(null)
+
+const pickTalk = (t) => {
+    selectedTalk.value = t
+    form.value.title = t.title
+    if (t.date) form.value.date_given = t.date
+    if (t.church_calling_id) form.value.church_calling_id = t.church_calling_id
+    talkResults.value = []
+    showTalkSearch.value = false
+}
+
+const clearSource = () => {
+    selectedTalk.value = null
+    showTalkSearch.value = true
 }
 </script>
 
@@ -203,10 +263,11 @@ const formatDate = (date) => {
                     <label class="mb-1 block text-sm font-medium text-stone-700">Quote</label>
                     <textarea
                         v-model="form.content"
-                        rows="3"
+                        rows="4"
                         class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-                        placeholder="The words of the quote..."
+                        placeholder="Paste or type the quote text here..."
                     ></textarea>
+                    <p class="mt-1 text-xs text-stone-400">Type the quote, or find a talk below — open it, copy the passage you want, and paste it here.</p>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium text-stone-700">Author (optional)</label>
@@ -244,6 +305,79 @@ const formatDate = (date) => {
                         class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
                         placeholder="e.g. the talk or book it's from"
                     >
+                    <button
+                        v-if="ldsEnabled"
+                        type="button"
+                        @click="showTalkSearch = !showTalkSearch"
+                        class="mt-1 text-xs text-amber-600 underline hover:text-amber-800"
+                    >
+                        {{ showTalkSearch ? 'Hide talk library search' : 'Find the source in the talk library' }}
+                    </button>
+
+                    <!-- Talk library lookup -->
+                    <div v-if="ldsEnabled && showTalkSearch" class="mt-2 space-y-2 rounded-lg border border-stone-200 bg-stone-50 p-3">
+                        <div class="grid gap-2 sm:grid-cols-3">
+                            <input
+                                v-model="talk.q"
+                                @input="searchTalkLibrary"
+                                type="text"
+                                class="rounded-lg border-stone-300 text-sm focus:border-amber-500 focus:ring-amber-500"
+                                placeholder="Title contains…"
+                            >
+                            <input
+                                v-model="talk.year"
+                                @input="searchTalkLibrary"
+                                type="number"
+                                class="rounded-lg border-stone-300 text-sm focus:border-amber-500 focus:ring-amber-500"
+                                placeholder="Year"
+                            >
+                            <select
+                                v-model="talk.month"
+                                @change="searchTalkLibrary"
+                                class="rounded-lg border-stone-300 text-sm focus:border-amber-500 focus:ring-amber-500"
+                            >
+                                <option value="">Any session</option>
+                                <option value="4">April</option>
+                                <option value="10">October</option>
+                            </select>
+                        </div>
+                        <p v-if="form.author" class="text-xs text-stone-500">Filtered to author: <span class="font-medium">{{ form.author }}</span></p>
+                        <span v-if="talkSearching" class="text-xs text-stone-400">Searching…</span>
+
+                        <ul v-if="talkResults.length" class="max-h-56 overflow-auto rounded-lg border border-stone-200 bg-white">
+                            <li
+                                v-for="t in talkResults"
+                                :key="t.id"
+                                class="flex items-start justify-between gap-2 border-b border-stone-100 px-3 py-2 last:border-0 hover:bg-amber-50"
+                            >
+                                <button type="button" @click="pickTalk(t)" class="min-w-0 flex-1 text-left">
+                                    <p class="text-sm font-medium text-stone-800">{{ t.title }}</p>
+                                    <p class="text-xs text-stone-500">{{ t.speaker }}<span v-if="t.date"> · {{ formatDate(t.date) }}</span></p>
+                                </button>
+                                <a v-if="t.url" :href="t.url" target="_blank" rel="noopener" class="mt-0.5 flex-shrink-0 text-xs text-amber-600 hover:text-amber-800">Open ↗</a>
+                            </li>
+                        </ul>
+                        <p v-else-if="hasTalkFilter() && !talkSearching" class="text-xs text-stone-400">No talks found.</p>
+                    </div>
+
+                    <!-- Chosen source talk: open it to copy the passage -->
+                    <div v-if="selectedTalk" class="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                        <p class="text-sm font-medium text-stone-800">{{ selectedTalk.title }}</p>
+                        <p class="text-xs text-stone-500">{{ selectedTalk.speaker }}<span v-if="selectedTalk.date"> · {{ formatDate(selectedTalk.date) }}</span></p>
+                        <div class="mt-2 flex flex-wrap items-center gap-3">
+                            <a
+                                v-if="selectedTalk.url"
+                                :href="selectedTalk.url"
+                                target="_blank"
+                                rel="noopener"
+                                class="inline-flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+                            >
+                                Open talk to copy text ↗
+                            </a>
+                            <button type="button" @click="clearSource" class="text-xs text-stone-500 hover:text-stone-700">Change source</button>
+                        </div>
+                        <p class="mt-1 text-xs text-stone-400">Opens the talk on ChurchofJesusChrist.org — copy the passage you want and paste it into the Quote box above.</p>
+                    </div>
                 </div>
                 <TagInput v-model="form.tags" :content="form.content" />
                 <p v-if="createError" class="text-xs text-red-600">{{ createError }}</p>

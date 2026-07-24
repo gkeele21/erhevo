@@ -28,6 +28,7 @@ class Lesson extends Model
     protected $casts = [
         'visibility' => Visibility::class,
         'published_at' => 'datetime',
+        'first_published_at' => 'datetime',
         'draft_data' => 'array',
     ];
 
@@ -132,37 +133,44 @@ class Lesson extends Model
             ->where('published_at', '<=', now());
     }
 
+    // Unpublished (draft) lessons are visible only to their owner; everyone
+    // else additionally needs the visibility rules to allow them.
     public function scopeVisibleTo($query, ?User $user)
     {
         if (! $user) {
-            return $query->public();
+            return $query->public()->published();
         }
 
         return $query->where(function ($q) use ($user) {
-            $q->where('visibility', Visibility::Public)
-                ->orWhere('user_id', $user->id)
+            $q->where('user_id', $user->id)
                 ->orWhere(function ($q2) use ($user) {
-                    $q2->where('visibility', Visibility::Friends)
-                        ->whereIn('user_id', $user->friendIds());
+                    $q2->published()->where(function ($q3) use ($user) {
+                        $q3->where('visibility', Visibility::Public)
+                            ->orWhere(function ($q4) use ($user) {
+                                $q4->where('visibility', Visibility::Friends)
+                                    ->whereIn('user_id', $user->friendIds());
+                            });
+                    });
                 });
         });
     }
 
     public function isVisibleTo(?User $user): bool
     {
+        if ($user && $this->user_id === $user->id) {
+            return true;
+        }
+
+        // Drafts are owner-only, no matter their visibility setting.
+        if (! $this->published_at || $this->published_at->isFuture()) {
+            return false;
+        }
+
         if ($this->visibility === Visibility::Public) {
             return true;
         }
 
-        if (! $user) {
-            return false;
-        }
-
-        if ($this->user_id === $user->id) {
-            return true;
-        }
-
-        if ($this->visibility === Visibility::Friends) {
+        if ($user && $this->visibility === Visibility::Friends) {
             return $user->isFriendWith($this->user_id);
         }
 

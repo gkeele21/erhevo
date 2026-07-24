@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
@@ -10,10 +10,19 @@ const props = defineProps({
 
 const page = usePage()
 const search = ref(props.filters?.search ?? '')
+const sort = ref(props.filters?.sort ?? 'first_published')
+
+const sortOptions = [
+    { value: 'first_published', label: 'First published' },
+    { value: 'last_published', label: 'Recently published' },
+    { value: 'updated', label: 'Recently updated' },
+]
 
 const runSearch = () => {
-    router.get(route('lessons.index'), { search: search.value }, { preserveState: true, replace: true })
+    router.get(route('lessons.index'), { search: search.value, sort: sort.value }, { preserveState: true, replace: true })
 }
+
+watch(sort, runSearch)
 
 const formatDateTime = (value) => {
     if (!value) return ''
@@ -58,14 +67,23 @@ const cfmDateRange = (week) => {
 
         <div class="py-12">
             <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
-                <!-- Search -->
-                <form @submit.prevent="runSearch" class="mb-6">
+                <!-- Search + sort -->
+                <form @submit.prevent="runSearch" class="mb-6 flex gap-3">
                     <input
                         v-model="search"
                         type="text"
                         class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
                         placeholder="Search lessons..."
                     >
+                    <select
+                        v-model="sort"
+                        class="shrink-0 rounded-lg border-stone-300 text-sm text-stone-600 focus:border-amber-500 focus:ring-amber-500"
+                        aria-label="Sort lessons by"
+                    >
+                        <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">
+                            {{ opt.label }}
+                        </option>
+                    </select>
                 </form>
 
                 <!-- List -->
@@ -107,6 +125,7 @@ const cfmDateRange = (week) => {
                                 <p class="mt-2 text-xs text-stone-400">
                                     {{ lesson.items_count }} {{ lesson.items_count === 1 ? 'block' : 'blocks' }}
                                     <span> · Created {{ formatDateTime(lesson.created_at) }}</span>
+                                    <span v-if="lesson.first_published_at"> · Published {{ formatDateTime(lesson.first_published_at) }}</span>
                                 </p>
                                 <p v-if="lesson.cfm_week" class="mt-1 text-xs text-amber-700">
                                     Come Follow Me · {{ lesson.cfm_week.title }}

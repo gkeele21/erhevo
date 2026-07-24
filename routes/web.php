@@ -68,6 +68,7 @@ Route::middleware([
     Route::get('/lessons/{lesson:slug}/edit', [LessonController::class, 'edit'])->name('lessons.edit');
     Route::put('/lessons/{lesson:slug}', [LessonController::class, 'update'])->name('lessons.update');
     Route::delete('/lessons/{lesson:slug}/draft', [LessonController::class, 'discardDraft'])->name('lessons.discard-draft');
+    Route::put('/lessons/{lesson:slug}/unpublish', [LessonController::class, 'unpublish'])->name('lessons.unpublish');
     Route::delete('/lessons/{lesson:slug}', [LessonController::class, 'destroy'])->name('lessons.destroy');
     Route::get('/lessons/{lesson:slug}/teach', [LessonController::class, 'teach'])->name('lessons.teach');
     Route::get('/api/lessons/talk-search', [LessonController::class, 'searchTalks'])->name('lessons.talk-search');

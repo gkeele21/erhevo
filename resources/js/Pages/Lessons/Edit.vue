@@ -55,6 +55,11 @@ const discardDraft = () => {
     router.delete(route('lessons.discard-draft', props.lesson.slug))
 }
 
+const unpublish = () => {
+    if (!confirm('Unpublish this lesson? It will no longer be visible to anyone but you until you publish it again.')) return
+    router.put(route('lessons.unpublish', props.lesson.slug))
+}
+
 const submit = (publish) => {
     form.publish = publish
     form.transform((data) => data)
@@ -152,9 +157,19 @@ onUnmounted(() => clearInterval(autosaveTimer))
                     />
 
                     <div class="flex items-center justify-between">
-                        <Link :href="route('lessons.show', lesson.slug)" class="text-stone-600 hover:text-stone-800">
-                            Cancel
-                        </Link>
+                        <div class="flex items-center gap-6">
+                            <Link :href="route('lessons.show', lesson.slug)" class="text-stone-600 hover:text-stone-800">
+                                Cancel
+                            </Link>
+                            <button
+                                v-if="isPublished"
+                                type="button"
+                                @click="unpublish"
+                                class="text-sm text-red-600 hover:text-red-800"
+                            >
+                                Unpublish
+                            </button>
+                        </div>
                         <div class="flex items-center gap-4">
                             <span v-if="lastAutosavedAt" class="text-sm text-stone-400">
                                 Auto-saved at {{ lastAutosavedAt }}

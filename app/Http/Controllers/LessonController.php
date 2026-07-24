@@ -31,17 +31,26 @@ class LessonController extends Controller
 
     public function index(Request $request): Response
     {
+        // Never-published lessons fall back to created_at for the publish
+        // sorts, so the owner's drafts still slot in sensibly.
+        $sort = $request->input('sort');
+        $orderBy = match ($sort) {
+            'last_published' => 'COALESCE(published_at, created_at)',
+            'updated' => 'updated_at',
+            default => 'COALESCE(first_published_at, created_at)',
+        };
+
         $lessons = Lesson::with(['user', 'cfmWeek'])
             ->withCount(['allItems as items_count' => fn ($q) => $q->where('type', '!=', 'group')])
             ->visibleTo($request->user())
             ->when($request->search, fn ($q, $search) => $q->where('title', 'like', "%{$search}%"))
-            ->latest()
+            ->orderByRaw("{$orderBy} DESC")
             ->paginate(12)
             ->withQueryString();
 
         return Inertia::render('Lessons/Index', [
             'lessons' => $lessons,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'sort']),
         ]);
     }
 
@@ -67,6 +76,7 @@ class LessonController extends Controller
 
         if ($validated['publish'] ?? false) {
             $lesson->published_at = now();
+            $lesson->first_published_at = $lesson->published_at;
         }
 
         $lesson->save();
@@ -143,8 +153,11 @@ class LessonController extends Controller
 
         $lesson->fill($validated);
 
-        if ($publish && ! $lesson->published_at) {
+        if ($publish) {
+            // published_at tracks the most recent publish; first_published_at
+            // is set once and survives unpublish/republish cycles.
             $lesson->published_at = now();
+            $lesson->first_published_at ??= $lesson->published_at;
         }
 
         // Publishing (or saving a never-published lesson) applies the content
@@ -152,6 +165,9 @@ class LessonController extends Controller
         $lesson->draft_data = null;
         $lesson->save();
         $lesson->syncItems($validated['items'] ?? []);
+        // Item-only edits don't dirty the lessons row, so bump updated_at
+        // explicitly — it feeds the "Recently updated" sort.
+        $lesson->touch();
 
         // Background auto-saves stay on the edit page — no redirect, no flash.
         if ($request->boolean('autosave')) {
@@ -160,6 +176,28 @@ class LessonController extends Controller
 
         return redirect()->route('lessons.show', $lesson)
             ->with('success', 'Lesson updated successfully.');
+    }
+
+    /**
+     * Take a published lesson back to draft, hiding it from other users.
+     * Any pending draft revision is folded in — an unpublished lesson has a
+     * single content stream, so the editor keeps the author's latest edits.
+     */
+    public function unpublish(Lesson $lesson)
+    {
+        Gate::authorize('update', $lesson);
+
+        if ($lesson->draft_data) {
+            $lesson->fill($lesson->draft_data);
+            $lesson->syncItems($lesson->draft_data['items'] ?? []);
+            $lesson->draft_data = null;
+        }
+
+        $lesson->published_at = null;
+        $lesson->save();
+
+        return redirect()->route('lessons.edit', $lesson)
+            ->with('success', 'Lesson unpublished — it\'s now a draft only you can see.');
     }
 
     /**

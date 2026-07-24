@@ -14,10 +14,13 @@ const props = defineProps({
     churchCallings: Array,
 })
 
+// Existing elements start collapsed so a long lesson is easy to scan;
+// each card (and Expand all) opens them as needed.
 const mapLeaf = (item) => ({
     type: item.type,
     content: item.content ?? '',
     config: item.config ?? {},
+    _collapsed: true,
 })
 
 const mapNode = (item) => item.type === 'group'

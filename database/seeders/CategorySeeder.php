@@ -53,11 +53,14 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            Category::create([
-                ...$category,
-                'user_id' => null,
-                'is_approved' => true,
-            ]);
+            Category::updateOrCreate(
+                ['slug' => $category['slug']],
+                [
+                    ...$category,
+                    'user_id' => null,
+                    'is_approved' => true,
+                ]
+            );
         }
     }
 }

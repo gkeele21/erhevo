@@ -14,6 +14,16 @@ class ChurchOrganizationSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed-once guard: these rows must keep their original auto-increment
+        // ids (orgs + callings 1-29) because the seed snapshots in
+        // database/data/seed/ reference them. Re-running create() would mint
+        // duplicates at new ids, so skip if the structure already exists.
+        if (ChurchOrganization::exists()) {
+            $this->command?->info('  Church organizations already seeded, skipping.');
+
+            return;
+        }
+
         // First Presidency
         $firstPres = ChurchOrganization::create([
             'name' => 'The First Presidency',

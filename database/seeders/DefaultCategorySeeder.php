@@ -47,13 +47,19 @@ class DefaultCategorySeeder extends Seeder
             $children = $categoryData['children'] ?? [];
             unset($categoryData['children']);
 
-            $parent = DefaultCategory::create($categoryData);
+            $parent = DefaultCategory::updateOrCreate(
+                ['slug' => $categoryData['slug']],
+                $categoryData
+            );
 
             foreach ($children as $childData) {
-                DefaultCategory::create([
-                    ...$childData,
-                    'parent_id' => $parent->id,
-                ]);
+                DefaultCategory::updateOrCreate(
+                    ['slug' => $childData['slug']],
+                    [
+                        ...$childData,
+                        'parent_id' => $parent->id,
+                    ]
+                );
             }
         }
     }

@@ -36,13 +36,17 @@ return new class extends Migration
 
         // The FK may retain its pre-rename name (stories_author_user_id_foreign),
         // so resolve it from the schema rather than assuming Laravel's convention.
-        $foreignKeys = DB::select(
-            "SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'posts'
-             AND COLUMN_NAME = 'author_user_id' AND REFERENCED_TABLE_NAME IS NOT NULL"
-        );
-        foreach ($foreignKeys as $fk) {
-            DB::statement("ALTER TABLE `posts` DROP FOREIGN KEY `{$fk->CONSTRAINT_NAME}`");
+        // MySQL only: SQLite (used in tests) rebuilds the table on dropColumn and
+        // sheds the FK automatically, and information_schema doesn't exist there.
+        if (in_array(DB::getDriverName(), ['mysql', 'mariadb'])) {
+            $foreignKeys = DB::select(
+                "SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'posts'
+                 AND COLUMN_NAME = 'author_user_id' AND REFERENCED_TABLE_NAME IS NOT NULL"
+            );
+            foreach ($foreignKeys as $fk) {
+                DB::statement("ALTER TABLE `posts` DROP FOREIGN KEY `{$fk->CONSTRAINT_NAME}`");
+            }
         }
 
         Schema::table('posts', function (Blueprint $table) {

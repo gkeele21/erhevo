@@ -104,6 +104,7 @@ class LessonController extends Controller
         Gate::authorize('update', $lesson);
 
         $lesson->load(['cfmWeek', 'items.children']);
+        $lesson->makeVisible('draft_data');
 
         return Inertia::render('Lessons/Edit', [
             'lesson' => $lesson,
@@ -122,18 +123,57 @@ class LessonController extends Controller
         Gate::authorize('update', $lesson);
 
         $validated = $this->validateLesson($request);
+        $publish = $validated['publish'] ?? false;
+        unset($validated['publish']);
+
+        // Non-publishing saves to a published lesson become a pending draft
+        // revision — the live lesson stays exactly as readers see it until
+        // the author publishes the changes.
+        if (! $publish && $lesson->published_at) {
+            $lesson->draft_data = $validated;
+            $lesson->save();
+
+            if ($request->boolean('autosave')) {
+                return back();
+            }
+
+            return redirect()->route('lessons.edit', $lesson)
+                ->with('success', 'Draft saved. The published lesson is unchanged until you publish.');
+        }
 
         $lesson->fill($validated);
 
-        if (($validated['publish'] ?? false) && ! $lesson->published_at) {
+        if ($publish && ! $lesson->published_at) {
             $lesson->published_at = now();
         }
 
+        // Publishing (or saving a never-published lesson) applies the content
+        // directly and clears any pending draft revision.
+        $lesson->draft_data = null;
         $lesson->save();
         $lesson->syncItems($validated['items'] ?? []);
 
+        // Background auto-saves stay on the edit page — no redirect, no flash.
+        if ($request->boolean('autosave')) {
+            return back();
+        }
+
         return redirect()->route('lessons.show', $lesson)
             ->with('success', 'Lesson updated successfully.');
+    }
+
+    /**
+     * Throw away a published lesson's pending draft revision.
+     */
+    public function discardDraft(Lesson $lesson)
+    {
+        Gate::authorize('update', $lesson);
+
+        $lesson->draft_data = null;
+        $lesson->save();
+
+        return redirect()->route('lessons.edit', $lesson)
+            ->with('success', 'Draft changes discarded.');
     }
 
     public function destroy(Lesson $lesson)

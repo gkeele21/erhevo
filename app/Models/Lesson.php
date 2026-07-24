@@ -28,7 +28,19 @@ class Lesson extends Model
     protected $casts = [
         'visibility' => Visibility::class,
         'published_at' => 'datetime',
+        'draft_data' => 'array',
     ];
+
+    // Draft content is only for the owner's editor — expose it explicitly
+    // (makeVisible) where needed instead of shipping it to every viewer.
+    protected $hidden = ['draft_data'];
+
+    protected $appends = ['has_draft'];
+
+    public function getHasDraftAttribute(): bool
+    {
+        return $this->draft_data !== null;
+    }
 
     protected static function booted(): void
     {

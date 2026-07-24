@@ -78,14 +78,35 @@ const cfmDateRange = (week) => {
                     >
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-semibold text-stone-800">{{ lesson.title }}</h3>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-lg font-semibold text-stone-800">{{ lesson.title }}</h3>
+                                    <!-- Status is only meaningful on lessons you can edit -->
+                                    <template v-if="lesson.user_id === page.props.auth.user?.id">
+                                        <span
+                                            v-if="!lesson.published_at"
+                                            class="rounded-full bg-stone-200 px-2.5 py-0.5 text-xs font-medium text-stone-600"
+                                        >
+                                            Draft
+                                        </span>
+                                        <template v-else>
+                                            <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
+                                                Published
+                                            </span>
+                                            <span
+                                                v-if="lesson.has_draft"
+                                                class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700"
+                                            >
+                                                Unpublished changes
+                                            </span>
+                                        </template>
+                                    </template>
+                                </div>
                                 <p v-if="lesson.description" class="mt-1 text-sm text-stone-500">
                                     {{ lesson.description }}
                                 </p>
                                 <p class="mt-2 text-xs text-stone-400">
                                     {{ lesson.items_count }} {{ lesson.items_count === 1 ? 'block' : 'blocks' }}
                                     <span> · Created {{ formatDateTime(lesson.created_at) }}</span>
-                                    <span v-if="!lesson.published_at" class="ml-2 rounded bg-stone-100 px-2 py-0.5 text-stone-500">Draft</span>
                                 </p>
                                 <p v-if="lesson.cfm_week" class="mt-1 text-xs text-amber-700">
                                     Come Follow Me · {{ lesson.cfm_week.title }}

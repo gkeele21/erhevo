@@ -23,7 +23,8 @@ class AiManager
     }
 
     /**
-     * Provider options for display: ['key' => ..., 'label' => ..., 'key_hint' => ...].
+     * Provider options for display, including the "where do I get a key"
+     * guidance shown on the profile connection form.
      *
      * @return array<int, array<string, string>>
      */
@@ -34,6 +35,10 @@ class AiManager
                 'key' => $key,
                 'label' => $cfg['label'] ?? $key,
                 'key_hint' => $cfg['key_hint'] ?? '',
+                'console_url' => $cfg['console_url'] ?? '',
+                'console_host' => $cfg['console_host'] ?? '',
+                'console_path' => $cfg['console_path'] ?? '',
+                'note' => $cfg['note'] ?? '',
             ])
             ->values()
             ->all();

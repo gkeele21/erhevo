@@ -25,10 +25,11 @@ const form = useForm({
     ai_api_key: '',
 });
 
-const selectedHint = computed(() => {
-    const match = providers.value.find(p => p.key === form.ai_provider);
-    return match?.key_hint ?? '';
-});
+const selectedProvider = computed(() =>
+    providers.value.find(p => p.key === form.ai_provider) ?? null
+);
+
+const selectedHint = computed(() => selectedProvider.value?.key_hint ?? '');
 
 const connect = () => {
     form.put(route('ai-connection.update'), {
@@ -54,8 +55,8 @@ const disconnect = () => {
 
         <template #description>
             AI features (writing prompts, tag &amp; scripture suggestions, privacy checks, insights, and more) use
-            your own AI account. Connect a provider with your own API key to enable them. Your key is stored
-            encrypted and is only ever used for your requests.
+            your own AI account. Connect a provider with your own API key to enable them. We verify the key with
+            a tiny test request when you connect, and it's stored encrypted and only ever used for your requests.
         </template>
 
         <template #form>
@@ -89,6 +90,26 @@ const disconnect = () => {
                     </option>
                 </select>
                 <InputError :message="form.errors.ai_provider" class="mt-2" />
+            </div>
+
+            <!-- Where to get a key for the selected provider -->
+            <div
+                v-if="selectedProvider?.console_url"
+                class="col-span-6 sm:col-span-4 rounded-lg border border-stone-200 bg-stone-50 p-3 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-400"
+            >
+                <p>
+                    Create your API key at
+                    <a
+                        :href="selectedProvider.console_url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-medium text-amber-700 underline hover:text-amber-900 dark:text-amber-500"
+                    >{{ selectedProvider.console_host }} ↗</a><template v-if="selectedProvider.console_path">,
+                    then go to <span class="font-medium">{{ selectedProvider.console_path }}</span></template>.
+                </p>
+                <p v-if="selectedProvider.note" class="mt-1 text-xs text-stone-500 dark:text-stone-500">
+                    {{ selectedProvider.note }}
+                </p>
             </div>
 
             <!-- API key -->

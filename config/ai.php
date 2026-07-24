@@ -22,7 +22,12 @@ return [
             'text_model' => env('AI_OPENAI_TEXT_MODEL', 'gpt-4o-mini'),
             'vision_model' => env('AI_OPENAI_VISION_MODEL', 'gpt-4o'),
             'supports_vision' => true,
-            'key_hint' => 'Starts with "sk-". Create one at platform.openai.com/api-keys.',
+            'key_hint' => 'Starts with "sk-".',
+            // Shown on the profile connection form to guide key creation.
+            'console_url' => 'https://platform.openai.com/api-keys',
+            'console_host' => 'platform.openai.com',
+            'console_path' => 'API keys → Create new secret key',
+            'note' => 'Billed by usage — separate from a ChatGPT subscription.',
         ],
 
         'anthropic' => [
@@ -32,7 +37,11 @@ return [
             'supports_vision' => true,
             'base_uri' => env('AI_ANTHROPIC_BASE_URI', 'https://api.anthropic.com/v1'),
             'version' => env('AI_ANTHROPIC_VERSION', '2023-06-01'),
-            'key_hint' => 'Starts with "sk-ant-". Create one at console.anthropic.com.',
+            'key_hint' => 'Starts with "sk-ant-".',
+            'console_url' => 'https://console.anthropic.com',
+            'console_host' => 'console.anthropic.com',
+            'console_path' => 'API Keys → Create Key',
+            'note' => 'Requires API billing/credits — separate from a Claude.ai subscription.',
         ],
 
         'gemini' => [
@@ -41,7 +50,11 @@ return [
             'vision_model' => env('AI_GEMINI_VISION_MODEL', 'gemini-2.0-flash'),
             'supports_vision' => true,
             'base_uri' => env('AI_GEMINI_BASE_URI', 'https://generativelanguage.googleapis.com/v1beta'),
-            'key_hint' => 'Create one at aistudio.google.com/app/apikey.',
+            'key_hint' => '',
+            'console_url' => 'https://aistudio.google.com/apikey',
+            'console_host' => 'aistudio.google.com',
+            'console_path' => 'Create API key',
+            'note' => 'Has a free tier — the easiest way to try AI features out.',
         ],
 
     ],

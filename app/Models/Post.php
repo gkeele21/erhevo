@@ -39,6 +39,8 @@ class Post extends Model
         'name_mappings',
         'published_at',
         'date_given',
+        'source_url',
+        'source_platform',
     ];
 
     protected $casts = [

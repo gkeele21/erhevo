@@ -93,7 +93,7 @@ const closePreview = () => {
         </button>
 
         <!-- Error message -->
-        <p v-if="error" class="absolute top-full left-0 mt-1 text-xs text-red-600 whitespace-nowrap">
+        <p v-if="error" class="absolute z-20 top-full left-0 mt-2 w-max max-w-xs rounded-lg border border-red-200 bg-white p-2 text-xs text-red-600 shadow-lg">
             {{ error }}
         </p>
 

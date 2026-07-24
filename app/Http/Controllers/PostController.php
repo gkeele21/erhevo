@@ -14,6 +14,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 use App\Services\NameAnonymizer;
+use App\Services\SourceLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -110,12 +111,14 @@ class PostController extends Controller
             'anonymize_names' => 'boolean',
             'name_mappings' => 'nullable|array',
             'date_given' => 'nullable|date',
+            'source_url' => 'nullable|url|max:2048',
             'publish' => 'boolean',
         ]);
 
         $post = new Post($validated);
         $post->user_id = $request->user()->id;
         $post->author_id = $this->resolveAuthorId($validated, $post);
+        $post->source_platform = SourceLink::platformFor($validated['source_url'] ?? null);
 
         if ($validated['anonymize_names'] ?? false) {
             $result = $this->nameAnonymizer->anonymize(
@@ -198,6 +201,39 @@ class PostController extends Controller
         ]);
     }
 
+    /**
+     * Best-effort fetch of a source link's text/title, for pre-filling a post
+     * from a pasted URL. Platforms behind login walls (Facebook, Instagram)
+     * often can't be read — the UI falls back to manual pasting.
+     */
+    public function fetchSourceLink(Request $request, SourceLink $sourceLink)
+    {
+        $validated = $request->validate([
+            'url' => 'required|url|max:2048',
+        ]);
+
+        $platform = SourceLink::platformFor($validated['url']);
+
+        try {
+            $result = $sourceLink->fetchText($validated['url']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'platform' => $platform,
+                'error' => "We couldn't read the text from that link"
+                    . ($platform ? " — {$platform} posts are often only visible when logged in" : '')
+                    . '. Paste the post text into the content field instead.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'platform' => $platform,
+            'title' => $result['title'],
+            'text' => $result['text'],
+        ]);
+    }
+
     public function update(Request $request, Post $post)
     {
         Gate::authorize('update', $post);
@@ -224,11 +260,13 @@ class PostController extends Controller
             'anonymize_names' => 'boolean',
             'name_mappings' => 'nullable|array',
             'date_given' => 'nullable|date',
+            'source_url' => 'nullable|url|max:2048',
             'publish' => 'boolean',
         ]);
 
         $post->fill($validated);
         $post->author_id = $this->resolveAuthorId($validated, $post);
+        $post->source_platform = SourceLink::platformFor($validated['source_url'] ?? null);
 
         if ($validated['anonymize_names'] ?? false) {
             $result = $this->nameAnonymizer->anonymize(

@@ -298,6 +298,22 @@ const typeLabel = computed(() => ({
                     </article>
                 </template>
 
+                <!-- Original source link -->
+                <div v-if="post.source_url" class="mt-8 rounded-lg border border-stone-200 bg-white p-4 text-sm text-stone-600">
+                    Originally seen
+                    <template v-if="post.author_name">from <span class="font-medium">{{ post.author_name }}</span></template>
+                    <template v-if="post.source_platform">on <span class="font-medium">{{ post.source_platform }}</span></template>
+                    &middot;
+                    <a
+                        :href="post.source_url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-amber-700 hover:text-amber-900 underline"
+                    >
+                        View original ↗
+                    </a>
+                </div>
+
                 <!-- Used in lessons -->
                 <div v-if="usedInLessons.length" class="mt-8 rounded-lg border border-stone-200 bg-white p-6">
                     <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">

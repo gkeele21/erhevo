@@ -12,6 +12,7 @@ import AiExcerptGenerator from '@/Components/Story/AiExcerptGenerator.vue'
 import AiScriptureSuggest from '@/Components/Story/AiScriptureSuggest.vue'
 import AiWritingPrompts from '@/Components/Story/AiWritingPrompts.vue'
 import AiPrivacyCheck from '@/Components/Story/AiPrivacyCheck.vue'
+import SourceLinkInput from '@/Components/Story/SourceLinkInput.vue'
 import UserCategoryInput from '@/Components/Story/UserCategoryInput.vue'
 import PublicCategoryInput from '@/Components/Story/PublicCategoryInput.vue'
 import LdsContentSection from '@/Components/Story/LdsContentSection.vue'
@@ -42,6 +43,7 @@ const form = useForm({
     author_id: null,
     church_calling_id: '',
     date_given: '',
+    source_url: '',
     visibility: 'private',
     hide_creator: false,
     hide_author: false,
@@ -77,6 +79,13 @@ const handleExtractedText = (text) => {
         form.content += '\n\n' + text
     } else {
         form.content = text
+    }
+}
+
+const handleSourceText = ({ text, title }) => {
+    handleExtractedText(text)
+    if (title && !form.title) {
+        form.title = title
     }
 }
 
@@ -165,6 +174,12 @@ const handleCategoryCreated = () => {
                             >
                             <p v-if="form.errors.title" class="mt-1 text-sm text-red-600">{{ form.errors.title }}</p>
                         </div>
+
+                        <!-- Source link (e.g. a Facebook post this came from) -->
+                        <SourceLinkInput
+                            v-model="form.source_url"
+                            @text-fetched="handleSourceText"
+                        />
 
                         <!-- Content Editor -->
                         <div>

@@ -10,6 +10,7 @@ import AuthorInput from '@/Components/Story/AuthorInput.vue'
 import AiExcerptGenerator from '@/Components/Story/AiExcerptGenerator.vue'
 import AiScriptureSuggest from '@/Components/Story/AiScriptureSuggest.vue'
 import AiPrivacyCheck from '@/Components/Story/AiPrivacyCheck.vue'
+import SourceLinkInput from '@/Components/Story/SourceLinkInput.vue'
 import UserCategoryInput from '@/Components/Story/UserCategoryInput.vue'
 import PublicCategoryInput from '@/Components/Story/PublicCategoryInput.vue'
 import LdsContentSection from '@/Components/Story/LdsContentSection.vue'
@@ -43,6 +44,7 @@ const form = useForm({
     church_calling_id: props.post.church_calling_id || '',
     // date_given serializes as an ISO datetime; the date input needs YYYY-MM-DD.
     date_given: props.post.date_given ? props.post.date_given.slice(0, 10) : '',
+    source_url: props.post.source_url || '',
     visibility: props.post.visibility,
     hide_creator: props.post.hide_creator,
     hide_author: props.post.hide_author,
@@ -67,6 +69,17 @@ const submit = () => {
 
 const deletePost = () => {
     router.delete(route('posts.destroy', props.post.slug))
+}
+
+const handleSourceText = ({ text, title }) => {
+    if (form.content) {
+        form.content += '\n\n' + text
+    } else {
+        form.content = text
+    }
+    if (title && !form.title) {
+        form.title = title
+    }
 }
 
 const handleScriptureAdd = (suggestion) => {
@@ -138,6 +151,12 @@ const handleCategoryCreated = () => {
                             >
                             <p v-if="form.errors.title" class="mt-1 text-sm text-red-600">{{ form.errors.title }}</p>
                         </div>
+
+                        <!-- Source link (e.g. a Facebook post this came from) -->
+                        <SourceLinkInput
+                            v-model="form.source_url"
+                            @text-fetched="handleSourceText"
+                        />
 
                         <!-- Content Editor -->
                         <div>

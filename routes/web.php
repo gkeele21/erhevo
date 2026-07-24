@@ -57,6 +57,7 @@ Route::middleware([
 
     // Posts CRUD (except public index and show)
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/api/posts/fetch-source-link', [PostController::class, 'fetchSourceLink'])->name('posts.fetch-source-link');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::get('/posts/{post:slug}/edit', [PostController::class, 'edit'])->name('posts.edit');
     Route::put('/posts/{post:slug}', [PostController::class, 'update'])->name('posts.update');

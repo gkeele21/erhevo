@@ -97,6 +97,12 @@ const onEndChapterChange = () => {
 const fetchPassage = async () => {
     if (!startChapterId.value) return
 
+    // Within a single chapter, an empty end verse means "Single verse" — the
+    // endpoint treats a null end_verse as "to the end of the chapter", so pin
+    // it to the start verse. (Cross-chapter, empty means "End of chapter".)
+    const effectiveEndVerse = endVerse.value
+        || (sameChapter.value && startVerse.value ? startVerse.value : null)
+
     loading.value = true
     try {
         const { data } = await axios.get(route('lessons.scripture-text'), {
@@ -104,7 +110,7 @@ const fetchPassage = async () => {
                 start_chapter_id: startChapterId.value,
                 start_verse: startVerse.value || null,
                 end_chapter_id: endChapterId.value || null,
-                end_verse: endVerse.value || null,
+                end_verse: effectiveEndVerse,
             },
         })
 
@@ -116,7 +122,7 @@ const fetchPassage = async () => {
             end_chapter_id: endChapterId.value ? Number(endChapterId.value) : null,
             end_chapter_number: endChapter.value?.number ?? null,
             start_verse: startVerse.value ? Number(startVerse.value) : null,
-            end_verse: endVerse.value ? Number(endVerse.value) : null,
+            end_verse: effectiveEndVerse ? Number(effectiveEndVerse) : null,
             reference: data.reference,
         })
         emit('update:passage', textToHtml(data.text))

@@ -49,6 +49,13 @@ class CategoryController extends Controller
         $category->is_approved = false;
         $category->save();
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'category' => $category,
+            ], 201);
+        }
+
         return back()->with('success', 'Category suggested successfully. It will be reviewed by an admin.');
     }
 }

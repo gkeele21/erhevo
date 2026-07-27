@@ -130,6 +130,7 @@ Route::middleware([
     Route::post('/api/ai/extract-text', [AiController::class, 'extractText'])->name('ai.extract-text');
     Route::post('/api/ai/generate-excerpt', [AiController::class, 'generateExcerpt'])->name('ai.generate-excerpt');
     Route::post('/api/ai/suggest-tags', [AiController::class, 'suggestTags'])->name('ai.suggest-tags');
+    Route::post('/api/ai/suggest-titles', [AiController::class, 'suggestTitles'])->name('ai.suggest-titles');
     Route::post('/api/ai/suggest-scriptures', [AiController::class, 'suggestScriptures'])->name('ai.suggest-scriptures');
     Route::post('/api/ai/writing-prompts', [AiController::class, 'generateWritingPrompts'])->name('ai.writing-prompts');
     Route::post('/api/ai/insights', [AiController::class, 'analyzeInsights'])->name('ai.insights');

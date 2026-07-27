@@ -182,6 +182,31 @@ class AiService
     }
 
     /**
+     * Suggest titles for content.
+     *
+     * @return array<string>
+     */
+    public function suggestTitles(string $content, int $maxSuggestions = 3): array
+    {
+        $result = $this->provider->complete(
+            "You are a helpful assistant that suggests titles for journal entries and personal stories. Suggest {$maxSuggestions} distinct titles that capture the heart of the content. Titles should be short (3-8 words), warm, and specific to the content rather than generic. Return only a JSON array of strings. Example: [\"A Lesson at the Kitchen Table\", \"When Grandpa Taught Me Patience\"]",
+            [['type' => 'text', 'text' => "Suggest titles for this content:\n\n{$content}"]],
+            ['max_tokens' => 200, 'json' => true],
+        );
+
+        $titles = $this->decodeJson($result);
+
+        if (! is_array($titles)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_slice($titles, 0, $maxSuggestions),
+            fn ($title) => is_string($title) && trim($title) !== ''
+        ));
+    }
+
+    /**
      * Suggest categories for content.
      *
      * @return array{name: string, reason: string, is_existing: bool}
@@ -203,7 +228,7 @@ class AiService
             : "Suggest a public category for this post that would help others discover it. Categories should be broad topics (e.g., 'Faith', 'Family', 'Gratitude', 'Service', 'Personal Growth').";
 
         $result = $this->provider->complete(
-            "You are a helpful assistant that suggests categories for journal entries. {$typeContext}\n\n{$categoryContext}\n\nReturn a JSON object with: 'name' (the suggested category name, prefer existing categories if they fit well), 'reason' (brief explanation of why this category fits, 10-15 words), 'is_existing' (boolean, true if suggesting an existing category).",
+            "You are a helpful assistant that suggests categories for journal entries. {$typeContext}\n\n{$categoryContext}\n\nPrefer an existing category when one fits the content well, but it is perfectly fine to suggest a brand-new category when none of the existing ones are a good fit.\n\nReturn a JSON object with: 'name' (the suggested category name), 'reason' (brief explanation of why this category fits, 10-15 words), 'is_existing' (boolean, true only if the name exactly matches an existing category).",
             [['type' => 'text', 'text' => "Suggest a category for this content:\n\n{$content}"]],
             ['max_tokens' => 150, 'json' => true],
         );

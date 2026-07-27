@@ -157,6 +157,38 @@ class AiController extends Controller
     }
 
     /**
+     * Suggest titles for content.
+     */
+    public function suggestTitles(Request $request): JsonResponse
+    {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
+        $request->validate([
+            'content' => 'required|string|min:20',
+            'max_suggestions' => 'nullable|integer|min:1|max:5',
+        ]);
+
+        try {
+            $titles = $this->aiManager->serviceFor($request->user())->suggestTitles(
+                $request->input('content'),
+                $request->input('max_suggestions', 3)
+            );
+
+            return response()->json([
+                'success' => true,
+                'titles' => $titles,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to suggest titles. Please try again.',
+            ], 500);
+        }
+    }
+
+    /**
      * Suggest scripture references for content.
      */
     public function suggestScriptures(Request $request): JsonResponse

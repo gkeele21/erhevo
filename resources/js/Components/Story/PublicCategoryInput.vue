@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import AiCategorySuggest from './AiCategorySuggest.vue'
 
 const props = defineProps({
@@ -19,17 +19,62 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const handleAiSuggestion = (suggestion) => {
+// Categories this user proposed during this session; they await admin
+// approval so they aren't in the shared categories list yet.
+const pendingCategories = ref([])
+const proposing = ref(false)
+const error = ref('')
+
+const allCategories = computed(() => [
+    ...props.categories,
+    ...pendingCategories.value,
+])
+
+const handleAiSuggestion = async (suggestion) => {
+    error.value = ''
+
     // Find matching category by name
-    const existing = props.categories.find(
+    const existing = allCategories.value.find(
         c => c.name.toLowerCase() === suggestion.name.toLowerCase()
     )
 
     if (existing) {
         emit('update:modelValue', existing.id)
+        return
     }
-    // For public categories, we can't create new ones inline
-    // The suggestion will just help users pick from existing ones
+
+    // New category: propose it for admin approval and select it right away
+    proposing.value = true
+
+    try {
+        const response = await fetch('/categories', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': decodeURIComponent(
+                    document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('XSRF-TOKEN='))
+                        ?.split('=')[1] || ''
+                )
+            },
+            body: JSON.stringify({ name: suggestion.name })
+        })
+
+        const data = await response.json()
+
+        if (response.ok && data.category) {
+            pendingCategories.value.push(data.category)
+            emit('update:modelValue', data.category.id)
+        } else {
+            error.value = data.message || 'Failed to suggest this category'
+        }
+    } catch (e) {
+        error.value = 'Failed to suggest this category'
+    } finally {
+        proposing.value = false
+    }
 }
 </script>
 
@@ -58,6 +103,9 @@ const handleAiSuggestion = (suggestion) => {
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                     {{ cat.name }}
                 </option>
+                <option v-for="cat in pendingCategories" :key="cat.id" :value="cat.id">
+                    {{ cat.name }} (pending approval)
+                </option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                 <svg class="h-5 w-5 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
@@ -65,5 +113,11 @@ const handleAiSuggestion = (suggestion) => {
                 </svg>
             </div>
         </div>
+
+        <p v-if="proposing" class="text-xs text-stone-500">Suggesting new category...</p>
+        <p v-else-if="pendingCategories.some(c => String(c.id) === String(modelValue))" class="text-xs text-amber-700">
+            This is a new category. It will be reviewed by an admin before appearing publicly.
+        </p>
+        <p v-if="error" class="text-xs text-red-600">{{ error }}</p>
     </div>
 </template>

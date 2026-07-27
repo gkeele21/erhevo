@@ -8,6 +8,7 @@ import TagInput from '@/Components/Story/TagInput.vue'
 import PrivacyOptions from '@/Components/Story/PrivacyOptions.vue'
 import AuthorInput from '@/Components/Story/AuthorInput.vue'
 import AiExcerptGenerator from '@/Components/Story/AiExcerptGenerator.vue'
+import AiTitleSuggest from '@/Components/Story/AiTitleSuggest.vue'
 import AiScriptureSuggest from '@/Components/Story/AiScriptureSuggest.vue'
 import AiPrivacyCheck from '@/Components/Story/AiPrivacyCheck.vue'
 import SourceLinkInput from '@/Components/Story/SourceLinkInput.vue'
@@ -140,9 +141,15 @@ const handleCategoryCreated = () => {
                     <div class="bg-white rounded-lg shadow p-6 space-y-6 border border-stone-100">
                         <!-- Title -->
                         <div>
-                            <label class="block text-sm font-medium text-stone-700 mb-1">
-                                Title
-                            </label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-sm font-medium text-stone-700">
+                                    Title
+                                </label>
+                                <AiTitleSuggest
+                                    :content="form.content"
+                                    @select-title="(title) => form.title = title"
+                                />
+                            </div>
                             <input
                                 v-model="form.title"
                                 type="text"

@@ -29,7 +29,7 @@ class PostController extends Controller
 
     public function index(Request $request): Response
     {
-        $posts = Post::with(['user', 'category', 'tags'])
+        $posts = Post::with(['user', 'author', 'category', 'tags'])
             ->visibleTo($request->user())
             ->published()
             ->when($request->type, fn ($q, $type) => $q->where('post_type', $type))

@@ -6,7 +6,21 @@ const props = defineProps({
     post: {
         type: Object,
         required: true
+    },
+    byline: {
+        type: String,
+        default: 'creator', // 'creator' or 'author'
+        validator: (v) => ['creator', 'author'].includes(v)
     }
+})
+
+// Name shown in the card footer. The author byline falls back to the
+// creator for posts without an author (or when the author is hidden).
+const bylineName = computed(() => {
+    if (props.byline === 'author') {
+        return props.post.author_name || props.post.creator_name
+    }
+    return props.post.creator_name
 })
 
 const formatDate = (date) => {
@@ -94,7 +108,7 @@ const typeConfig = computed(() => ({
             <!-- Footer -->
             <div class="flex items-center justify-between text-sm text-teal-300 mt-4 pt-4 border-t border-gold-200">
                 <div class="flex items-center gap-2">
-                    <span v-if="post.creator_name">{{ post.creator_name }}</span>
+                    <span v-if="bylineName">{{ bylineName }}</span>
                     <span v-else class="italic">Anonymous</span>
                 </div>
                 <span>{{ formatDate(post.published_at) }}</span>
@@ -127,7 +141,7 @@ const typeConfig = computed(() => ({
             <!-- Footer -->
             <div class="flex items-center justify-between text-sm text-teal-300 mt-4">
                 <div class="flex items-center gap-2">
-                    <span v-if="post.creator_name">{{ post.creator_name }}</span>
+                    <span v-if="bylineName">{{ bylineName }}</span>
                     <span v-else class="italic">Anonymous</span>
                 </div>
             </div>
@@ -225,7 +239,7 @@ const typeConfig = computed(() => ({
             <!-- Footer -->
             <div class="flex items-center justify-between text-sm text-teal-300">
                 <div class="flex items-center gap-2">
-                    <span v-if="post.creator_name">{{ post.creator_name }}</span>
+                    <span v-if="bylineName">{{ bylineName }}</span>
                     <span v-else class="italic">Anonymous</span>
                 </div>
                 <span>{{ formatDate(post.published_at) }}</span>

@@ -153,6 +153,7 @@ watch(friendsOnly, applyFilters)
                         v-for="post in posts.data"
                         :key="post.id"
                         :post="post"
+                        byline="author"
                     />
                 </div>
 

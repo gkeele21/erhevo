@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
 import StoryCard from '@/Components/Story/StoryCard.vue'
+import UserMenu from '@/Components/UserMenu.vue'
 
 defineProps({
     featuredPosts: Array,
@@ -46,6 +47,7 @@ defineProps({
                             >
                                 Dashboard
                             </Link>
+                            <UserMenu />
                         </template>
                         <template v-else>
                             <Link

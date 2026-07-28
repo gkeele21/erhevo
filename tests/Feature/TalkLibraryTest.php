@@ -16,9 +16,9 @@ class TalkLibraryTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guests_cannot_access_the_library(): void
+    public function test_guests_can_browse_the_library(): void
     {
-        $this->get('/library')->assertRedirect('/login');
+        $this->get('/library')->assertOk();
     }
 
     public function test_users_with_lds_content_enabled_can_access_the_library(): void
@@ -96,6 +96,26 @@ class TalkLibraryTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('talks.data', 1)
                 ->where('talks.data.0.title', 'Morning Talk'));
+    }
+
+    public function test_talks_sort_by_session_blocks_in_both_directions(): void
+    {
+        $this->seedGeneralConferenceData();
+
+        // Default: oldest first — sessions ascending, speaking order within.
+        $this->actingAs(User::factory()->create())
+            ->get('/library')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('talks.data.0.title', 'Morning Talk')
+                ->where('talks.data.1.title', 'Afternoon Talk'));
+
+        // Newest first reverses the session blocks (both sessions share a
+        // date, so only the session ordering can distinguish them).
+        $this->actingAs(User::factory()->create())
+            ->get('/library?sort=newest')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('talks.data.0.title', 'Afternoon Talk')
+                ->where('talks.data.1.title', 'Morning Talk'));
     }
 
     /**

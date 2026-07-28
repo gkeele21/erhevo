@@ -37,6 +37,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index');
+// LDS content library — public; logged-in users are still gated by their
+// show_lds_content setting in the controller.
+Route::get('/library', [TalkController::class, 'index'])->name('talks.index');
 Route::get('/authors', [AuthorController::class, 'index'])->name('authors.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
@@ -118,9 +121,6 @@ Route::middleware([
     Route::post('/my-categories', [UserCategoryController::class, 'store'])->name('user-categories.store');
     Route::put('/my-categories/{userCategory}', [UserCategoryController::class, 'update'])->name('user-categories.update');
     Route::delete('/my-categories/{userCategory}', [UserCategoryController::class, 'destroy'])->name('user-categories.destroy');
-
-    // LDS content library (gated by the user's show_lds_content setting)
-    Route::get('/library', [TalkController::class, 'index'])->name('talks.index');
 
     // Study Plans
     Route::get('/study-plans', [StudyPlanController::class, 'index'])->name('study-plans.index');

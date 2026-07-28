@@ -12,6 +12,8 @@ class GeneralConferenceSeeder extends Seeder
 {
     private array $sessionTypes = [];
 
+    use Concerns\SeedsFromJson;
+
     /**
      * Run the database seeds.
      */
@@ -19,6 +21,16 @@ class GeneralConferenceSeeder extends Seeder
     {
         $this->loadLookupData();
         $this->createAllConferences();
+
+        // Align with the committed snapshot (upserted by id): it carries the
+        // sessions talks:sync-conference added beyond the computed structure,
+        // and talks.json references session ids, so every environment must
+        // hold identical rows.
+        if (file_exists(database_path('data/seed/general_conferences.json'))) {
+            $n = $this->seedFromJson('general_conferences.json', 'general_conferences');
+            $m = $this->seedFromJson('general_conference_sessions.json', 'general_conference_sessions');
+            $this->command?->info("  Aligned {$n} conferences and {$m} sessions from snapshot.");
+        }
     }
 
     private function loadLookupData(): void

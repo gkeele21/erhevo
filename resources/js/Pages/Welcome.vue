@@ -1,7 +1,7 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
+import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryCard from '@/Components/Story/StoryCard.vue'
-import UserMenu from '@/Components/UserMenu.vue'
 
 defineProps({
     featuredPosts: Array,
@@ -11,69 +11,7 @@ defineProps({
 </script>
 
 <template>
-    <Head title="Welcome to Erhevo" />
-
-    <div class="min-h-screen bg-[#FAFAFA]">
-        <!-- Header -->
-        <header class="bg-white shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                <div class="flex justify-between items-center">
-                    <Link href="/">
-                        <img src="/images/erhevo-logo.png" alt="Erhevo" class="h-16" />
-                    </Link>
-                    <nav class="flex items-center gap-6">
-                        <Link
-                            :href="route('posts.index')"
-                            class="text-teal hover:text-navy transition-colors"
-                        >
-                            Posts
-                        </Link>
-                        <Link
-                            :href="route('lessons.index')"
-                            class="text-teal hover:text-navy transition-colors"
-                        >
-                            Lessons
-                        </Link>
-                        <Link
-                            :href="route('categories.index')"
-                            class="text-teal hover:text-navy transition-colors"
-                        >
-                            Categories
-                        </Link>
-                        <Link
-                            :href="route('about')"
-                            class="text-teal hover:text-navy transition-colors"
-                        >
-                            About
-                        </Link>
-                        <template v-if="$page.props.auth.user">
-                            <Link
-                                :href="route('dashboard')"
-                                class="text-teal hover:text-navy transition-colors"
-                            >
-                                Dashboard
-                            </Link>
-                            <UserMenu />
-                        </template>
-                        <template v-else>
-                            <Link
-                                :href="route('login')"
-                                class="text-teal hover:text-navy transition-colors"
-                            >
-                                Log in
-                            </Link>
-                            <Link
-                                :href="route('register')"
-                                class="px-4 py-2 bg-amber text-white rounded-lg hover:bg-amber-600 transition-colors"
-                            >
-                                Sign up
-                            </Link>
-                        </template>
-                    </nav>
-                </div>
-            </div>
-        </header>
-
+    <AppLayout title="Welcome to Erhevo">
         <!-- Hero -->
         <section class="bg-gradient-to-br from-aqua-50 via-teal-50 to-ivory py-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -253,5 +191,5 @@ defineProps({
                 </div>
             </div>
         </footer>
-    </div>
+    </AppLayout>
 </template>

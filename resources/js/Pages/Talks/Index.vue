@@ -7,6 +7,7 @@ const props = defineProps({
     talks: Object,
     sources: Array,
     conferenceFilters: Object,
+    sessionTypes: Array,
     filters: Object,
     activeTag: Object
 })
@@ -16,7 +17,9 @@ const selectedSource = ref(props.filters?.source || '')
 const selectedYear = ref(props.filters?.year || '')
 const selectedMonth = ref(props.filters?.month || '')
 const selectedSession = ref(props.filters?.session || '')
+const selectedSessionType = ref(props.filters?.session_type || '')
 const selectedTag = ref(props.filters?.tag || '')
+const selectedSort = ref(props.filters?.sort || 'oldest')
 
 const isGeneralConference = computed(() => selectedSource.value === 'general-conference')
 
@@ -27,7 +30,9 @@ const applyFilters = () => {
         year: selectedYear.value || undefined,
         month: selectedMonth.value || undefined,
         session: selectedSession.value || undefined,
-        tag: selectedTag.value || undefined
+        session_type: selectedSessionType.value || undefined,
+        tag: selectedTag.value || undefined,
+        sort: selectedSort.value !== 'oldest' ? selectedSort.value : undefined
     }, {
         preserveState: true,
         replace: true
@@ -50,6 +55,7 @@ const onSourceChange = () => {
     selectedYear.value = ''
     selectedMonth.value = ''
     selectedSession.value = ''
+    selectedSessionType.value = ''
     applyFilters()
 }
 
@@ -108,6 +114,18 @@ watch(search, () => {
                                 </option>
                             </select>
                         </div>
+                        <div class="w-full md:w-52">
+                            <select
+                                v-model="selectedSort"
+                                @change="applyFilters"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            >
+                                <option value="oldest">Oldest first</option>
+                                <option value="newest">Newest first</option>
+                                <option value="title">Title A&ndash;Z</option>
+                                <option value="speaker">Speaker A&ndash;Z</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- General Conference cascade: year → month → session -->
@@ -147,6 +165,19 @@ watch(search, () => {
                                 <option value="">All Sessions</option>
                                 <option v-for="session in conferenceFilters.sessions" :key="session.id" :value="session.id">
                                     {{ session.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="w-full md:w-64">
+                            <select
+                                v-model="selectedSessionType"
+                                @change="applyFilters"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            >
+                                <option value="">All Session Types</option>
+                                <option v-for="type in sessionTypes" :key="type.id" :value="type.id">
+                                    {{ type.name }}
                                 </option>
                             </select>
                         </div>
@@ -209,8 +240,8 @@ watch(search, () => {
                                 #{{ tag.name }}
                             </button>
                         </div>
-                        <p v-if="talk.talk_date" class="text-xs text-stone-400 mt-3">
-                            {{ talk.talk_date }}
+                        <p v-if="talk.talk_date || talk.session" class="text-xs text-stone-400 mt-3">
+                            {{ [talk.talk_date, talk.session].filter(Boolean).join(' · ') }}
                         </p>
                     </component>
                 </div>

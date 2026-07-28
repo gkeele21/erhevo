@@ -1,0 +1,1112 @@
+[
+    {
+        "id": 1,
+        "name": "April 1971 General Conference",
+        "year": 1971,
+        "month": "april",
+        "start_date": "1971-04-03",
+        "end_date": "1971-04-04",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 2,
+        "name": "October 1971 General Conference",
+        "year": 1971,
+        "month": "october",
+        "start_date": "1971-10-02",
+        "end_date": "1971-10-03",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 3,
+        "name": "April 1972 General Conference",
+        "year": 1972,
+        "month": "april",
+        "start_date": "1972-04-01",
+        "end_date": "1972-04-02",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 4,
+        "name": "October 1972 General Conference",
+        "year": 1972,
+        "month": "october",
+        "start_date": "1972-10-07",
+        "end_date": "1972-10-08",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 5,
+        "name": "April 1973 General Conference",
+        "year": 1973,
+        "month": "april",
+        "start_date": "1973-04-07",
+        "end_date": "1973-04-08",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 6,
+        "name": "October 1973 General Conference",
+        "year": 1973,
+        "month": "october",
+        "start_date": "1973-10-06",
+        "end_date": "1973-10-07",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 7,
+        "name": "April 1974 General Conference",
+        "year": 1974,
+        "month": "april",
+        "start_date": "1974-04-06",
+        "end_date": "1974-04-07",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 8,
+        "name": "October 1974 General Conference",
+        "year": 1974,
+        "month": "october",
+        "start_date": "1974-10-05",
+        "end_date": "1974-10-06",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 9,
+        "name": "April 1975 General Conference",
+        "year": 1975,
+        "month": "april",
+        "start_date": "1975-04-05",
+        "end_date": "1975-04-06",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 10,
+        "name": "October 1975 General Conference",
+        "year": 1975,
+        "month": "october",
+        "start_date": "1975-10-04",
+        "end_date": "1975-10-05",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 11,
+        "name": "April 1976 General Conference",
+        "year": 1976,
+        "month": "april",
+        "start_date": "1976-04-03",
+        "end_date": "1976-04-04",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 12,
+        "name": "October 1976 General Conference",
+        "year": 1976,
+        "month": "october",
+        "start_date": "1976-10-02",
+        "end_date": "1976-10-03",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 13,
+        "name": "April 1977 General Conference",
+        "year": 1977,
+        "month": "april",
+        "start_date": "1977-04-02",
+        "end_date": "1977-04-03",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 14,
+        "name": "October 1977 General Conference",
+        "year": 1977,
+        "month": "october",
+        "start_date": "1977-10-01",
+        "end_date": "1977-10-02",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 15,
+        "name": "April 1978 General Conference",
+        "year": 1978,
+        "month": "april",
+        "start_date": "1978-04-01",
+        "end_date": "1978-04-02",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 16,
+        "name": "October 1978 General Conference",
+        "year": 1978,
+        "month": "october",
+        "start_date": "1978-10-07",
+        "end_date": "1978-10-08",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 17,
+        "name": "April 1979 General Conference",
+        "year": 1979,
+        "month": "april",
+        "start_date": "1979-04-07",
+        "end_date": "1979-04-08",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 18,
+        "name": "October 1979 General Conference",
+        "year": 1979,
+        "month": "october",
+        "start_date": "1979-10-06",
+        "end_date": "1979-10-07",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 19,
+        "name": "April 1980 General Conference",
+        "year": 1980,
+        "month": "april",
+        "start_date": "1980-04-05",
+        "end_date": "1980-04-06",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 20,
+        "name": "October 1980 General Conference",
+        "year": 1980,
+        "month": "october",
+        "start_date": "1980-10-04",
+        "end_date": "1980-10-05",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 21,
+        "name": "April 1981 General Conference",
+        "year": 1981,
+        "month": "april",
+        "start_date": "1981-04-04",
+        "end_date": "1981-04-05",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 22,
+        "name": "October 1981 General Conference",
+        "year": 1981,
+        "month": "october",
+        "start_date": "1981-10-03",
+        "end_date": "1981-10-04",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 23,
+        "name": "April 1982 General Conference",
+        "year": 1982,
+        "month": "april",
+        "start_date": "1982-04-03",
+        "end_date": "1982-04-04",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 24,
+        "name": "October 1982 General Conference",
+        "year": 1982,
+        "month": "october",
+        "start_date": "1982-10-02",
+        "end_date": "1982-10-03",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 25,
+        "name": "April 1983 General Conference",
+        "year": 1983,
+        "month": "april",
+        "start_date": "1983-04-02",
+        "end_date": "1983-04-03",
+        "created_at": "2026-07-01 00:07:48",
+        "updated_at": "2026-07-01 00:07:48"
+    },
+    {
+        "id": 26,
+        "name": "October 1983 General Conference",
+        "year": 1983,
+        "month": "october",
+        "start_date": "1983-10-01",
+        "end_date": "1983-10-02",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 27,
+        "name": "April 1984 General Conference",
+        "year": 1984,
+        "month": "april",
+        "start_date": "1984-04-07",
+        "end_date": "1984-04-08",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 28,
+        "name": "October 1984 General Conference",
+        "year": 1984,
+        "month": "october",
+        "start_date": "1984-10-06",
+        "end_date": "1984-10-07",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 29,
+        "name": "April 1985 General Conference",
+        "year": 1985,
+        "month": "april",
+        "start_date": "1985-04-06",
+        "end_date": "1985-04-07",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 30,
+        "name": "October 1985 General Conference",
+        "year": 1985,
+        "month": "october",
+        "start_date": "1985-10-05",
+        "end_date": "1985-10-06",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 31,
+        "name": "April 1986 General Conference",
+        "year": 1986,
+        "month": "april",
+        "start_date": "1986-04-05",
+        "end_date": "1986-04-06",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 32,
+        "name": "October 1986 General Conference",
+        "year": 1986,
+        "month": "october",
+        "start_date": "1986-10-04",
+        "end_date": "1986-10-05",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 33,
+        "name": "April 1987 General Conference",
+        "year": 1987,
+        "month": "april",
+        "start_date": "1987-04-04",
+        "end_date": "1987-04-05",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 34,
+        "name": "October 1987 General Conference",
+        "year": 1987,
+        "month": "october",
+        "start_date": "1987-10-03",
+        "end_date": "1987-10-04",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 35,
+        "name": "April 1988 General Conference",
+        "year": 1988,
+        "month": "april",
+        "start_date": "1988-04-02",
+        "end_date": "1988-04-03",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 36,
+        "name": "October 1988 General Conference",
+        "year": 1988,
+        "month": "october",
+        "start_date": "1988-10-01",
+        "end_date": "1988-10-02",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 37,
+        "name": "April 1989 General Conference",
+        "year": 1989,
+        "month": "april",
+        "start_date": "1989-04-01",
+        "end_date": "1989-04-02",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 38,
+        "name": "October 1989 General Conference",
+        "year": 1989,
+        "month": "october",
+        "start_date": "1989-10-07",
+        "end_date": "1989-10-08",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 39,
+        "name": "April 1990 General Conference",
+        "year": 1990,
+        "month": "april",
+        "start_date": "1990-04-07",
+        "end_date": "1990-04-08",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 40,
+        "name": "October 1990 General Conference",
+        "year": 1990,
+        "month": "october",
+        "start_date": "1990-10-06",
+        "end_date": "1990-10-07",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 41,
+        "name": "April 1991 General Conference",
+        "year": 1991,
+        "month": "april",
+        "start_date": "1991-04-06",
+        "end_date": "1991-04-07",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 42,
+        "name": "October 1991 General Conference",
+        "year": 1991,
+        "month": "october",
+        "start_date": "1991-10-05",
+        "end_date": "1991-10-06",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 43,
+        "name": "April 1992 General Conference",
+        "year": 1992,
+        "month": "april",
+        "start_date": "1992-04-04",
+        "end_date": "1992-04-05",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 44,
+        "name": "October 1992 General Conference",
+        "year": 1992,
+        "month": "october",
+        "start_date": "1992-10-03",
+        "end_date": "1992-10-04",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 45,
+        "name": "April 1993 General Conference",
+        "year": 1993,
+        "month": "april",
+        "start_date": "1993-04-03",
+        "end_date": "1993-04-04",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 46,
+        "name": "October 1993 General Conference",
+        "year": 1993,
+        "month": "october",
+        "start_date": "1993-10-02",
+        "end_date": "1993-10-03",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 47,
+        "name": "April 1994 General Conference",
+        "year": 1994,
+        "month": "april",
+        "start_date": "1994-04-02",
+        "end_date": "1994-04-03",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 48,
+        "name": "October 1994 General Conference",
+        "year": 1994,
+        "month": "october",
+        "start_date": "1994-10-01",
+        "end_date": "1994-10-02",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 49,
+        "name": "April 1995 General Conference",
+        "year": 1995,
+        "month": "april",
+        "start_date": "1995-04-01",
+        "end_date": "1995-04-02",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 50,
+        "name": "October 1995 General Conference",
+        "year": 1995,
+        "month": "october",
+        "start_date": "1995-10-07",
+        "end_date": "1995-10-08",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 51,
+        "name": "April 1996 General Conference",
+        "year": 1996,
+        "month": "april",
+        "start_date": "1996-04-06",
+        "end_date": "1996-04-07",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 52,
+        "name": "October 1996 General Conference",
+        "year": 1996,
+        "month": "october",
+        "start_date": "1996-10-05",
+        "end_date": "1996-10-06",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 53,
+        "name": "April 1997 General Conference",
+        "year": 1997,
+        "month": "april",
+        "start_date": "1997-04-05",
+        "end_date": "1997-04-06",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 54,
+        "name": "October 1997 General Conference",
+        "year": 1997,
+        "month": "october",
+        "start_date": "1997-10-04",
+        "end_date": "1997-10-05",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 55,
+        "name": "April 1998 General Conference",
+        "year": 1998,
+        "month": "april",
+        "start_date": "1998-04-04",
+        "end_date": "1998-04-05",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 56,
+        "name": "October 1998 General Conference",
+        "year": 1998,
+        "month": "october",
+        "start_date": "1998-10-03",
+        "end_date": "1998-10-04",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 57,
+        "name": "April 1999 General Conference",
+        "year": 1999,
+        "month": "april",
+        "start_date": "1999-04-03",
+        "end_date": "1999-04-04",
+        "created_at": "2026-07-01 00:07:49",
+        "updated_at": "2026-07-01 00:07:49"
+    },
+    {
+        "id": 58,
+        "name": "October 1999 General Conference",
+        "year": 1999,
+        "month": "october",
+        "start_date": "1999-10-02",
+        "end_date": "1999-10-03",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 59,
+        "name": "April 2000 General Conference",
+        "year": 2000,
+        "month": "april",
+        "start_date": "2000-04-01",
+        "end_date": "2000-04-02",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 60,
+        "name": "October 2000 General Conference",
+        "year": 2000,
+        "month": "october",
+        "start_date": "2000-10-07",
+        "end_date": "2000-10-08",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 61,
+        "name": "April 2001 General Conference",
+        "year": 2001,
+        "month": "april",
+        "start_date": "2001-04-07",
+        "end_date": "2001-04-08",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 62,
+        "name": "October 2001 General Conference",
+        "year": 2001,
+        "month": "october",
+        "start_date": "2001-10-06",
+        "end_date": "2001-10-07",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 63,
+        "name": "April 2002 General Conference",
+        "year": 2002,
+        "month": "april",
+        "start_date": "2002-04-06",
+        "end_date": "2002-04-07",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 64,
+        "name": "October 2002 General Conference",
+        "year": 2002,
+        "month": "october",
+        "start_date": "2002-10-05",
+        "end_date": "2002-10-06",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 65,
+        "name": "April 2003 General Conference",
+        "year": 2003,
+        "month": "april",
+        "start_date": "2003-04-05",
+        "end_date": "2003-04-06",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 66,
+        "name": "October 2003 General Conference",
+        "year": 2003,
+        "month": "october",
+        "start_date": "2003-10-04",
+        "end_date": "2003-10-05",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 67,
+        "name": "April 2004 General Conference",
+        "year": 2004,
+        "month": "april",
+        "start_date": "2004-04-03",
+        "end_date": "2004-04-04",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 68,
+        "name": "October 2004 General Conference",
+        "year": 2004,
+        "month": "october",
+        "start_date": "2004-10-02",
+        "end_date": "2004-10-03",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 69,
+        "name": "April 2005 General Conference",
+        "year": 2005,
+        "month": "april",
+        "start_date": "2005-04-02",
+        "end_date": "2005-04-03",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 70,
+        "name": "October 2005 General Conference",
+        "year": 2005,
+        "month": "october",
+        "start_date": "2005-10-01",
+        "end_date": "2005-10-02",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 71,
+        "name": "April 2006 General Conference",
+        "year": 2006,
+        "month": "april",
+        "start_date": "2006-04-01",
+        "end_date": "2006-04-02",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 72,
+        "name": "October 2006 General Conference",
+        "year": 2006,
+        "month": "october",
+        "start_date": "2006-10-07",
+        "end_date": "2006-10-08",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 73,
+        "name": "April 2007 General Conference",
+        "year": 2007,
+        "month": "april",
+        "start_date": "2007-04-07",
+        "end_date": "2007-04-08",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 74,
+        "name": "October 2007 General Conference",
+        "year": 2007,
+        "month": "october",
+        "start_date": "2007-10-06",
+        "end_date": "2007-10-07",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 75,
+        "name": "April 2008 General Conference",
+        "year": 2008,
+        "month": "april",
+        "start_date": "2008-04-05",
+        "end_date": "2008-04-06",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 76,
+        "name": "October 2008 General Conference",
+        "year": 2008,
+        "month": "october",
+        "start_date": "2008-10-04",
+        "end_date": "2008-10-05",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 77,
+        "name": "April 2009 General Conference",
+        "year": 2009,
+        "month": "april",
+        "start_date": "2009-04-04",
+        "end_date": "2009-04-05",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 78,
+        "name": "October 2009 General Conference",
+        "year": 2009,
+        "month": "october",
+        "start_date": "2009-10-03",
+        "end_date": "2009-10-04",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 79,
+        "name": "April 2010 General Conference",
+        "year": 2010,
+        "month": "april",
+        "start_date": "2010-04-03",
+        "end_date": "2010-04-04",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 80,
+        "name": "October 2010 General Conference",
+        "year": 2010,
+        "month": "october",
+        "start_date": "2010-10-02",
+        "end_date": "2010-10-03",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 81,
+        "name": "April 2011 General Conference",
+        "year": 2011,
+        "month": "april",
+        "start_date": "2011-04-02",
+        "end_date": "2011-04-03",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 82,
+        "name": "October 2011 General Conference",
+        "year": 2011,
+        "month": "october",
+        "start_date": "2011-10-01",
+        "end_date": "2011-10-02",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 83,
+        "name": "April 2012 General Conference",
+        "year": 2012,
+        "month": "april",
+        "start_date": "2012-04-07",
+        "end_date": "2012-04-08",
+        "created_at": "2026-07-01 00:07:50",
+        "updated_at": "2026-07-01 00:07:50"
+    },
+    {
+        "id": 84,
+        "name": "October 2012 General Conference",
+        "year": 2012,
+        "month": "october",
+        "start_date": "2012-10-06",
+        "end_date": "2012-10-07",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 85,
+        "name": "April 2013 General Conference",
+        "year": 2013,
+        "month": "april",
+        "start_date": "2013-04-06",
+        "end_date": "2013-04-07",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 86,
+        "name": "October 2013 General Conference",
+        "year": 2013,
+        "month": "october",
+        "start_date": "2013-10-05",
+        "end_date": "2013-10-06",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 87,
+        "name": "April 2014 General Conference",
+        "year": 2014,
+        "month": "april",
+        "start_date": "2014-04-05",
+        "end_date": "2014-04-06",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 88,
+        "name": "October 2014 General Conference",
+        "year": 2014,
+        "month": "october",
+        "start_date": "2014-10-04",
+        "end_date": "2014-10-05",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 89,
+        "name": "April 2015 General Conference",
+        "year": 2015,
+        "month": "april",
+        "start_date": "2015-04-04",
+        "end_date": "2015-04-05",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 90,
+        "name": "October 2015 General Conference",
+        "year": 2015,
+        "month": "october",
+        "start_date": "2015-10-03",
+        "end_date": "2015-10-04",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 91,
+        "name": "April 2016 General Conference",
+        "year": 2016,
+        "month": "april",
+        "start_date": "2016-04-02",
+        "end_date": "2016-04-03",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 92,
+        "name": "October 2016 General Conference",
+        "year": 2016,
+        "month": "october",
+        "start_date": "2016-10-01",
+        "end_date": "2016-10-02",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 93,
+        "name": "April 2017 General Conference",
+        "year": 2017,
+        "month": "april",
+        "start_date": "2017-04-01",
+        "end_date": "2017-04-02",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 94,
+        "name": "October 2017 General Conference",
+        "year": 2017,
+        "month": "october",
+        "start_date": "2017-10-07",
+        "end_date": "2017-10-08",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 95,
+        "name": "April 2018 General Conference",
+        "year": 2018,
+        "month": "april",
+        "start_date": "2018-04-07",
+        "end_date": "2018-04-08",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 96,
+        "name": "October 2018 General Conference",
+        "year": 2018,
+        "month": "october",
+        "start_date": "2018-10-06",
+        "end_date": "2018-10-07",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 97,
+        "name": "April 2019 General Conference",
+        "year": 2019,
+        "month": "april",
+        "start_date": "2019-04-06",
+        "end_date": "2019-04-07",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 98,
+        "name": "October 2019 General Conference",
+        "year": 2019,
+        "month": "october",
+        "start_date": "2019-10-05",
+        "end_date": "2019-10-06",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 99,
+        "name": "April 2020 General Conference",
+        "year": 2020,
+        "month": "april",
+        "start_date": "2020-04-04",
+        "end_date": "2020-04-05",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 100,
+        "name": "October 2020 General Conference",
+        "year": 2020,
+        "month": "october",
+        "start_date": "2020-10-03",
+        "end_date": "2020-10-04",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 101,
+        "name": "April 2021 General Conference",
+        "year": 2021,
+        "month": "april",
+        "start_date": "2021-04-03",
+        "end_date": "2021-04-04",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 102,
+        "name": "October 2021 General Conference",
+        "year": 2021,
+        "month": "october",
+        "start_date": "2021-10-02",
+        "end_date": "2021-10-03",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 103,
+        "name": "April 2022 General Conference",
+        "year": 2022,
+        "month": "april",
+        "start_date": "2022-04-02",
+        "end_date": "2022-04-03",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 104,
+        "name": "October 2022 General Conference",
+        "year": 2022,
+        "month": "october",
+        "start_date": "2022-10-01",
+        "end_date": "2022-10-02",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 105,
+        "name": "April 2023 General Conference",
+        "year": 2023,
+        "month": "april",
+        "start_date": "2023-04-01",
+        "end_date": "2023-04-02",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 106,
+        "name": "October 2023 General Conference",
+        "year": 2023,
+        "month": "october",
+        "start_date": "2023-10-07",
+        "end_date": "2023-10-08",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 107,
+        "name": "April 2024 General Conference",
+        "year": 2024,
+        "month": "april",
+        "start_date": "2024-04-06",
+        "end_date": "2024-04-07",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 108,
+        "name": "October 2024 General Conference",
+        "year": 2024,
+        "month": "october",
+        "start_date": "2024-10-05",
+        "end_date": "2024-10-06",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 109,
+        "name": "April 2025 General Conference",
+        "year": 2025,
+        "month": "april",
+        "start_date": "2025-04-05",
+        "end_date": "2025-04-06",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 110,
+        "name": "October 2025 General Conference",
+        "year": 2025,
+        "month": "october",
+        "start_date": "2025-10-04",
+        "end_date": "2025-10-05",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    },
+    {
+        "id": 111,
+        "name": "April 2026 General Conference",
+        "year": 2026,
+        "month": "april",
+        "start_date": "2026-04-04",
+        "end_date": "2026-04-05",
+        "created_at": "2026-07-01 00:07:51",
+        "updated_at": "2026-07-01 00:07:51"
+    }
+]

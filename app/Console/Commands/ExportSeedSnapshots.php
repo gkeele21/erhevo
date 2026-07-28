@@ -30,6 +30,11 @@ class ExportSeedSnapshots extends Command
             'church_callings_extra' => DB::table('church_callings')->where('id', '>', 29),
             'authors' => DB::table('authors'),
             'author_callings' => DB::table('author_callings'),
+            // Conferences and sessions must ship with the talks: talks
+            // reference sessions by id, and talks:sync-conference creates
+            // sessions the computed seeder doesn't know about.
+            'general_conferences' => DB::table('general_conferences'),
+            'general_conference_sessions' => DB::table('general_conference_sessions'),
             'talks' => DB::table('talks'),
         ];
 

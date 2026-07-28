@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GeneralConference;
 use App\Models\Source;
+use App\Models\Tag;
 use App\Models\Talk;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,8 +18,9 @@ class TalkController extends Controller
 
         $isGeneralConference = $request->source === 'general-conference';
 
-        $talks = Talk::with(['source', 'talkType', 'calling'])
+        $talks = Talk::with(['source', 'talkType', 'calling.organization', 'tags:id,name,slug'])
             ->when($request->source, fn ($q, $source) => $q->bySource($source))
+            ->when($request->tag, fn ($q, $tag) => $q->whereHas('tags', fn ($q2) => $q2->where('slug', $tag)))
             ->when($isGeneralConference && $request->year, fn ($q) => $q->whereHas(
                 'conferenceSession.conference',
                 fn ($q2) => $q2->where('year', $request->year)
@@ -44,17 +46,22 @@ class TalkController extends Controller
                 'title' => $talk->title,
                 'speaker_name' => $talk->speaker_name,
                 'speaker_display_name' => $talk->speaker_display_name,
+                'calling' => $talk->calling?->display_label,
                 'summary' => $talk->summary,
                 'talk_date' => $talk->talk_date?->format('F Y'),
                 'url' => $talk->url,
                 'source' => $talk->source?->name,
+                'tags' => $talk->tags->map->only(['id', 'name', 'slug']),
             ]);
 
         return Inertia::render('Talks/Index', [
             'talks' => $talks,
             'sources' => Source::active()->orderBy('name')->get(['id', 'name', 'slug']),
             'conferenceFilters' => $this->conferenceFilterOptions($request, $isGeneralConference),
-            'filters' => $request->only(['source', 'search', 'year', 'month', 'session']),
+            'filters' => $request->only(['source', 'search', 'year', 'month', 'session', 'tag']),
+            'activeTag' => $request->tag
+                ? Tag::where('slug', $request->tag)->first(['id', 'name', 'slug'])
+                : null,
         ]);
     }
 

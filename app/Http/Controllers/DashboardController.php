@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lesson;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,6 +27,12 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $myLessons = Lesson::where('user_id', $user->id)
+            ->with('cfmWeek')
+            ->latest()
+            ->limit(5)
+            ->get();
+
         $pendingFriendRequests = $user->pendingFriendRequests()
             ->with('requester')
             ->count();
@@ -38,6 +45,7 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'myPosts' => $myPosts,
+            'myLessons' => $myLessons,
             'friendPosts' => $friendPosts,
             'pendingFriendRequestsCount' => $pendingFriendRequests,
             'userCategories' => $userCategories,

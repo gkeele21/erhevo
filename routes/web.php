@@ -22,6 +22,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostShareController;
 use App\Http\Controllers\SharedPostController;
+use App\Http\Controllers\StudyPlanController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AiConnectionController;
 use App\Http\Controllers\TagController;
@@ -120,6 +121,16 @@ Route::middleware([
 
     // LDS content library (gated by the user's show_lds_content setting)
     Route::get('/library', [TalkController::class, 'index'])->name('talks.index');
+
+    // Study Plans
+    Route::get('/study-plans', [StudyPlanController::class, 'index'])->name('study-plans.index');
+    Route::get('/study-plans/create', [StudyPlanController::class, 'create'])->name('study-plans.create');
+    Route::post('/study-plans', [StudyPlanController::class, 'store'])->name('study-plans.store');
+    Route::get('/study-plans/{studyPlan}', [StudyPlanController::class, 'show'])->name('study-plans.show');
+    Route::get('/study-plans/{studyPlan}/edit', [StudyPlanController::class, 'edit'])->name('study-plans.edit');
+    Route::put('/study-plans/{studyPlan}', [StudyPlanController::class, 'update'])->name('study-plans.update');
+    Route::delete('/study-plans/{studyPlan}', [StudyPlanController::class, 'destroy'])->name('study-plans.destroy');
+    Route::patch('/study-plans/{studyPlan}/items/{item}', [StudyPlanController::class, 'toggleItem'])->name('study-plans.items.toggle');
 
     // User Settings
     Route::put('/user/settings', [UserSettingsController::class, 'update'])->name('user-settings.update');

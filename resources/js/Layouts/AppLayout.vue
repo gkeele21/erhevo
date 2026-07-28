@@ -50,8 +50,8 @@ const logout = () => {
                                 <NavLink :href="route('lessons.index')" :active="route().current('lessons.index')">
                                     Lessons
                                 </NavLink>
-                                <NavLink :href="route('categories.index')" :active="route().current('categories.index')">
-                                    Categories
+                                <NavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
+                                    Study Plans
                                 </NavLink>
                                 <NavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                                     Friends
@@ -143,8 +143,8 @@ const logout = () => {
                         <ResponsiveNavLink :href="route('lessons.index')" :active="route().current('lessons.index')">
                             Lessons
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.index')">
-                            Categories
+                        <ResponsiveNavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
+                            Study Plans
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                             Friends

@@ -7,7 +7,8 @@ const props = defineProps({
     talks: Object,
     sources: Array,
     conferenceFilters: Object,
-    filters: Object
+    filters: Object,
+    activeTag: Object
 })
 
 const search = ref(props.filters?.search || '')
@@ -15,6 +16,7 @@ const selectedSource = ref(props.filters?.source || '')
 const selectedYear = ref(props.filters?.year || '')
 const selectedMonth = ref(props.filters?.month || '')
 const selectedSession = ref(props.filters?.session || '')
+const selectedTag = ref(props.filters?.tag || '')
 
 const isGeneralConference = computed(() => selectedSource.value === 'general-conference')
 
@@ -24,11 +26,22 @@ const applyFilters = () => {
         source: selectedSource.value || undefined,
         year: selectedYear.value || undefined,
         month: selectedMonth.value || undefined,
-        session: selectedSession.value || undefined
+        session: selectedSession.value || undefined,
+        tag: selectedTag.value || undefined
     }, {
         preserveState: true,
         replace: true
     })
+}
+
+const filterByTag = (tag) => {
+    selectedTag.value = tag.slug
+    applyFilters()
+}
+
+const clearTag = () => {
+    selectedTag.value = ''
+    applyFilters()
 }
 
 // Each level of the cascade clears the levels below it before refetching,
@@ -138,6 +151,21 @@ watch(search, () => {
                             </select>
                         </div>
                     </div>
+
+                    <!-- Active tag filter -->
+                    <div v-if="activeTag" class="mt-4">
+                        <span class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm">
+                            #{{ activeTag.name }}
+                            <button
+                                type="button"
+                                class="hover:text-amber-950 font-bold"
+                                title="Clear tag filter"
+                                @click="clearTag"
+                            >
+                                &times;
+                            </button>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Talks List -->
@@ -159,6 +187,7 @@ watch(search, () => {
                                 </h3>
                                 <p class="text-sm text-stone-600 mt-1">
                                     {{ talk.speaker_display_name }}
+                                    <span v-if="talk.calling" class="text-stone-400"> &middot; {{ talk.calling }}</span>
                                 </p>
                             </div>
                             <span v-if="talk.source" class="shrink-0 px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs whitespace-nowrap">
@@ -168,6 +197,18 @@ watch(search, () => {
                         <p v-if="talk.summary" class="text-sm text-stone-500 mt-3 line-clamp-3">
                             {{ talk.summary }}
                         </p>
+                        <div v-if="talk.tags?.length" class="flex flex-wrap gap-1.5 mt-3">
+                            <button
+                                v-for="tag in talk.tags"
+                                :key="tag.id"
+                                type="button"
+                                class="px-2 py-0.5 bg-stone-100 text-stone-600 rounded-full text-xs hover:bg-amber-100 hover:text-amber-800 transition-colors"
+                                :title="`Show talks tagged ${tag.name}`"
+                                @click.prevent.stop="filterByTag(tag)"
+                            >
+                                #{{ tag.name }}
+                            </button>
+                        </div>
                         <p v-if="talk.talk_date" class="text-xs text-stone-400 mt-3">
                             {{ talk.talk_date }}
                         </p>

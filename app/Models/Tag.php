@@ -30,6 +30,11 @@ class Tag extends Model
         return $this->belongsToMany(Post::class)->withTimestamps();
     }
 
+    public function talks(): BelongsToMany
+    {
+        return $this->belongsToMany(Talk::class, 'talk_tag')->withTimestamps();
+    }
+
     public static function findOrCreateByName(string $name): self
     {
         $slug = Str::slug($name);

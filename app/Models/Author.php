@@ -78,6 +78,11 @@ class Author extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function talks(): HasMany
+    {
+        return $this->hasMany(Talk::class);
+    }
+
     /**
      * Record a calling for this author. Defaults to an ongoing calling (no end
      * date) that also becomes the primary current calling on the author row.

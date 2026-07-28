@@ -6,6 +6,7 @@ import AiInsights from '@/Components/Dashboard/AiInsights.vue'
 
 defineProps({
     myPosts: Object,
+    myLessons: Array,
     friendPosts: Array,
     pendingFriendRequestsCount: Number,
     userCategories: Array
@@ -134,6 +135,72 @@ defineProps({
                             >
                                 Write your first post &rarr;
                             </Link>
+                        </div>
+
+                        <!-- My Lessons -->
+                        <div class="mt-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-navy">
+                                    My Lessons
+                                </h3>
+                                <Link
+                                    v-if="myLessons?.length"
+                                    :href="route('lessons.index')"
+                                    class="text-sm text-amber hover:text-amber-600 font-medium"
+                                >
+                                    View all lessons &rarr;
+                                </Link>
+                            </div>
+
+                            <div v-if="myLessons?.length" class="space-y-4">
+                                <div
+                                    v-for="lesson in myLessons"
+                                    :key="lesson.id"
+                                    class="bg-white rounded-lg shadow p-4 border border-navy-50"
+                                >
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <Link
+                                                :href="route('lessons.show', lesson.slug)"
+                                                class="text-lg font-semibold text-navy hover:text-teal"
+                                            >
+                                                {{ lesson.title }}
+                                            </Link>
+                                            <div class="flex items-center gap-3 mt-2 text-sm text-teal">
+                                                <span class="capitalize">{{ lesson.visibility }}</span>
+                                                <span v-if="lesson.cfm_week">{{ lesson.cfm_week.title }}</span>
+                                                <span v-if="lesson.published_at">
+                                                    Published {{ new Date(lesson.published_at).toLocaleDateString() }}
+                                                </span>
+                                                <span v-else class="text-amber">Draft</span>
+                                                <span v-if="lesson.published_at && lesson.has_draft" class="text-amber">
+                                                    Unpublished changes
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <Link
+                                            :href="route('lessons.edit', lesson.slug)"
+                                            class="text-teal-300 hover:text-teal"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-else class="bg-white rounded-lg shadow p-8 text-center border border-navy-50">
+                                <p class="text-teal mb-4">
+                                    You haven't created any lessons yet.
+                                </p>
+                                <Link
+                                    :href="route('lessons.create')"
+                                    class="text-amber hover:text-amber-600 font-medium"
+                                >
+                                    Create your first lesson &rarr;
+                                </Link>
+                            </div>
                         </div>
                     </div>
 

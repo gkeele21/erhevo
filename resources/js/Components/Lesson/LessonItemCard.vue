@@ -2,8 +2,10 @@
 import { ref, computed, inject, watch } from 'vue'
 import axios from 'axios'
 import StoryEditor from '@/Components/Story/StoryEditor.vue'
+import TagInput from '@/Components/Story/TagInput.vue'
 import TalkPicker from '@/Components/Lesson/TalkPicker.vue'
 import QuotePicker from '@/Components/Lesson/QuotePicker.vue'
+import PostPicker from '@/Components/Lesson/PostPicker.vue'
 import ScripturePicker from '@/Components/Lesson/ScripturePicker.vue'
 
 const props = defineProps({
@@ -26,6 +28,104 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['remove'])
+
+// --- Save a "My Words" block as a standalone Post ---
+const showSaveAsPost = ref(false)
+const savingPost = ref(false)
+const savePostError = ref('')
+const postForm = ref({ title: '', post_type: 'thought', visibility: 'private', tags: [] })
+
+const hasTextContent = computed(() =>
+    (props.item.content || '').replace(/<[^>]*>/g, ' ').trim().length > 0
+)
+
+// --- Video block ↔ video posts ---
+const savingVideoPost = ref(false)
+const videoPostError = ref('')
+const videoSearchOpen = ref(false)
+const videoQuery = ref('')
+const videoResults = ref([])
+const videoSearching = ref(false)
+const videoSearched = ref(false)
+let videoDebounce = null
+
+const saveVideoAsPost = async () => {
+    savingVideoPost.value = true
+    videoPostError.value = ''
+    try {
+        const { data } = await axios.post(route('lessons.save-post'), {
+            post_type: 'video',
+            title: props.item.config.title || props.item.config.url,
+            content: props.item.config.note || null,
+            source_url: props.item.config.url,
+            visibility: 'private'
+        })
+        props.item.post_id = data.id
+        props.item.config = { ...(props.item.config || {}), saved_post_url: data.url }
+    } catch (e) {
+        videoPostError.value = e.response?.data?.message || 'Could not save the post — please try again.'
+    } finally {
+        savingVideoPost.value = false
+    }
+}
+
+const runVideoSearch = () => {
+    clearTimeout(videoDebounce)
+    videoDebounce = setTimeout(async () => {
+        videoSearching.value = true
+        try {
+            const { data } = await axios.get(route('lessons.post-search'), {
+                params: { q: videoQuery.value.trim(), type: 'video' }
+            })
+            videoResults.value = data
+            videoSearched.value = true
+        } catch (e) {
+            videoResults.value = []
+        } finally {
+            videoSearching.value = false
+        }
+    }, 300)
+}
+
+const attachVideoPost = (post) => {
+    props.item.post_id = post.post_id
+    props.item.config = {
+        ...(props.item.config || {}),
+        url: post.source_url,
+        title: props.item.config.title || post.title,
+        saved_post_url: route('posts.show', post.slug)
+    }
+    videoSearchOpen.value = false
+    videoQuery.value = ''
+    videoResults.value = []
+}
+
+const openSaveAsPost = () => {
+    postForm.value.title = stripHtml(props.item.content).slice(0, 60)
+    savePostError.value = ''
+    showSaveAsPost.value = true
+}
+
+const saveAsPost = async () => {
+    savingPost.value = true
+    savePostError.value = ''
+    try {
+        const { data } = await axios.post(route('lessons.save-post'), {
+            content: props.item.content,
+            title: postForm.value.title || null,
+            post_type: postForm.value.post_type,
+            visibility: postForm.value.visibility,
+            tags: postForm.value.tags
+        })
+        props.item.post_id = data.id
+        props.item.config = { ...(props.item.config || {}), saved_post_url: data.url }
+        showSaveAsPost.value = false
+    } catch (e) {
+        savePostError.value = e.response?.data?.message || 'Could not save the post — please try again.'
+    } finally {
+        savingPost.value = false
+    }
+}
 
 // Ensure config is always an object for the config-backed block types.
 if (!props.item.config) {
@@ -137,6 +237,7 @@ const summary = computed(() => {
         case 'quote': return c.source_title || c.author || stripHtml(props.item.content) || 'Quote'
         case 'video': return c.title || c.filename || c.url || 'Video / link'
         case 'image': return c.caption || c.filename || c.url || 'Image'
+        case 'post': return c.post_title || stripHtml(props.item.content) || 'My post'
         case 'text': return stripHtml(props.item.content) || 'Empty'
         case 'question': return props.item.content || 'Question'
         default: return ''
@@ -221,6 +322,20 @@ const summary = computed(() => {
                 </div>
             </div>
 
+            <!-- My Post (references one of the user's own posts) -->
+            <div v-else-if="item.type === 'post'" class="space-y-3">
+                <PostPicker :item="item" />
+                <div v-if="item.post_id">
+                    <label class="mb-1 block text-sm font-medium text-stone-700">
+                        Your copy for this lesson — trim it to the part you'll share
+                    </label>
+                    <StoryEditor v-model="item.content" placeholder="The post text..." />
+                    <p class="mt-1 text-xs text-stone-400">
+                        Edits here only affect this lesson; the post itself stays unchanged.
+                    </p>
+                </div>
+            </div>
+
             <!-- Video / Link -->
             <div v-else-if="item.type === 'video'" class="space-y-3">
                 <!-- Source toggle: link vs uploaded file -->
@@ -252,6 +367,69 @@ const summary = computed(() => {
                         class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
                         placeholder="https://..."
                     >
+
+                    <!-- Post linkage: reuse a saved video post, or keep this one -->
+                    <div class="mt-2">
+                        <div v-if="item.post_id" class="flex items-center gap-2 text-sm text-green-700">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Saved as a post
+                            <a
+                                v-if="item.config?.saved_post_url"
+                                :href="item.config.saved_post_url"
+                                target="_blank"
+                                class="text-amber-700 hover:text-amber-800 font-medium"
+                            >View &rarr;</a>
+                        </div>
+                        <div v-else class="flex flex-wrap items-center gap-4">
+                            <button
+                                type="button"
+                                class="text-sm text-amber-700 hover:text-amber-800 font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                                :disabled="!item.config.url || savingVideoPost"
+                                :title="item.config.url ? 'Keep this video/link as a post so you can find and reuse it' : 'Enter a URL first'"
+                                @click="saveVideoAsPost"
+                            >
+                                {{ savingVideoPost ? 'Saving…' : 'Save as a Post' }}
+                            </button>
+                            <button
+                                type="button"
+                                class="text-sm text-stone-500 hover:text-stone-700"
+                                @click="videoSearchOpen = !videoSearchOpen"
+                            >
+                                {{ videoSearchOpen ? 'Hide saved videos' : 'Use a saved video' }}
+                            </button>
+                        </div>
+                        <p v-if="videoPostError" class="mt-1 text-xs text-red-600">{{ videoPostError }}</p>
+
+                        <div v-if="videoSearchOpen && !item.post_id" class="relative mt-2">
+                            <input
+                                v-model="videoQuery"
+                                @input="runVideoSearch"
+                                @focus="runVideoSearch"
+                                type="text"
+                                class="w-full rounded-lg border-stone-300 text-sm focus:border-amber-500 focus:ring-amber-500"
+                                placeholder="Search your saved videos and links..."
+                            >
+                            <ul
+                                v-if="videoResults.length"
+                                class="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-stone-200 bg-white shadow-lg"
+                            >
+                                <li
+                                    v-for="post in videoResults"
+                                    :key="post.post_id"
+                                    @click="attachVideoPost(post)"
+                                    class="cursor-pointer border-b border-stone-100 px-3 py-2 last:border-0 hover:bg-amber-50"
+                                >
+                                    <p class="text-sm font-medium text-stone-800">{{ post.title }}</p>
+                                    <p class="truncate text-xs text-stone-500">{{ post.source_url }}</p>
+                                </li>
+                            </ul>
+                            <p v-else-if="videoSearched && !videoSearching" class="mt-1 text-xs text-stone-400">
+                                No saved videos yet — save one with “Save as a Post”.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Upload mode -->
@@ -367,6 +545,84 @@ const summary = computed(() => {
             <!-- My Words (rich text) -->
             <div v-else-if="item.type === 'text'">
                 <StoryEditor v-model="item.content" placeholder="Write your own words..." />
+
+                <!-- Save as Post -->
+                <div class="mt-3">
+                    <div v-if="item.post_id" class="flex items-center gap-2 text-sm text-green-700">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        Saved as a post
+                        <a
+                            v-if="item.config?.saved_post_url"
+                            :href="item.config.saved_post_url"
+                            target="_blank"
+                            class="text-amber-700 hover:text-amber-800 font-medium"
+                        >
+                            View &rarr;
+                        </a>
+                    </div>
+
+                    <button
+                        v-else-if="!showSaveAsPost"
+                        type="button"
+                        class="text-sm text-amber-700 hover:text-amber-800 font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                        :disabled="!hasTextContent"
+                        :title="hasTextContent ? 'Keep this writing as a post of its own' : 'Write something first'"
+                        @click="openSaveAsPost"
+                    >
+                        Save as a Post
+                    </button>
+
+                    <div v-else class="rounded-lg border border-stone-200 bg-stone-50 p-4 space-y-3">
+                        <p class="text-sm text-stone-600">
+                            This saves your words as a post of their own — they'll keep living in your
+                            posts even if this lesson or talk changes.
+                        </p>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-stone-700">Post title</label>
+                            <input
+                                v-model="postForm.title"
+                                type="text"
+                                maxlength="255"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            >
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-stone-700">Type</label>
+                                <select v-model="postForm.post_type" class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500">
+                                    <option value="thought">Thought</option>
+                                    <option value="note">Note</option>
+                                    <option value="story">Story</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-stone-700">Visibility</label>
+                                <select v-model="postForm.visibility" class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500">
+                                    <option value="private">Private (just me)</option>
+                                    <option value="friends">Friends</option>
+                                    <option value="public">Public</option>
+                                </select>
+                            </div>
+                        </div>
+                        <TagInput v-model="postForm.tags" :content="item.content" />
+                        <p v-if="savePostError" class="text-sm text-red-600">{{ savePostError }}</p>
+                        <div class="flex justify-end gap-3">
+                            <button type="button" class="text-sm text-stone-500 hover:text-stone-700" @click="showSaveAsPost = false">
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                                :disabled="savingPost"
+                                @click="saveAsPost"
+                            >
+                                {{ savingPost ? 'Saving…' : 'Save Post' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Question -->

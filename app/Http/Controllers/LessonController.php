@@ -336,6 +336,93 @@ class LessonController extends Controller
      * Create a Quote post inline from the lesson builder and return it so the
      * Quote block can snapshot + link to it.
      */
+    /**
+     * Search the user's own non-quote posts (stories, thoughts, notes) for
+     * the "My Post" block picker. Includes private posts — it's the owner
+     * searching, and only what they excerpt into the block is shared.
+     */
+    public function searchPosts(Request $request)
+    {
+        $query = trim((string) $request->input('q', ''));
+        $type = $request->input('type');
+
+        // Quotes and videos have dedicated blocks with their own pickers, so
+        // the generic "My Post" search skips them unless asked for a type.
+        $posts = Post::where('user_id', $request->user()->id)
+            ->when(
+                in_array($type, ['story', 'thought', 'note', 'meeting_notes', 'video'], true),
+                fn ($qb) => $qb->where('post_type', $type),
+                fn ($qb) => $qb->whereNotIn('post_type', [PostType::Quote, PostType::Video])
+            )
+            ->when(strlen($query) >= 2, fn ($qb) => $qb->where(function ($q2) use ($query) {
+                $q2->where('title', 'like', "%{$query}%")
+                    ->orWhere('content', 'like', "%{$query}%")
+                    ->orWhereHas('tags', fn ($q3) => $q3->where('name', 'like', "%{$query}%"));
+            }))
+            ->with('tags')
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn (Post $post) => [
+                'post_id' => $post->id,
+                'slug' => $post->slug,
+                'title' => $post->title,
+                'post_type' => $post->post_type->value,
+                'content' => $post->content,
+                'source_url' => $post->source_url,
+                'excerpt' => Str::limit(strip_tags($post->content ?? ''), 140),
+                'created_at' => $post->created_at?->toDateString(),
+                'tags' => $post->tags->pluck('name'),
+            ]);
+
+        return response()->json($posts);
+    }
+
+    /**
+     * Save a builder block's writing (a "My Words" block) as a standalone
+     * Post, authored by the user themselves. Returns the post so the block
+     * can link to it via post_id.
+     */
+    public function savePost(Request $request)
+    {
+        $validated = $request->validate([
+            // Video posts may be just a link with no written note.
+            'content' => 'required_without:source_url|nullable|string',
+            'title' => 'nullable|string|max:255',
+            'post_type' => 'nullable|in:thought,note,story,video',
+            'source_url' => 'nullable|url|max:2048',
+            'visibility' => 'nullable|in:public,private,friends',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
+        ]);
+
+        $post = new Post([
+            'post_type' => PostType::from($validated['post_type'] ?? 'thought'),
+            'title' => ($validated['title'] ?? null)
+                ?: (Str::limit(strip_tags($validated['content'] ?? ''), 60, '') ?: 'Video / Link'),
+            'content' => $validated['content'] ?? '',
+            'source_url' => $validated['source_url'] ?? null,
+            'source_platform' => \App\Services\SourceLink::platformFor($validated['source_url'] ?? null),
+            'author_type' => AuthorType::Self,
+            'author_id' => Author::forUser($request->user())->id,
+            'visibility' => Visibility::from($validated['visibility'] ?? 'private'),
+        ]);
+        $post->user_id = $request->user()->id;
+        $post->published_at = now();
+        $post->save();
+
+        if (! empty($validated['tags'])) {
+            $post->syncTags($validated['tags']);
+        }
+
+        return response()->json([
+            'id' => $post->id,
+            'slug' => $post->slug,
+            'title' => $post->title,
+            'url' => route('posts.show', $post->slug),
+        ]);
+    }
+
     public function storeQuote(Request $request)
     {
         $validated = $request->validate([
@@ -614,13 +701,13 @@ class LessonController extends Controller
             'visibility' => 'required|in:public,private,friends',
             'publish' => 'boolean',
             'items' => 'nullable|array',
-            'items.*.type' => 'required|in:scripture,talk,quote,video,image,text,question,group',
+            'items.*.type' => 'required|in:scripture,talk,quote,post,video,image,text,question,group',
             'items.*.content' => 'nullable|string',
             'items.*.config' => 'nullable|array',
             'items.*.post_id' => 'nullable|exists:posts,id',
             // Group children (one level deep; children may not themselves be groups).
             'items.*.children' => 'nullable|array',
-            'items.*.children.*.type' => 'required|in:scripture,talk,quote,video,image,text,question',
+            'items.*.children.*.type' => 'required|in:scripture,talk,quote,post,video,image,text,question',
             'items.*.children.*.content' => 'nullable|string',
             'items.*.children.*.config' => 'nullable|array',
             'items.*.children.*.post_id' => 'nullable|exists:posts,id',

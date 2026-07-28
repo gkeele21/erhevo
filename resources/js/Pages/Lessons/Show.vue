@@ -23,10 +23,10 @@ const destroy = () => {
                 <div class="flex items-center gap-2">
                     <h2 class="text-xl font-semibold leading-tight text-stone-800">{{ lesson.title }}</h2>
                     <span
-                        v-if="lesson.kind === 'talk'"
-                        class="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-800"
+                        class="rounded-full px-2 py-0.5 text-xs font-medium"
+                        :class="lesson.kind === 'talk' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'"
                     >
-                        Talk
+                        {{ lesson.kind === 'talk' ? 'Talk' : 'Lesson' }}
                     </span>
                 </div>
                 <div class="flex items-center gap-2">

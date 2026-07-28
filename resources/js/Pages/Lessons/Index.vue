@@ -155,10 +155,10 @@ const cfmDateRange = (week) => {
                                 <div class="flex items-center gap-2">
                                     <h3 class="text-lg font-semibold text-stone-800">{{ lesson.title }}</h3>
                                     <span
-                                        v-if="lesson.kind === 'talk'"
-                                        class="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-800"
+                                        class="rounded-full px-2 py-0.5 text-xs font-medium"
+                                        :class="lesson.kind === 'talk' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'"
                                     >
-                                        Talk
+                                        {{ lesson.kind === 'talk' ? 'Talk' : 'Lesson' }}
                                     </span>
                                     <!-- Status is only meaningful on lessons you can edit -->
                                     <template v-if="lesson.user_id === page.props.auth.user?.id">

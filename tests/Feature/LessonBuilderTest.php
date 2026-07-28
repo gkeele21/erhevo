@@ -88,6 +88,106 @@ class LessonBuilderTest extends TestCase
         $this->assertSame('talk', $talk->fresh()->kind);
     }
 
+    private function makePost(User $user, string $type, string $title): \App\Models\Post
+    {
+        $post = new \App\Models\Post([
+            'post_type' => $type,
+            'title' => $title,
+            'content' => '<p>Some content.</p>',
+            'visibility' => 'private',
+        ]);
+        $post->user_id = $user->id;
+        $post->published_at = now();
+        $post->save();
+
+        return $post;
+    }
+
+    public function test_a_lesson_can_include_one_of_the_users_posts(): void
+    {
+        $user = User::factory()->create();
+        $post = $this->makePost($user, 'story', 'The Day Everything Changed');
+
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'Lesson with a story',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [
+                ['type' => 'post', 'content' => '<p>An excerpt of my story.</p>', 'config' => ['post_title' => $post->title], 'post_id' => $post->id],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $item = Lesson::firstOrFail()->items()->firstOrFail();
+        $this->assertSame('post', $item->type->value);
+        $this->assertSame($post->id, $item->post_id);
+    }
+
+    public function test_post_search_only_returns_the_users_own_posts(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+        $this->makePost($user, 'thought', 'Mine');
+        $this->makePost($user, 'quote', 'My Quote');
+        $this->makePost($other, 'thought', 'Theirs');
+
+        $this->makePost($user, 'video', 'My Video');
+
+        $response = $this->actingAs($user)->getJson(route('lessons.post-search'));
+
+        $response->assertOk();
+        // Own posts only, and neither quotes nor videos by default — those
+        // types have their own dedicated blocks.
+        $this->assertSame(['Mine'], collect($response->json())->pluck('title')->all());
+
+        // Asking for videos explicitly returns them (the Video block's search).
+        $videos = $this->actingAs($user)->getJson(route('lessons.post-search', ['type' => 'video']));
+        $this->assertSame(['My Video'], collect($videos->json())->pluck('title')->all());
+    }
+
+    public function test_a_video_link_can_be_saved_as_a_video_post(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson(route('lessons.save-post'), [
+            'post_type' => 'video',
+            'title' => 'General Conference Clip',
+            'content' => null,
+            'source_url' => 'https://www.youtube.com/watch?v=abc123',
+            'visibility' => 'private',
+        ]);
+
+        $response->assertOk();
+        $post = \App\Models\Post::firstOrFail();
+        $this->assertSame('video', $post->post_type->value);
+        $this->assertSame('https://www.youtube.com/watch?v=abc123', $post->source_url);
+        $this->assertNotNull($post->source_platform);
+    }
+
+    public function test_a_my_words_block_can_be_saved_as_a_post(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson(route('lessons.save-post'), [
+            'content' => '<p>A thought worth keeping beyond this lesson.</p>',
+            'title' => 'Worth Keeping',
+            'post_type' => 'thought',
+            'visibility' => 'friends',
+            'tags' => ['faith'],
+        ]);
+
+        $response->assertOk()->assertJsonStructure(['id', 'slug', 'title', 'url']);
+
+        $post = \App\Models\Post::firstOrFail();
+        $this->assertSame($user->id, $post->user_id);
+        $this->assertSame('Worth Keeping', $post->title);
+        $this->assertSame('thought', $post->post_type->value);
+        $this->assertSame('friends', $post->visibility->value);
+        $this->assertSame(['faith'], $post->tags->pluck('name')->all());
+        $this->assertNotNull($post->published_at);
+        // Attributed to the user's own Author entity.
+        $this->assertSame($user->id, $post->author?->user_id);
+    }
+
     public function test_a_lesson_can_contain_a_named_group_of_items(): void
     {
         $user = User::factory()->create();

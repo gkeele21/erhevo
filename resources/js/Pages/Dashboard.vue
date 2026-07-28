@@ -165,7 +165,12 @@ defineProps({
                                                 {{ lesson.title }}
                                             </Link>
                                             <div class="flex items-center gap-3 mt-2 text-sm text-teal">
-                                                <span v-if="lesson.kind === 'talk'" class="px-2 py-0.5 bg-aqua-50 text-navy rounded-full text-xs font-medium">Talk</span>
+                                                <span
+                                                    class="px-2 py-0.5 rounded-full text-xs font-medium"
+                                                    :class="lesson.kind === 'talk' ? 'bg-aqua-50 text-navy' : 'bg-navy-50 text-teal'"
+                                                >
+                                                    {{ lesson.kind === 'talk' ? 'Talk' : 'Lesson' }}
+                                                </span>
                                                 <span class="capitalize">{{ lesson.visibility }}</span>
                                                 <span v-if="lesson.cfm_week">{{ lesson.cfm_week.title }}</span>
                                                 <span v-if="lesson.published_at">

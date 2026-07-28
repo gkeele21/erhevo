@@ -94,6 +94,19 @@ const formatGivenDate = (date) => {
         </div>
     </div>
 
+    <!-- My Post (the creator's own story/thought/note) -->
+    <div v-else-if="item.type === 'post'">
+        <div
+            v-if="item.content"
+            class="prose prose-stone max-w-none border-l-4 border-teal-300 pl-4 text-stone-700"
+            :class="teaching ? 'prose-lg' : ''"
+            v-html="item.content"
+        ></div>
+        <p v-if="item.config?.post_title" class="mt-2 text-sm text-stone-500" :class="teaching ? 'text-base' : ''">
+            from my post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
+        </p>
+    </div>
+
     <!-- Video / Link -->
     <div v-else-if="item.type === 'video'">
         <!-- Uploaded local video -->

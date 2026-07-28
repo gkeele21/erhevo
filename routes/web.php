@@ -81,6 +81,8 @@ Route::middleware([
     Route::get('/api/lessons/talk-library-search', [LessonController::class, 'searchTalkLibrary'])->name('lessons.talk-library-search');
     Route::get('/api/lessons/quote-search', [LessonController::class, 'searchQuotes'])->name('lessons.quote-search');
     Route::post('/api/lessons/quotes', [LessonController::class, 'storeQuote'])->name('lessons.quote-store');
+    Route::post('/api/lessons/save-post', [LessonController::class, 'savePost'])->name('lessons.save-post');
+    Route::get('/api/lessons/post-search', [LessonController::class, 'searchPosts'])->name('lessons.post-search');
     Route::get('/api/lessons/scripture-text', [LessonController::class, 'scriptureText'])->name('lessons.scripture-text');
     Route::post('/api/lessons/video-upload', [LessonController::class, 'uploadVideo'])->name('lessons.video-upload');
     Route::delete('/api/lessons/video', [LessonController::class, 'deleteVideo'])->name('lessons.video-delete');

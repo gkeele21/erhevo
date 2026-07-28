@@ -8,14 +8,30 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
+const props = defineProps({
+    inviteToken: {
+        type: String,
+        default: null,
+    },
+    inviteEmail: {
+        type: String,
+        default: null,
+    },
+    inviterName: {
+        type: String,
+        default: null,
+    },
+});
+
 const form = useForm({
     first_name: '',
     last_name: '',
-    email: '',
+    email: props.inviteEmail || '',
     password: '',
     password_confirmation: '',
     show_lds_content: true,
     terms: false,
+    invite_token: props.inviteToken,
 });
 
 const submit = () => {
@@ -34,6 +50,10 @@ const submit = () => {
         </template>
 
         <form @submit.prevent="submit">
+            <div v-if="inviterName" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                {{ inviterName }} invited you to join! When you register, you'll automatically be added as friends.
+            </div>
+
             <div>
                 <InputLabel for="first_name" value="First name" />
                 <TextInput

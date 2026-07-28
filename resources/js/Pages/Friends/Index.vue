@@ -6,8 +6,26 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 defineProps({
     friends: Array,
     pendingRequests: Array,
-    sentRequests: Array
+    sentRequests: Array,
+    invitations: Array
 })
+
+const inviteForm = useForm({
+    email: ''
+})
+
+const sendInvite = () => {
+    inviteForm.post(route('friends.invite'), {
+        preserveScroll: true,
+        onSuccess: () => inviteForm.reset()
+    })
+}
+
+const cancelInvitation = (invitationId) => {
+    router.delete(route('friends.invitations.cancel', invitationId), {
+        preserveScroll: true
+    })
+}
 
 const searchQuery = ref('')
 const searchResults = ref([])
@@ -120,6 +138,66 @@ const removeFriend = (userId) => {
                             >
                                 Add Friend
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invite by Email -->
+                <div class="bg-white rounded-lg shadow p-6 mb-8 border border-stone-100">
+                    <h3 class="text-lg font-semibold text-stone-800 mb-1">
+                        Invite Someone to Erhevo
+                    </h3>
+                    <p class="text-sm text-stone-500 mb-4">
+                        Not here yet? Send them an email invitation. When they register, you'll automatically become friends.
+                    </p>
+                    <form @submit.prevent="sendInvite" class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1">
+                            <input
+                                v-model="inviteForm.email"
+                                type="email"
+                                required
+                                placeholder="friend@example.com"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            >
+                            <p v-if="inviteForm.errors.email" class="mt-1 text-sm text-red-600">{{ inviteForm.errors.email }}</p>
+                        </div>
+                        <button
+                            type="submit"
+                            :disabled="inviteForm.processing"
+                            class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 whitespace-nowrap self-start"
+                        >
+                            {{ inviteForm.processing ? 'Sending...' : 'Send Invitation' }}
+                        </button>
+                    </form>
+
+                    <div v-if="invitations?.length" class="mt-6">
+                        <h4 class="text-sm font-medium text-stone-600 mb-2">
+                            Pending Invitations
+                        </h4>
+                        <div class="space-y-2">
+                            <div
+                                v-for="invitation in invitations"
+                                :key="invitation.id"
+                                class="flex items-center justify-between p-3 bg-stone-50 rounded-lg"
+                            >
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-stone-200 rounded-full flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-stone-800">{{ invitation.email }}</p>
+                                        <p class="text-sm text-stone-500">Invitation sent</p>
+                                    </div>
+                                </div>
+                                <button
+                                    @click="cancelInvitation(invitation.id)"
+                                    class="text-red-600 hover:text-red-800 text-sm"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

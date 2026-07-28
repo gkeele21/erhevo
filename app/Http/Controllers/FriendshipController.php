@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\FriendInvitationMail;
+use App\Models\FriendInvitation;
 use App\Models\Friendship;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,7 +27,80 @@ class FriendshipController extends Controller
                 ->pending()
                 ->with('addressee')
                 ->get(),
+            'invitations' => FriendInvitation::where('inviter_id', $user->id)
+                ->pending()
+                ->latest()
+                ->get(['id', 'email', 'created_at']),
         ]);
+    }
+
+    /**
+     * Invite someone by email to join and become a friend on registration.
+     */
+    public function invite(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|string|email|max:255',
+        ]);
+
+        $currentUser = $request->user();
+        $email = strtolower($validated['email']);
+
+        if ($email === strtolower($currentUser->email)) {
+            return back()->with('error', 'You cannot invite yourself.');
+        }
+
+        // Already a member? Send a normal friend request instead.
+        $existingUser = User::where('email', $email)->first();
+        if ($existingUser) {
+            if ($currentUser->isFriendWith($existingUser->id)) {
+                return back()->with('error', 'You are already friends with this user.');
+            }
+            if ($currentUser->hasSentFriendRequestTo($existingUser->id)) {
+                return back()->with('error', 'You have already sent a friend request to this user.');
+            }
+
+            $currentUser->sendFriendRequest($existingUser);
+
+            return back()->with('success', 'That email already belongs to a member, so we sent them a friend request instead.');
+        }
+
+        $alreadyInvited = FriendInvitation::where('inviter_id', $currentUser->id)
+            ->where('email', $email)
+            ->pending()
+            ->exists();
+
+        if ($alreadyInvited) {
+            return back()->with('error', 'You have already invited this email address.');
+        }
+
+        $invitation = FriendInvitation::create([
+            'inviter_id' => $currentUser->id,
+            'email' => $email,
+            'token' => FriendInvitation::generateToken(),
+        ]);
+
+        Mail::to($email)->send(new FriendInvitationMail($invitation));
+
+        return back()->with('success', 'Invitation sent!');
+    }
+
+    /**
+     * Cancel a pending invitation.
+     */
+    public function cancelInvitation(Request $request, FriendInvitation $invitation)
+    {
+        if ($invitation->inviter_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($invitation->accepted_at) {
+            return back()->with('error', 'This invitation has already been accepted.');
+        }
+
+        $invitation->delete();
+
+        return back()->with('success', 'Invitation cancelled.');
     }
 
     public function sendRequest(Request $request, User $user)

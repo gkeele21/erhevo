@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\FriendInvitation;
 use App\Models\User;
 use App\Services\UserCategoryService;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +31,7 @@ class CreateNewUser implements CreatesNewUsers
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
             'show_lds_content' => ['nullable', 'boolean'],
+            'invite_token' => ['nullable', 'string'],
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
@@ -47,6 +49,14 @@ class CreateNewUser implements CreatesNewUsers
         )->save();
 
         $this->userCategoryService->copyDefaultsToUser($user);
+
+        // Registered via a friend invitation: befriend the inviter.
+        if (! empty($input['invite_token'])) {
+            FriendInvitation::pending()
+                ->where('token', $input['invite_token'])
+                ->first()
+                ?->acceptFor($user);
+        }
 
         return $user;
     }

@@ -101,6 +101,8 @@ Route::middleware([
     Route::post('/friends/decline/{friendship}', [FriendshipController::class, 'decline'])->name('friends.decline');
     Route::delete('/friends/{user}', [FriendshipController::class, 'remove'])->name('friends.remove');
     Route::post('/friends/block/{user}', [FriendshipController::class, 'block'])->name('friends.block');
+    Route::post('/friends/invite', [FriendshipController::class, 'invite'])->name('friends.invite');
+    Route::delete('/friends/invitations/{invitation}', [FriendshipController::class, 'cancelInvitation'])->name('friends.invitations.cancel');
     Route::get('/users/search', [FriendshipController::class, 'searchUsers'])->name('users.search');
 
     // Tags API

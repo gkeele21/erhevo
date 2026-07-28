@@ -3,13 +3,15 @@ import { Head, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryCard from '@/Components/Story/StoryCard.vue'
 import AiInsights from '@/Components/Dashboard/AiInsights.vue'
+import GettingStarted from '@/Components/Dashboard/GettingStarted.vue'
 
 defineProps({
     myPosts: Object,
     myLessons: Array,
     friendPosts: Array,
     pendingFriendRequestsCount: Number,
-    userCategories: Array
+    userCategories: Array,
+    gettingStarted: Array
 })
 </script>
 
@@ -31,6 +33,9 @@ defineProps({
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <!-- Getting Started checklist (new users, until dismissed) -->
+                <GettingStarted v-if="gettingStarted" :steps="gettingStarted" class="mb-8" />
+
                 <!-- Stats/Quick Info -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white rounded-lg shadow p-6 border border-navy-50">

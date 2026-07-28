@@ -35,6 +35,7 @@ use Inertia\Inertia;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
+Route::get('/guide', fn () => Inertia::render('Guide'))->name('guide');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index');
 // LDS content library — public; logged-in users are still gated by their

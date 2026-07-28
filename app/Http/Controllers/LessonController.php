@@ -48,6 +48,11 @@ class LessonController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        // Checks off the dashboard's Getting Started step.
+        if (($user = $request->user()) && ! $user->getSetting('visited_lessons')) {
+            $user->setSetting('visited_lessons', true)->save();
+        }
+
         return Inertia::render('Lessons/Index', [
             'lessons' => $lessons,
             'filters' => $request->only(['search', 'sort']),

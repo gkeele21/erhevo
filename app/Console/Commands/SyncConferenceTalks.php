@@ -91,10 +91,6 @@ class SyncConferenceTalks extends Command
                 ];
 
                 if ($talk) {
-                    if (! $talk->summary && $talkData['summary']) {
-                        $attributes['summary'] = $talkData['summary'];
-                    }
-
                     if ($this->option('dry-run')) {
                         $this->line("  would update: {$talk->title}");
                     } else {
@@ -108,12 +104,14 @@ class SyncConferenceTalks extends Command
                         // No slug: church slugs (e.g. "11eyring") repeat across
                         // conferences but talks.slug is unique per source, so
                         // let the model hook generate a unique title-based one.
+                        // No summary either: the index page only has a
+                        // third-person description; talks:import-summaries
+                        // (called below) fetches the talk's own kicker line.
                         Talk::create($attributes + [
                             'source_id' => $source->id,
                             'talk_type_id' => $talkType?->id,
                             'speaker_name' => $talkData['speaker'],
                             'title' => $talkData['title'],
-                            'summary' => $talkData['summary'] ?: null,
                         ]);
                     }
                     $created++;
@@ -126,6 +124,11 @@ class SyncConferenceTalks extends Command
         if (! $this->option('dry-run')) {
             $this->call('talks:link-authors');
             $this->fillCallings($conference);
+
+            if ($created > 0) {
+                // Fetch each new talk's kicker line as its excerpt.
+                $this->call('talks:import-summaries');
+            }
         }
 
         return Command::SUCCESS;
@@ -187,7 +190,6 @@ class SyncConferenceTalks extends Command
                 'href' => $href,
                 'title' => $title,
                 'speaker' => $field('primaryMeta'),
-                'summary' => $field('description'),
             ];
             $sessions[$current]['seen'][$slug] = true;
         }

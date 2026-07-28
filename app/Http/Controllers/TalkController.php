@@ -18,6 +18,11 @@ class TalkController extends Controller
         // Guests may browse; members who turned LDS content off may not.
         abort_if($request->user() && ! $request->user()->show_lds_content, 403);
 
+        // Checks off the dashboard's Getting Started step.
+        if (($user = $request->user()) && ! $user->getSetting('visited_library')) {
+            $user->setSetting('visited_library', true)->save();
+        }
+
         $isGeneralConference = $request->source === 'general-conference';
 
         $talks = Talk::with(['source', 'talkType', 'calling.organization', 'conferenceSession:id,name', 'tags:id,name,slug'])

@@ -12,7 +12,8 @@ class UserSettingsController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'show_lds_content' => 'required|boolean',
+            'show_lds_content' => 'sometimes|required|boolean',
+            'getting_started_dismissed' => 'sometimes|required|boolean',
         ]);
 
         $user = $request->user();

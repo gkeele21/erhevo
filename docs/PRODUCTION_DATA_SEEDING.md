@@ -25,17 +25,18 @@ environment.
 | `SourceSeeder`, `TalkTypeSeeder` | sources, talk types | code |
 | `GeneralConferenceSessionTypeSeeder` | 16 session types | code |
 | `GeneralConferenceSeeder` | 111 conferences + 674 sessions | code + `seed/general_conferences.json` + `seed/general_conference_sessions.json` |
-| `AuthorSeeder` | 627 authors (all church figures) | `seed/authors.json` |
+| `AuthorSeeder` | 1,593 authors (church figures + BYU speakers) | `seed/authors.json` |
 | `AuthorCallingSeeder` | 744 calling-history rows | `seed/author_callings.json` |
-| `TalkSeeder` | 4,363 GC talks (metadata + excerpt only) | `seed/talks.json` |
+| `TalkSeeder` | 6,897 talks — GC + BYU Speeches (metadata + excerpt only) | `seed/talks.json` |
 
 `GeneralConferenceSeeder` first computes the standard conference/session
 structure, then aligns with the committed snapshot (upserted by id). The
 snapshot is authoritative: it carries sessions that `talks:sync-conference`
 added beyond the computed structure (women's, welfare, and the multi-day
 sessions of the 1970s), and `talks.json` references sessions by id, so every
-environment must hold identical rows. After each conference, follow
-`docs/CONFERENCE_UPDATES.md` to refresh the snapshots.
+environment must hold identical rows. After each conference — and
+periodically for BYU Speeches — follow `docs/CONFERENCE_UPDATES.md` to
+refresh the snapshots.
 
 The snapshot seeders insert rows with their **original primary keys** and upsert
 by `id`, so foreign-key relationships are preserved and re-running `db:seed` is

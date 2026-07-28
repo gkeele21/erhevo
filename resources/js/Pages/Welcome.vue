@@ -29,6 +29,12 @@ defineProps({
                             Posts
                         </Link>
                         <Link
+                            :href="route('lessons.index')"
+                            class="text-teal hover:text-navy transition-colors"
+                        >
+                            Lessons
+                        </Link>
+                        <Link
                             :href="route('categories.index')"
                             class="text-teal hover:text-navy transition-colors"
                         >
@@ -75,7 +81,8 @@ defineProps({
                     A Place Where Words Lift You
                 </h1>
                 <p class="text-xl text-teal mb-8 max-w-2xl mx-auto">
-                    Discover inspiring stories, share uplifting thoughts, and connect with others who appreciate the quiet power of positive words.
+                    Discover inspiring stories, build lessons worth teaching, and follow study plans that keep
+                    your reading on track — with others who appreciate the quiet power of positive words.
                 </p>
                 <div class="flex justify-center gap-4">
                     <Link
@@ -98,6 +105,48 @@ defineProps({
                     >
                         Get Started
                     </Link>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="py-16 bg-[#FAFAFA]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg border border-navy-50 shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-navy mb-2">Share Uplifting Posts</h3>
+                        <p class="text-teal mb-4">
+                            Write and share stories, quotes, and thoughts — publicly, with friends, or just for yourself.
+                        </p>
+                        <Link :href="route('posts.index')" class="text-amber hover:text-amber-600 font-medium">
+                            Explore posts &rarr;
+                        </Link>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-navy-50 shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-navy mb-2">Build Lessons</h3>
+                        <p class="text-teal mb-4">
+                            Assemble scriptures, talks, quotes, images, and your own ideas into lessons you can
+                            teach right from the app.
+                        </p>
+                        <Link :href="route('lessons.index')" class="text-amber hover:text-amber-600 font-medium">
+                            Browse lessons &rarr;
+                        </Link>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-navy-50 shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-navy mb-2">Follow a Study Plan</h3>
+                        <p class="text-teal mb-4">
+                            Set a goal — the Book of Mormon by year's end, or every talk from last conference —
+                            and get a reading schedule that tracks your progress.
+                        </p>
+                        <Link
+                            :href="$page.props.auth.user ? route('study-plans.index') : route('register')"
+                            class="text-amber hover:text-amber-600 font-medium"
+                        >
+                            Start a study plan &rarr;
+                        </Link>
+                    </div>
                 </div>
             </div>
         </section>
@@ -190,6 +239,9 @@ defineProps({
                         </Link>
                         <Link :href="route('posts.index')" class="text-aqua-200 hover:text-gold text-sm">
                             Posts
+                        </Link>
+                        <Link :href="route('lessons.index')" class="text-aqua-200 hover:text-gold text-sm">
+                            Lessons
                         </Link>
                         <Link :href="route('categories.index')" class="text-aqua-200 hover:text-gold text-sm">
                             Categories

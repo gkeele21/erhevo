@@ -83,7 +83,8 @@ class TalkController extends Controller
 
         return Inertia::render('Talks/Index', [
             'talks' => $talks,
-            'sources' => Source::active()->orderBy('name')->get(['id', 'name', 'slug']),
+            // Only sources that actually have talks are worth filtering by.
+            'sources' => Source::active()->whereHas('talks')->orderBy('name')->get(['id', 'name', 'slug']),
             'conferenceFilters' => $this->conferenceFilterOptions($request, $isGeneralConference),
             'sessionTypes' => GeneralConferenceSessionType::orderBy('display_order')->get(['id', 'name']),
             'filters' => $request->only(['source', 'search', 'year', 'month', 'session', 'session_type', 'tag', 'sort']),

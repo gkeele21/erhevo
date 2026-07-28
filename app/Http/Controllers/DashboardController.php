@@ -16,10 +16,13 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        $myPostsCount = Post::where('user_id', $user->id)->count();
+
         $myPosts = Post::where('user_id', $user->id)
             ->with(['category', 'tags'])
             ->latest()
-            ->paginate(10);
+            ->limit(5)
+            ->get();
 
         $friendPosts = Post::with(['user', 'category', 'tags'])
             ->whereIn('user_id', $user->friendIds())
@@ -47,11 +50,12 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'myPosts' => $myPosts,
+            'myPostsCount' => $myPostsCount,
             'myLessons' => $myLessons,
             'friendPosts' => $friendPosts,
             'pendingFriendRequestsCount' => $pendingFriendRequests,
             'userCategories' => $userCategories,
-            'gettingStarted' => $this->gettingStartedSteps($user, $myPosts->total(), $myLessons->isNotEmpty()),
+            'gettingStarted' => $this->gettingStartedSteps($user, $myPostsCount, $myLessons->isNotEmpty()),
         ]);
     }
 
@@ -92,8 +96,8 @@ class DashboardController extends Controller
         ];
 
         $steps[] = [
-            'label' => 'Explore Lessons',
-            'description' => 'See how lessons are built from scriptures, talks, and quotes — then teach from the app.',
+            'label' => 'Explore Lessons & Talks',
+            'description' => 'Build lessons or write your own talks from scriptures, quotes, and more — then teach or speak right from the app.',
             'href' => route('lessons.index'),
             'done' => $hasLessons || (bool) $user->getSetting('visited_lessons', false),
         ];

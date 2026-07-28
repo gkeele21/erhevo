@@ -57,6 +57,37 @@ class LessonBuilderTest extends TestCase
         $this->assertSame('What is faith?', $items[2]->content);
     }
 
+    public function test_a_user_can_write_a_talk(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'My Sacrament Talk',
+            'kind' => 'talk',
+            'visibility' => 'friends',
+            'publish' => true,
+            // A CFM week id is ignored for talks even if submitted.
+            'cfm_week_id' => null,
+            'items' => [
+                ['type' => 'text', 'content' => '<p>Opening thought</p>', 'config' => null],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $talk = Lesson::firstOrFail();
+        $this->assertSame('talk', $talk->kind);
+        $this->assertNull($talk->cfm_week_id);
+
+        // Updating without resending kind keeps it a talk.
+        $this->actingAs($user)->put(route('lessons.update', $talk->slug), [
+            'title' => 'My Sacrament Talk (revised)',
+            'visibility' => 'friends',
+            'publish' => true,
+            'items' => [],
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('talk', $talk->fresh()->kind);
+    }
+
     public function test_a_lesson_can_contain_a_named_group_of_items(): void
     {
         $user = User::factory()->create();

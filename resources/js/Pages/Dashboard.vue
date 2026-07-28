@@ -6,7 +6,8 @@ import AiInsights from '@/Components/Dashboard/AiInsights.vue'
 import GettingStarted from '@/Components/Dashboard/GettingStarted.vue'
 
 defineProps({
-    myPosts: Object,
+    myPosts: Array,
+    myPostsCount: Number,
     myLessons: Array,
     friendPosts: Array,
     pendingFriendRequestsCount: Number,
@@ -43,7 +44,7 @@ defineProps({
                             My Posts
                         </h3>
                         <p class="text-3xl font-bold text-teal">
-                            {{ myPosts?.total || 0 }}
+                            {{ myPostsCount || 0 }}
                         </p>
                     </div>
 
@@ -70,19 +71,25 @@ defineProps({
                     </Link>
                 </div>
 
-                <!-- AI Insights -->
-                <AiInsights class="mb-8" />
-
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- My Posts -->
                     <div class="lg:col-span-2">
-                        <h3 class="text-lg font-semibold text-navy mb-4">
-                            My Posts
-                        </h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-navy">
+                                My Posts
+                            </h3>
+                            <Link
+                                v-if="myPosts?.length"
+                                :href="route('posts.index', { mine: 1 })"
+                                class="text-sm text-amber hover:text-amber-600 font-medium"
+                            >
+                                View all &rarr;
+                            </Link>
+                        </div>
 
-                        <div v-if="myPosts?.data?.length" class="space-y-4">
+                        <div v-if="myPosts?.length" class="space-y-4">
                             <div
-                                v-for="post in myPosts.data"
+                                v-for="post in myPosts"
                                 :key="post.id"
                                 class="bg-white rounded-lg shadow p-4 border border-navy-50"
                             >
@@ -114,20 +121,6 @@ defineProps({
                                 </div>
                             </div>
 
-                            <!-- Pagination -->
-                            <div v-if="myPosts.last_page > 1" class="flex justify-center gap-2 mt-4">
-                                <Link
-                                    v-for="page in myPosts.last_page"
-                                    :key="page"
-                                    :href="route('dashboard', { page })"
-                                    class="px-3 py-1 rounded"
-                                    :class="page === myPosts.current_page
-                                        ? 'bg-teal text-white'
-                                        : 'bg-navy-50 text-navy'"
-                                >
-                                    {{ page }}
-                                </Link>
-                            </div>
                         </div>
 
                         <div v-else class="bg-white rounded-lg shadow p-8 text-center border border-navy-50">
@@ -146,14 +139,14 @@ defineProps({
                         <div class="mt-8">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-lg font-semibold text-navy">
-                                    My Lessons
+                                    My Lessons &amp; Talks
                                 </h3>
                                 <Link
                                     v-if="myLessons?.length"
-                                    :href="route('lessons.index')"
+                                    :href="route('lessons.index', { mine: 1 })"
                                     class="text-sm text-amber hover:text-amber-600 font-medium"
                                 >
-                                    View all lessons &rarr;
+                                    View all &rarr;
                                 </Link>
                             </div>
 
@@ -172,6 +165,7 @@ defineProps({
                                                 {{ lesson.title }}
                                             </Link>
                                             <div class="flex items-center gap-3 mt-2 text-sm text-teal">
+                                                <span v-if="lesson.kind === 'talk'" class="px-2 py-0.5 bg-aqua-50 text-navy rounded-full text-xs font-medium">Talk</span>
                                                 <span class="capitalize">{{ lesson.visibility }}</span>
                                                 <span v-if="lesson.cfm_week">{{ lesson.cfm_week.title }}</span>
                                                 <span v-if="lesson.published_at">
@@ -269,6 +263,9 @@ defineProps({
                         </div>
                     </div>
                 </div>
+
+                <!-- AI Insights -->
+                <AiInsights class="mt-8" />
             </div>
         </div>
     </AppLayout>

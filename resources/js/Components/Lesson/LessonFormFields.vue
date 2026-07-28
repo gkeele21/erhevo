@@ -84,9 +84,9 @@ const weekLabel = (week) => {
             <p v-if="form.errors.items" class="mt-1 text-sm text-red-600">{{ form.errors.items }}</p>
         </div>
 
-        <!-- CFM week link -->
+        <!-- CFM week link (lessons only — talks have no CFM tie) -->
         <div
-            v-if="page.props.userSettings?.show_lds_content"
+            v-if="form.kind !== 'talk' && page.props.userSettings?.show_lds_content"
             class="space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-6 shadow"
         >
             <div class="flex items-center gap-2">

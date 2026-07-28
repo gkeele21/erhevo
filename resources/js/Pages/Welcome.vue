@@ -163,7 +163,8 @@ defineProps({
             </div>
         </section>
 
-        <!-- Footer -->
+        <!-- Footer (replaces the layout's default footer) -->
+        <template #footer>
         <footer class="bg-navy py-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
@@ -182,7 +183,7 @@ defineProps({
                             Posts
                         </Link>
                         <Link :href="route('lessons.index')" class="text-aqua-200 hover:text-gold text-sm">
-                            Lessons
+                            Lessons &amp; Talks
                         </Link>
                         <Link :href="route('categories.index')" class="text-aqua-200 hover:text-gold text-sm">
                             Categories
@@ -194,5 +195,6 @@ defineProps({
                 </div>
             </div>
         </footer>
+        </template>
     </AppLayout>
 </template>

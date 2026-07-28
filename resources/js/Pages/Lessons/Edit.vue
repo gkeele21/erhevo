@@ -41,11 +41,14 @@ const source = props.lesson.draft_data ?? props.lesson
 const form = useForm({
     title: source.title,
     description: source.description ?? '',
+    kind: props.lesson.kind ?? 'lesson',
     cfm_week_id: source.cfm_week_id ?? null,
     visibility: source.visibility,
     publish: !!props.lesson.published_at,
     items: (source.items ?? []).map(mapNode),
 })
+
+const isTalk = props.lesson.kind === 'talk'
 
 const isPublished = computed(() => !!props.lesson.published_at)
 const hasDraft = computed(() => !!props.lesson.has_draft)
@@ -99,12 +102,12 @@ onUnmounted(() => clearInterval(autosaveTimer))
 </script>
 
 <template>
-    <Head title="Edit Lesson" />
-    <AppLayout title="Edit Lesson">
+    <Head :title="isTalk ? 'Edit Talk' : 'Edit Lesson'" />
+    <AppLayout :title="isTalk ? 'Edit Talk' : 'Edit Lesson'">
         <template #header>
             <div class="flex items-center gap-3">
                 <h2 class="text-xl font-semibold leading-tight text-stone-800">
-                    Edit Lesson
+                    {{ isTalk ? 'Edit Talk' : 'Edit Lesson' }}
                 </h2>
                 <span
                     v-if="!isPublished"

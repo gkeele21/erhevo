@@ -11,6 +11,19 @@ const props = defineProps({
 const page = usePage()
 const search = ref(props.filters?.search ?? '')
 const sort = ref(props.filters?.sort ?? 'first_published')
+const kind = ref(props.filters?.kind ?? '')
+const mineOnly = ref(props.filters?.mine === '1' || props.filters?.mine === 1 || props.filters?.mine === true)
+
+const kindTabs = [
+    { value: '', label: 'All' },
+    { value: 'lesson', label: 'Lessons' },
+    { value: 'talk', label: 'Talks' },
+]
+
+const setKind = (value) => {
+    kind.value = value
+    runSearch()
+}
 
 const sortOptions = [
     { value: 'first_published', label: 'First published' },
@@ -19,7 +32,12 @@ const sortOptions = [
 ]
 
 const runSearch = () => {
-    router.get(route('lessons.index'), { search: search.value, sort: sort.value }, { preserveState: true, replace: true })
+    router.get(route('lessons.index'), {
+        search: search.value || undefined,
+        sort: sort.value,
+        kind: kind.value || undefined,
+        mine: mineOnly.value ? '1' : undefined
+    }, { preserveState: true, replace: true })
 }
 
 watch(sort, runSearch)
@@ -54,19 +72,57 @@ const cfmDateRange = (week) => {
     <AppLayout title="Lessons">
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-stone-800">Lessons</h2>
-                <Link
-                    v-if="page.props.auth.user"
-                    :href="route('lessons.create')"
-                    class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
-                >
-                    Create a Lesson
-                </Link>
+                <h2 class="text-xl font-semibold leading-tight text-stone-800">Lessons &amp; Talks</h2>
+                <div v-if="page.props.auth.user" class="flex gap-3">
+                    <Link
+                        :href="route('lessons.create', { kind: 'talk' })"
+                        class="rounded-lg border border-amber-600 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50"
+                    >
+                        Write a Talk
+                    </Link>
+                    <Link
+                        :href="route('lessons.create')"
+                        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+                    >
+                        Create a Lesson
+                    </Link>
+                </div>
             </div>
         </template>
 
         <div class="py-12">
             <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
+                <!-- Kind tabs -->
+                <div class="mb-4 flex flex-wrap items-center gap-3">
+                    <div class="flex gap-1 rounded-lg bg-stone-100 p-1 w-fit">
+                        <button
+                            v-for="tab in kindTabs"
+                            :key="tab.value"
+                            type="button"
+                            class="rounded-md px-4 py-1.5 text-sm font-medium transition-colors"
+                            :class="kind === tab.value ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'"
+                            @click="setKind(tab.value)"
+                        >
+                            {{ tab.label }}
+                        </button>
+                    </div>
+
+                    <span
+                        v-if="mineOnly"
+                        class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                    >
+                        Mine only
+                        <button
+                            type="button"
+                            class="hover:text-amber-950 font-bold"
+                            title="Show everyone's lessons and talks"
+                            @click="mineOnly = false; runSearch()"
+                        >
+                            &times;
+                        </button>
+                    </span>
+                </div>
+
                 <!-- Search + sort -->
                 <form @submit.prevent="runSearch" class="mb-6 flex gap-3">
                     <input
@@ -98,6 +154,12 @@ const cfmDateRange = (week) => {
                             <div>
                                 <div class="flex items-center gap-2">
                                     <h3 class="text-lg font-semibold text-stone-800">{{ lesson.title }}</h3>
+                                    <span
+                                        v-if="lesson.kind === 'talk'"
+                                        class="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-800"
+                                    >
+                                        Talk
+                                    </span>
                                     <!-- Status is only meaningful on lessons you can edit -->
                                     <template v-if="lesson.user_id === page.props.auth.user?.id">
                                         <span

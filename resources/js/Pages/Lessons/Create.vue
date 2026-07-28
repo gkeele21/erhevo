@@ -3,7 +3,8 @@ import { Head, useForm, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import LessonFormFields from '@/Components/Lesson/LessonFormFields.vue'
 
-defineProps({
+const props = defineProps({
+    kind: String,
     itemTypes: Array,
     visibilityOptions: Array,
     cfmWeeks: Array,
@@ -13,9 +14,12 @@ defineProps({
     churchCallings: Array,
 })
 
+const isTalk = props.kind === 'talk'
+
 const form = useForm({
     title: '',
     description: '',
+    kind: props.kind ?? 'lesson',
     cfm_week_id: null,
     visibility: 'private',
     publish: true,
@@ -29,11 +33,11 @@ const submit = (publish) => {
 </script>
 
 <template>
-    <Head title="Create Lesson" />
-    <AppLayout title="Create Lesson">
+    <Head :title="isTalk ? 'Write a Talk' : 'Create Lesson'" />
+    <AppLayout :title="isTalk ? 'Write a Talk' : 'Create Lesson'">
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-stone-800">
-                Build a New Lesson
+                {{ isTalk ? 'Write a New Talk' : 'Build a New Lesson' }}
             </h2>
         </template>
 

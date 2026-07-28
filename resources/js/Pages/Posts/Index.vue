@@ -20,6 +20,7 @@ const selectedCategory = ref(props.filters?.category || '')
 const selectedType = ref(props.filters?.type || '')
 const selectedCalling = ref(props.filters?.calling || '')
 const friendsOnly = ref(props.filters?.friends_only === '1' || props.filters?.friends_only === true)
+const mineOnly = ref(props.filters?.mine === '1' || props.filters?.mine === 1 || props.filters?.mine === true)
 
 const applyFilters = () => {
     router.get(route('posts.index'), {
@@ -28,7 +29,8 @@ const applyFilters = () => {
         type: selectedType.value || undefined,
         calling: selectedCalling.value || undefined,
         tag: props.filters?.tag || undefined,
-        friends_only: friendsOnly.value ? '1' : undefined
+        friends_only: friendsOnly.value ? '1' : undefined,
+        mine: mineOnly.value ? '1' : undefined
     }, {
         preserveState: true,
         replace: true
@@ -131,6 +133,20 @@ watch(friendsOnly, applyFilters)
                                 <span class="ml-2 text-sm text-stone-600">Friends only</span>
                             </label>
                         </div>
+                    </div>
+
+                    <div v-if="mineOnly" class="mt-3">
+                        <span class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm">
+                            My posts
+                            <button
+                                type="button"
+                                class="hover:text-amber-950 font-bold"
+                                title="Show everyone's posts"
+                                @click="mineOnly = false; applyFilters()"
+                            >
+                                &times;
+                            </button>
+                        </span>
                     </div>
 
                     <div v-if="filters?.tag" class="mt-3">

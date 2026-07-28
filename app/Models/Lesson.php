@@ -20,6 +20,7 @@ class Lesson extends Model
         'slug',
         'description',
         'user_id',
+        'kind',
         'cfm_week_id',
         'visibility',
         'published_at',

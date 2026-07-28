@@ -43,6 +43,8 @@ class LessonController extends Controller
         $lessons = Lesson::with(['user', 'cfmWeek'])
             ->withCount(['allItems as items_count' => fn ($q) => $q->where('type', '!=', 'group')])
             ->visibleTo($request->user())
+            ->when(in_array($request->kind, ['lesson', 'talk'], true), fn ($q) => $q->where('kind', $request->kind))
+            ->when($request->mine && $request->user(), fn ($q) => $q->where('user_id', $request->user()->id))
             ->when($request->search, fn ($q, $search) => $q->where('title', 'like', "%{$search}%"))
             ->orderByRaw("{$orderBy} DESC")
             ->paginate(12)
@@ -55,13 +57,14 @@ class LessonController extends Controller
 
         return Inertia::render('Lessons/Index', [
             'lessons' => $lessons,
-            'filters' => $request->only(['search', 'sort']),
+            'filters' => $request->only(['search', 'sort', 'kind', 'mine']),
         ]);
     }
 
     public function create(Request $request): Response
     {
         return Inertia::render('Lessons/Create', [
+            'kind' => $request->kind === 'talk' ? 'talk' : 'lesson',
             'itemTypes' => $this->itemTypeOptions(),
             'visibilityOptions' => $this->visibilityOptions(),
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
@@ -137,7 +140,7 @@ class LessonController extends Controller
     {
         Gate::authorize('update', $lesson);
 
-        $validated = $this->validateLesson($request);
+        $validated = $this->validateLesson($request, $lesson->kind);
         $publish = $validated['publish'] ?? false;
         unset($validated['publish']);
 
@@ -601,11 +604,12 @@ class LessonController extends Controller
             ])->values()->toArray();
     }
 
-    protected function validateLesson(Request $request): array
+    protected function validateLesson(Request $request, ?string $existingKind = null): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'kind' => 'sometimes|in:lesson,talk',
             'cfm_week_id' => 'nullable|exists:cfm_weeks,id',
             'visibility' => 'required|in:public,private,friends',
             'publish' => 'boolean',
@@ -621,6 +625,17 @@ class LessonController extends Controller
             'items.*.children.*.config' => 'nullable|array',
             'items.*.children.*.post_id' => 'nullable|exists:posts,id',
         ]);
+
+        // Talks have no Come Follow Me link. On update, an omitted kind
+        // keeps the existing one rather than reverting a talk to a lesson.
+        $kind = $validated['kind'] ?? $existingKind ?? 'lesson';
+        $validated['kind'] = $kind;
+
+        if ($kind === 'talk') {
+            $validated['cfm_week_id'] = null;
+        }
+
+        return $validated;
     }
 
     protected function itemTypeOptions(): array

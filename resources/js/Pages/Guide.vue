@@ -79,22 +79,29 @@ const user = page.props.auth?.user
                     </Link>
                 </section>
 
-                <!-- Lessons -->
+                <!-- Lessons & Talks -->
                 <section class="bg-white rounded-lg shadow border border-navy-50 p-6">
-                    <h3 class="text-xl font-semibold text-navy mb-3">🧑‍🏫 Lessons</h3>
+                    <h3 class="text-xl font-semibold text-navy mb-3">🧑‍🏫 Lessons &amp; Talks</h3>
                     <p class="text-teal mb-3">
-                        Build a lesson from blocks — scripture passages, conference talk quotes,
-                        questions, images, and videos — arranged and grouped however you teach.
+                        Build a lesson — or write your own talk — from blocks: scripture passages,
+                        conference talk quotes, questions, images, and videos, arranged and grouped
+                        however you'll present them.
                     </p>
                     <ul class="list-disc list-inside text-teal space-y-1 mb-4">
                         <li>Search scriptures and the talk Library right from the editor</li>
+                        <li>Speaking in church? Write your talk here and deliver it from teach mode — full-screen, block by block</li>
                         <li>Tie a lesson to a Come Follow Me week so others studying it can find yours</li>
-                        <li>Teach mode presents your lesson full-screen, block by block</li>
-                        <li>Published lessons keep working drafts, so you can revise without breaking the shared version</li>
+                        <li>Keep it private, share with friends, or publish publicly — your talks never mix into the official Library</li>
+                        <li>Published lessons and talks keep working drafts, so you can revise without breaking the shared version</li>
                     </ul>
-                    <Link :href="route('lessons.index')" class="text-amber hover:text-amber-600 font-medium">
-                        Explore lessons &rarr;
-                    </Link>
+                    <div class="flex gap-6">
+                        <Link :href="route('lessons.index')" class="text-amber hover:text-amber-600 font-medium">
+                            Explore lessons &amp; talks &rarr;
+                        </Link>
+                        <Link v-if="user" :href="route('lessons.create', { kind: 'talk' })" class="text-amber hover:text-amber-600 font-medium">
+                            Write a talk &rarr;
+                        </Link>
+                    </div>
                 </section>
 
                 <!-- Friends -->

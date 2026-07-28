@@ -44,6 +44,7 @@ class PostController extends Controller
                         ->orWhere('last_name', 'like', "%{$search}%"));
             }))
             ->when($request->friends_only && $request->user(), fn ($q) => $q->whereIn('user_id', $request->user()->friendIds()))
+            ->when($request->mine && $request->user(), fn ($q) => $q->where('user_id', $request->user()->id))
             ->latest('published_at')
             ->paginate(12)
             ->withQueryString();
@@ -57,7 +58,7 @@ class PostController extends Controller
                 'plural' => $p->pluralLabel(),
             ]),
             'churchCallings' => $this->churchCallings(),
-            'filters' => $request->only(['category', 'tag', 'search', 'friends_only', 'type', 'calling']),
+            'filters' => $request->only(['category', 'tag', 'search', 'friends_only', 'mine', 'type', 'calling']),
         ]);
     }
 

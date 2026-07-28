@@ -20,7 +20,15 @@ const destroy = () => {
     <AppLayout :title="lesson.title">
         <template #header>
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h2 class="text-xl font-semibold leading-tight text-stone-800">{{ lesson.title }}</h2>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-xl font-semibold leading-tight text-stone-800">{{ lesson.title }}</h2>
+                    <span
+                        v-if="lesson.kind === 'talk'"
+                        class="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-800"
+                    >
+                        Talk
+                    </span>
+                </div>
                 <div class="flex items-center gap-2">
                     <Link
                         :href="route('lessons.teach', lesson.slug)"

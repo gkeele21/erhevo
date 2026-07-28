@@ -48,7 +48,7 @@ const logout = () => {
                                     Posts
                                 </NavLink>
                                 <NavLink :href="route('lessons.index')" :active="route().current('lessons.index')">
-                                    Lessons
+                                    Lessons/Talks
                                 </NavLink>
                                 <NavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                                     Study Plans
@@ -58,9 +58,6 @@ const logout = () => {
                                 </NavLink>
                                 <NavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
                                     Library
-                                </NavLink>
-                                <NavLink :href="route('about')" :active="route().current('about')">
-                                    About
                                 </NavLink>
                                 <NavLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')" :active="route().current('admin.*')">
                                     Admin
@@ -141,7 +138,7 @@ const logout = () => {
                             Posts
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('lessons.index')" :active="route().current('lessons.index')">
-                            Lessons
+                            Lessons/Talks
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                             Study Plans
@@ -151,9 +148,6 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
                             Library
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('about')" :active="route().current('about')">
-                            About
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')" :active="route().current('admin.*')">
                             Admin
@@ -227,6 +221,23 @@ const logout = () => {
             <main>
                 <slot />
             </main>
+
+            <!-- Footer (pages may supply their own via the footer slot) -->
+            <slot name="footer">
+                <footer class="border-t border-navy-50 bg-white">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6">
+                        <Link :href="route('about')" class="text-sm text-teal hover:text-navy transition-colors">
+                            About
+                        </Link>
+                        <Link :href="route('guide')" class="text-sm text-teal hover:text-navy transition-colors">
+                            Guide
+                        </Link>
+                        <span class="text-sm text-teal-300">
+                            &copy; {{ new Date().getFullYear() }} Erhevo
+                        </span>
+                    </div>
+                </footer>
+            </slot>
         </div>
     </div>
 </template>

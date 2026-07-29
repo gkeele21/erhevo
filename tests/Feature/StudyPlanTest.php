@@ -156,6 +156,62 @@ class StudyPlanTest extends TestCase
         $this->assertCount(3, $bySession[2]);
     }
 
+    public function test_shared_members_can_view_and_complete_but_not_edit(): void
+    {
+        $owner = User::factory()->create();
+        $friend = User::factory()->create();
+        $stranger = User::factory()->create();
+        \App\Models\Friendship::create(['requester_id' => $owner->id, 'addressee_id' => $friend->id, 'status' => 'accepted']);
+        $volume = $this->makeVolume();
+
+        $plan = StudyPlan::create([
+            'user_id' => $owner->id,
+            'name' => 'Group Study',
+            'type' => 'scripture',
+            'config' => ['volume_id' => $volume->id, 'book_ids' => null],
+        ]);
+        app(\App\Services\StudyPlanScheduler::class)->generate($plan);
+
+        // Owner shares with the friend; a non-friend id is silently ignored.
+        \Illuminate\Support\Facades\Mail::fake();
+        $this->actingAs($owner)->put(route('study-plans.members.update', $plan), [
+            'user_ids' => [$friend->id, $stranger->id],
+        ])->assertSessionHasNoErrors();
+        $this->assertSame([$friend->id], $plan->members()->pluck('users.id')->all());
+
+        // The new member is emailed; re-syncing the same list emails nobody.
+        \Illuminate\Support\Facades\Mail::assertSent(
+            \App\Mail\StudyPlanSharedMail::class,
+            fn ($mail) => $mail->hasTo($friend->email)
+        );
+        $this->actingAs($owner)->put(route('study-plans.members.update', $plan), ['user_ids' => [$friend->id]]);
+        \Illuminate\Support\Facades\Mail::assertSentCount(1);
+
+        // Unseen until the member opens the plan — then the indicator clears.
+        $this->actingAs($friend)->get(route('study-plans.index'))
+            ->assertInertia(fn ($page) => $page->where('unseenSharedPlansCount', 1)->where('plans.0.is_new', true));
+        $this->actingAs($friend)->get(route('study-plans.show', $plan))->assertOk();
+        $this->actingAs($friend)->get(route('study-plans.index'))
+            ->assertInertia(fn ($page) => $page->where('unseenSharedPlansCount', 0)->where('plans.0.is_new', false));
+        $item = $plan->items()->first();
+        $this->actingAs($friend)->patch(route('study-plans.items.toggle', [$plan, $item]));
+        $item->refresh();
+        $this->assertNotNull($item->completed_at);
+        $this->assertSame($friend->id, $item->completed_by);
+
+        // But members cannot edit, reshare, or delete the plan.
+        $this->actingAs($friend)->get(route('study-plans.edit', $plan))->assertForbidden();
+        $this->actingAs($friend)->put(route('study-plans.members.update', $plan), ['user_ids' => []])->assertForbidden();
+        $this->actingAs($friend)->delete(route('study-plans.destroy', $plan))->assertForbidden();
+
+        // Strangers still see nothing.
+        $this->actingAs($stranger)->get(route('study-plans.show', $plan))->assertForbidden();
+
+        // The shared plan appears on the member's index.
+        $this->actingAs($friend)->get(route('study-plans.index'))
+            ->assertInertia(fn ($page) => $page->has('plans', 1));
+    }
+
     public function test_users_cannot_view_others_plans(): void
     {
         $owner = User::factory()->create();

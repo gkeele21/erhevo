@@ -8,10 +8,13 @@ use App\Models\GeneralConference;
 use App\Models\ScriptureVolume;
 use App\Models\StudyPlan;
 use App\Models\StudyPlanItem;
+use App\Models\User;
 use App\Services\StudyPlanScheduler;
+use App\Mail\StudyPlanSharedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,14 +23,27 @@ class StudyPlanController extends Controller
 {
     public function index(Request $request): Response
     {
-        $plans = StudyPlan::where('user_id', $request->user()->id)
+        $user = $request->user();
+
+        $plans = StudyPlan::where(fn ($q) => $q
+                ->where('user_id', $user->id)
+                ->orWhereHas('members', fn ($q2) => $q2->where('user_id', $user->id)))
+            ->with('user:id,first_name,last_name')
             ->withCount([
                 'items',
                 'items as completed_items_count' => fn ($q) => $q->whereNotNull('completed_at'),
+                'members',
             ])
             ->latest()
             ->get()
             ->each->append('criteria_summary');
+
+        // Shared plans the user hasn't opened yet get a "New" badge.
+        $unseenIds = DB::table('study_plan_members')
+            ->where('user_id', $user->id)
+            ->whereNull('seen_at')
+            ->pluck('study_plan_id');
+        $plans->each(fn ($plan) => $plan->setAttribute('is_new', $unseenIds->contains($plan->id)));
 
         return Inertia::render('StudyPlans/Index', [
             'plans' => $plans,
@@ -103,12 +119,26 @@ class StudyPlanController extends Controller
 
         $studyPlan->append('criteria_summary');
         $studyPlan->load([
+            'user:id,first_name,last_name',
+            'members:id,first_name,last_name',
+            'items.completedBy:id,first_name,last_name',
             'items.chapter.book:id,name',
             'items.talk:id,title,slug,speaker_name,speaker_title,summary,talk_date,url,church_calling_id',
             'items.talk.calling:id,prefix,name,church_organization_id',
             'items.talk.calling.organization:id,name',
             'items.talk.tags:id,name,slug',
         ]);
+
+        $isOwner = $studyPlan->user_id === request()->user()->id;
+
+        // Opening the plan clears the member's "new shared plan" indicator.
+        if (! $isOwner) {
+            DB::table('study_plan_members')
+                ->where('study_plan_id', $studyPlan->id)
+                ->where('user_id', request()->user()->id)
+                ->whereNull('seen_at')
+                ->update(['seen_at' => now()]);
+        }
 
         // "President Russell M. Nelson" (calling prefix) or "Name, title",
         // plus the calling held when the talk was given ("The Quorum of the
@@ -120,17 +150,55 @@ class StudyPlanController extends Controller
 
         return Inertia::render('StudyPlans/Show', [
             'plan' => $studyPlan,
+            'isOwner' => $isOwner,
+            // Owner picks study partners from their friends.
+            'friends' => $isOwner
+                ? User::whereIn('id', request()->user()->friendIds())
+                    ->orderBy('first_name')
+                    ->get(['id', 'first_name', 'last_name'])
+                : [],
         ]);
+    }
+
+    /** Owner shares the plan with specific friends (or unshares). */
+    public function updateMembers(Request $request, StudyPlan $studyPlan)
+    {
+        Gate::authorize('update', $studyPlan);
+
+        $validated = $request->validate([
+            'user_ids' => 'array',
+            'user_ids.*' => 'integer',
+        ]);
+
+        // Only actual friends may be added, whatever the request claims.
+        $friendIds = $request->user()->friendIds();
+        $memberIds = collect($validated['user_ids'] ?? [])
+            ->filter(fn ($id) => in_array($id, $friendIds))
+            ->values()
+            ->all();
+
+        $changes = $studyPlan->members()->sync($memberIds);
+
+        // Tell newly added members they've been invited to study together.
+        if (! empty($changes['attached'])) {
+            $studyPlan->load('user');
+
+            foreach (User::whereIn('id', $changes['attached'])->get() as $member) {
+                Mail::to($member->email)->send(new StudyPlanSharedMail($studyPlan, $member));
+            }
+        }
+
+        return back()->with('success', 'Study plan sharing updated.');
     }
 
     public function toggleItem(Request $request, StudyPlan $studyPlan, StudyPlanItem $item)
     {
-        Gate::authorize('update', $studyPlan);
+        Gate::authorize('participate', $studyPlan);
         abort_unless($item->study_plan_id === $studyPlan->id, 404);
 
-        $item->update([
-            'completed_at' => $item->completed_at ? null : now(),
-        ]);
+        $item->update($item->completed_at
+            ? ['completed_at' => null, 'completed_by' => null]
+            : ['completed_at' => now(), 'completed_by' => $request->user()->id]);
 
         return back();
     }

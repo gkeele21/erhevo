@@ -1,11 +1,13 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { formatLocalDate } from '@/utils/date'
 
 defineProps({
     plans: Array
 })
+
+const currentUserId = usePage().props.auth.user?.id
 
 const progressPercent = (plan) => {
     if (!plan.items_count) return 0
@@ -47,6 +49,24 @@ const typeLabel = (plan) => plan.type === 'scripture' ? 'Scriptures' : 'Talks'
                                 <div class="flex items-center gap-3 mt-1 text-sm text-teal">
                                     <span class="px-2 py-0.5 bg-navy-50 rounded-full text-xs font-medium">
                                         {{ typeLabel(plan) }}
+                                    </span>
+                                    <span
+                                        v-if="plan.is_new"
+                                        class="px-2 py-0.5 bg-amber text-white rounded-full text-xs font-semibold"
+                                    >
+                                        New
+                                    </span>
+                                    <span
+                                        v-if="plan.user_id !== currentUserId"
+                                        class="px-2 py-0.5 bg-aqua-50 text-navy rounded-full text-xs font-medium"
+                                    >
+                                        Shared by {{ plan.user?.name }}
+                                    </span>
+                                    <span
+                                        v-else-if="plan.members_count > 0"
+                                        class="px-2 py-0.5 bg-aqua-50 text-navy rounded-full text-xs font-medium"
+                                    >
+                                        Studying with {{ plan.members_count }} {{ plan.members_count === 1 ? 'friend' : 'friends' }}
                                     </span>
                                     <span v-if="plan.start_date">
                                         {{ formatLocalDate(plan.start_date) }}

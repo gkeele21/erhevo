@@ -42,6 +42,13 @@ class HandleInertiaRequests extends Middleware
                 'shareUrl' => fn () => $request->session()->get('shareUrl'),
             ],
             'isAdmin' => fn () => $request->user()?->isAdmin() ?? false,
+            // Shared study plans the user hasn't opened yet (nav indicator).
+            'unseenSharedPlansCount' => fn () => $request->user()
+                ? \Illuminate\Support\Facades\DB::table('study_plan_members')
+                    ->where('user_id', $request->user()->id)
+                    ->whereNull('seen_at')
+                    ->count()
+                : 0,
             'userSettings' => fn () => $request->user() ? [
                 'show_lds_content' => $request->user()->show_lds_content,
             ] : null,

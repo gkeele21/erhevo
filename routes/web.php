@@ -134,6 +134,7 @@ Route::middleware([
     Route::put('/study-plans/{studyPlan}', [StudyPlanController::class, 'update'])->name('study-plans.update');
     Route::delete('/study-plans/{studyPlan}', [StudyPlanController::class, 'destroy'])->name('study-plans.destroy');
     Route::patch('/study-plans/{studyPlan}/items/{item}', [StudyPlanController::class, 'toggleItem'])->name('study-plans.items.toggle');
+    Route::put('/study-plans/{studyPlan}/members', [StudyPlanController::class, 'updateMembers'])->name('study-plans.members.update');
 
     // User Settings
     Route::put('/user/settings', [UserSettingsController::class, 'update'])->name('user-settings.update');

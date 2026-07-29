@@ -1,12 +1,36 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { formatLocalDate, parseLocalDate } from '@/utils/date'
 
 const props = defineProps({
-    plan: Object
+    plan: Object,
+    isOwner: Boolean,
+    friends: Array
 })
+
+// --- Sharing (owner only) ---
+const showShare = ref(false)
+const selectedMemberIds = ref((props.plan.members ?? []).map(m => m.id))
+const savingMembers = ref(false)
+
+const toggleMember = (id) => {
+    const idx = selectedMemberIds.value.indexOf(id)
+    idx === -1 ? selectedMemberIds.value.push(id) : selectedMemberIds.value.splice(idx, 1)
+}
+
+const saveMembers = () => {
+    savingMembers.value = true
+    router.put(route('study-plans.members.update', props.plan.id), {
+        user_ids: selectedMemberIds.value
+    }, {
+        preserveScroll: true,
+        onFinish: () => { savingMembers.value = false; showShare.value = false }
+    })
+}
+
+const isShared = computed(() => (props.plan.members ?? []).length > 0)
 
 const sessions = computed(() => {
     const groups = new Map()
@@ -76,9 +100,24 @@ const destroy = () => {
                             </template>
                         </span>
                         <span v-if="plan.frequency" class="capitalize">{{ plan.frequency }}</span>
+                        <span v-if="!isOwner && plan.user" class="text-navy">
+                            Shared by <span class="font-medium">{{ plan.user.name }}</span>
+                        </span>
                     </div>
+                    <p v-if="isShared" class="mt-1 text-sm text-teal">
+                        Studying with:
+                        <span class="text-navy font-medium">
+                            {{ [isOwner ? null : plan.user?.name, ...plan.members.map(m => m.name)].filter(n => n).join(', ') }}
+                        </span>
+                    </p>
                 </div>
-                <div class="flex items-center gap-4">
+                <div v-if="isOwner" class="flex items-center gap-4">
+                    <button
+                        class="text-sm text-teal hover:text-navy transition-colors"
+                        @click="showShare = !showShare"
+                    >
+                        {{ isShared ? 'Manage sharing' : 'Share' }}
+                    </button>
                     <Link
                         :href="route('study-plans.edit', plan.id)"
                         class="text-sm text-teal hover:text-navy transition-colors"
@@ -97,6 +136,51 @@ const destroy = () => {
 
         <div class="py-12">
             <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+                <!-- Sharing (owner only) -->
+                <div v-if="isOwner && showShare" class="bg-white rounded-lg shadow border border-navy-50 p-6 mb-8">
+                    <h3 class="font-medium text-navy mb-1">Study together</h3>
+                    <p class="text-sm text-teal mb-4">
+                        Friends you share with see this plan and can check readings off — you're
+                        working through it as a group, so one check counts for everyone.
+                    </p>
+
+                    <div v-if="friends.length" class="space-y-2 mb-4">
+                        <label
+                            v-for="friend in friends"
+                            :key="friend.id"
+                            class="flex items-center gap-3 text-navy"
+                        >
+                            <input
+                                type="checkbox"
+                                :checked="selectedMemberIds.includes(friend.id)"
+                                class="rounded border-navy-100 text-teal focus:ring-aqua"
+                                @change="toggleMember(friend.id)"
+                            />
+                            {{ friend.name }}
+                        </label>
+                    </div>
+                    <p v-else class="text-sm text-teal mb-4">
+                        You don't have any friends yet —
+                        <Link :href="route('friends.index')" class="text-amber hover:text-amber-600 font-medium">find or invite some</Link>
+                        to study together.
+                    </p>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" class="text-sm text-teal hover:text-navy" @click="showShare = false">
+                            Cancel
+                        </button>
+                        <button
+                            v-if="friends.length"
+                            type="button"
+                            class="px-4 py-2 bg-amber text-white text-sm rounded-lg hover:bg-amber-600 disabled:opacity-50"
+                            :disabled="savingMembers"
+                            @click="saveMembers"
+                        >
+                            {{ savingMembers ? 'Saving…' : 'Save sharing' }}
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Progress -->
                 <div class="bg-white rounded-lg shadow border border-navy-50 p-6 mb-8">
                     <div class="flex justify-between items-center mb-2">
@@ -167,6 +251,9 @@ const destroy = () => {
                                     >
                                         {{ itemLabel(item) }}
                                     </component>
+                                    <p v-if="isShared && item.completed_at && item.completed_by" class="text-xs text-green-600">
+                                        Read by {{ item.completed_by.name }}
+                                    </p>
                                     <p v-if="item.talk" class="text-sm text-teal truncate">
                                         {{ item.talk.speaker_display_name }}
                                         <span v-if="item.talk.calling?.display_label"> &middot; {{ item.talk.calling.display_label }}</span>

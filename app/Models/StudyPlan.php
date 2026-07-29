@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -33,6 +34,17 @@ class StudyPlan extends Model
     public function items(): HasMany
     {
         return $this->hasMany(StudyPlanItem::class)->orderBy('sort_order');
+    }
+
+    /** Friends this plan is shared with (they share one completion state). */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'study_plan_members')->withTimestamps();
+    }
+
+    public function isSharedWith(User $user): bool
+    {
+        return $this->members()->whereKey($user->id)->exists();
     }
 
     /**

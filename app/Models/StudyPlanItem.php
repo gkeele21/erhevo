@@ -15,6 +15,7 @@ class StudyPlanItem extends Model
         'talk_id',
         'scheduled_date',
         'completed_at',
+        'completed_by',
     ];
 
     protected $casts = [
@@ -35,5 +36,10 @@ class StudyPlanItem extends Model
     public function talk(): BelongsTo
     {
         return $this->belongsTo(Talk::class);
+    }
+
+    public function completedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'completed_by');
     }
 }

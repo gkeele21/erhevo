@@ -52,6 +52,12 @@ const logout = () => {
                                 </NavLink>
                                 <NavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                                     Study Plans
+                                    <span
+                                        v-if="page.props.unseenSharedPlansCount > 0"
+                                        class="ms-1.5 inline-flex items-center justify-center rounded-full bg-amber text-white text-xs font-semibold h-5 min-w-5 px-1"
+                                    >
+                                        {{ page.props.unseenSharedPlansCount }}
+                                    </span>
                                 </NavLink>
                                 <NavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                                     Friends
@@ -142,6 +148,12 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                             Study Plans
+                            <span
+                                v-if="page.props.unseenSharedPlansCount > 0"
+                                class="ms-1.5 inline-flex items-center justify-center rounded-full bg-amber text-white text-xs font-semibold h-5 min-w-5 px-1"
+                            >
+                                {{ page.props.unseenSharedPlansCount }}
+                            </span>
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                             Friends

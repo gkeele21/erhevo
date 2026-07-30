@@ -19,8 +19,8 @@ defineProps({
                     A Place Where Words Lift You
                 </h1>
                 <p class="text-xl text-teal mb-8 max-w-2xl mx-auto">
-                    Discover inspiring stories, build lessons worth teaching, and follow study plans that keep
-                    your reading on track — with others who appreciate the quiet power of positive words.
+                    Discover inspiring stories, build lessons and talks worth sharing, and follow study plans
+                    that keep your reading on track — with others who appreciate the quiet power of positive words.
                 </p>
                 <div class="flex justify-center gap-4">
                     <Link
@@ -62,13 +62,13 @@ defineProps({
                     </div>
 
                     <div class="bg-white rounded-lg border border-navy-50 shadow-sm p-6">
-                        <h3 class="text-lg font-semibold text-navy mb-2">Build Lessons</h3>
+                        <h3 class="text-lg font-semibold text-navy mb-2">Build Lessons &amp; Talks</h3>
                         <p class="text-teal mb-4">
-                            Assemble scriptures, talks, quotes, images, and your own ideas into lessons you can
-                            teach right from the app.
+                            Assemble scriptures, talks, quotes, images, and your own ideas into a lesson to teach —
+                            or write your own talk and deliver it right from the app.
                         </p>
                         <Link :href="route('lessons.index')" class="text-amber hover:text-amber-600 font-medium">
-                            Browse lessons &rarr;
+                            Browse lessons &amp; talks &rarr;
                         </Link>
                     </div>
 

@@ -31,7 +31,9 @@ class PostController extends Controller
     {
         $posts = Post::with(['user', 'author', 'category', 'tags'])
             ->visibleTo($request->user())
-            ->published()
+            // Published for everyone, plus the viewer's own drafts.
+            ->where(fn ($q) => $q->published()
+                ->when($request->user(), fn ($q2) => $q2->orWhere('user_id', $request->user()->id)))
             ->when($request->type, fn ($q, $type) => $q->where('post_type', $type))
             ->when($request->category, fn ($q, $category) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $category)))
             ->when($request->tag, fn ($q, $tag) => $q->whereHas('tags', fn ($q2) => $q2->where('slug', $tag)))
@@ -45,7 +47,9 @@ class PostController extends Controller
             }))
             ->when($request->friends_only && $request->user(), fn ($q) => $q->whereIn('user_id', $request->user()->friendIds()))
             ->when($request->mine && $request->user(), fn ($q) => $q->where('user_id', $request->user()->id))
-            ->latest('published_at')
+            // Drafts have no published_at; slot them in by creation date so
+            // they don't sink to the bottom.
+            ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->paginate(12)
             ->withQueryString();
 

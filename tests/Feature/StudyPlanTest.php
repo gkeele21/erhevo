@@ -187,12 +187,18 @@ class StudyPlanTest extends TestCase
         $this->actingAs($owner)->put(route('study-plans.members.update', $plan), ['user_ids' => [$friend->id]]);
         \Illuminate\Support\Facades\Mail::assertSentCount(1);
 
-        // Unseen until the member opens the plan — then the indicator clears.
+        // Unseen until the member opens the plan — the bell shows it and the
+        // plan is badged; both clear after viewing.
         $this->actingAs($friend)->get(route('study-plans.index'))
-            ->assertInertia(fn ($page) => $page->where('unseenSharedPlansCount', 1)->where('plans.0.is_new', true));
+            ->assertInertia(fn ($page) => $page
+                ->where('notifications.count', 1)
+                ->where('notifications.items.0.type', 'shared_plan')
+                ->where('plans.0.is_new', true));
         $this->actingAs($friend)->get(route('study-plans.show', $plan))->assertOk();
         $this->actingAs($friend)->get(route('study-plans.index'))
-            ->assertInertia(fn ($page) => $page->where('unseenSharedPlansCount', 0)->where('plans.0.is_new', false));
+            ->assertInertia(fn ($page) => $page
+                ->where('notifications.count', 0)
+                ->where('plans.0.is_new', false));
         $item = $plan->items()->first();
         $this->actingAs($friend)->patch(route('study-plans.items.toggle', [$plan, $item]));
         $item->refresh();

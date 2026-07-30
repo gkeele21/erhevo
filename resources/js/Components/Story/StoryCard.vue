@@ -24,6 +24,9 @@ const bylineName = computed(() => {
 })
 
 const formatDate = (date) => {
+    // Unpublished posts (only ever the viewer's own) have no date yet.
+    if (!date) return 'Draft'
+
     return new Date(date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',

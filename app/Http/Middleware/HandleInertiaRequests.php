@@ -43,13 +43,10 @@ class HandleInertiaRequests extends Middleware
                 'shareUrl' => fn () => $request->session()->get('shareUrl'),
             ],
             'isAdmin' => fn () => $request->user()?->isAdmin() ?? false,
-            // Shared study plans the user hasn't opened yet (nav indicator).
-            'unseenSharedPlansCount' => fn () => $request->user()
-                ? \Illuminate\Support\Facades\DB::table('study_plan_members')
-                    ->where('user_id', $request->user()->id)
-                    ->whereNull('seen_at')
-                    ->count()
-                : 0,
+            // Items needing attention, shown in the nav bell: pending friend
+            // requests and shared study plans not yet opened. Each clears by
+            // its own action (accept/decline; open the plan).
+            'notifications' => fn () => $this->notifications($request),
             'userSettings' => fn () => $request->user() ? [
                 'show_lds_content' => $request->user()->show_lds_content,
             ] : null,
@@ -59,5 +56,42 @@ class HandleInertiaRequests extends Middleware
                 'providers' => app(\App\AI\AiManager::class)->providerOptions(),
             ],
         ];
+    }
+
+    /** @return array{count: int, items: array} */
+    protected function notifications(Request $request): array
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return ['count' => 0, 'items' => []];
+        }
+
+        $items = [];
+
+        foreach ($user->pendingFriendRequests()->with('requester')->latest()->get() as $friendRequest) {
+            $items[] = [
+                'type' => 'friend_request',
+                'label' => ($friendRequest->requester?->name ?? 'Someone') . ' sent you a friend request',
+                'href' => route('friends.index'),
+            ];
+        }
+
+        $unseenPlans = \App\Models\StudyPlan::whereHas('members', fn ($q) => $q
+                ->where('study_plan_members.user_id', $user->id)
+                ->whereNull('study_plan_members.seen_at'))
+            ->with('user:id,first_name,last_name')
+            ->latest()
+            ->get();
+
+        foreach ($unseenPlans as $plan) {
+            $items[] = [
+                'type' => 'shared_plan',
+                'label' => ($plan->user?->name ?? 'A friend') . ' shared “' . $plan->name . '” with you',
+                'href' => route('study-plans.show', $plan->id),
+            ];
+        }
+
+        return ['count' => count($items), 'items' => $items];
     }
 }

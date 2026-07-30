@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import Banner from '@/Components/Banner.vue';
 import NavLink from '@/Components/NavLink.vue';
+import NotificationsBell from '@/Components/NotificationsBell.vue';
 import UserMenu from '@/Components/UserMenu.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
@@ -52,12 +53,6 @@ const logout = () => {
                                 </NavLink>
                                 <NavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                                     Study Plans
-                                    <span
-                                        v-if="page.props.unseenSharedPlansCount > 0"
-                                        class="ms-1.5 inline-flex items-center justify-center rounded-full bg-amber text-white text-xs font-semibold h-5 min-w-5 px-1"
-                                    >
-                                        {{ page.props.unseenSharedPlansCount }}
-                                    </span>
                                 </NavLink>
                                 <NavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                                     Friends
@@ -82,6 +77,9 @@ const logout = () => {
                                     New Post
                                 </Link>
 
+                                <!-- Notifications -->
+                                <NotificationsBell />
+
                                 <!-- Settings Dropdown -->
                                 <div class="ms-3">
                                     <UserMenu />
@@ -105,8 +103,9 @@ const logout = () => {
                             </template>
                         </div>
 
-                        <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
+                        <!-- Hamburger (with notifications alongside on mobile) -->
+                        <div class="-me-2 flex items-center gap-1 sm:hidden">
+                            <NotificationsBell v-if="user" />
                             <button class="inline-flex items-center justify-center p-2 rounded-md text-teal hover:text-navy hover:bg-navy-50 focus:outline-none focus:bg-navy-50 focus:text-navy transition duration-150 ease-in-out" @click="showingNavigationDropdown = ! showingNavigationDropdown">
                                 <svg
                                     class="size-6"
@@ -148,12 +147,6 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                             Study Plans
-                            <span
-                                v-if="page.props.unseenSharedPlansCount > 0"
-                                class="ms-1.5 inline-flex items-center justify-center rounded-full bg-amber text-white text-xs font-semibold h-5 min-w-5 px-1"
-                            >
-                                {{ page.props.unseenSharedPlansCount }}
-                            </span>
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
                             Friends

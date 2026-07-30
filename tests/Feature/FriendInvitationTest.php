@@ -33,6 +33,31 @@ class FriendInvitationTest extends TestCase
         Mail::assertSent(FriendInvitationMail::class, fn ($mail) => $mail->hasTo('newfriend@example.com'));
     }
 
+    public function test_failed_invitation_email_cleans_up_and_reports_instead_of_500(): void
+    {
+        // Simulate the SMTP provider rejecting the send (e.g. an unverified
+        // sending domain).
+        Mail::shouldReceive('to')->once()->andReturnUsing(function () {
+            $pending = \Mockery::mock();
+            $pending->shouldReceive('send')->once()->andThrow(
+                new \Symfony\Component\Mailer\Exception\TransportException('550 5.7.1 Sending from domain not allowed')
+            );
+
+            return $pending;
+        });
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/friends/invite', [
+            'email' => 'newfriend@example.com',
+        ]);
+
+        // No 500: redirected back with an error, and the dangling invitation
+        // was removed so the user can retry later.
+        $response->assertRedirect()->assertSessionHas('error');
+        $this->assertDatabaseMissing('friend_invitations', ['email' => 'newfriend@example.com']);
+    }
+
     public function test_inviting_an_existing_member_sends_a_friend_request_instead(): void
     {
         Mail::fake();

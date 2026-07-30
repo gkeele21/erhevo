@@ -80,7 +80,16 @@ class FriendshipController extends Controller
             'token' => FriendInvitation::generateToken(),
         ]);
 
-        Mail::to($email)->send(new FriendInvitationMail($invitation));
+        try {
+            Mail::to($email)->send(new FriendInvitationMail($invitation));
+        } catch (\Throwable $e) {
+            report($e);
+            // The invitation is useless without its email — remove it so the
+            // user can retry once mail is working again.
+            $invitation->delete();
+
+            return back()->with('error', "We couldn't send the invitation email — please try again later.");
+        }
 
         return back()->with('success', 'Invitation sent!');
     }

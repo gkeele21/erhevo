@@ -180,11 +180,17 @@ class StudyPlanController extends Controller
         $changes = $studyPlan->members()->sync($memberIds);
 
         // Tell newly added members they've been invited to study together.
+        // Sharing succeeds even if mail doesn't — members still get the
+        // in-app "new shared plan" indicator.
         if (! empty($changes['attached'])) {
             $studyPlan->load('user');
 
             foreach (User::whereIn('id', $changes['attached'])->get() as $member) {
-                Mail::to($member->email)->send(new StudyPlanSharedMail($studyPlan, $member));
+                try {
+                    Mail::to($member->email)->send(new StudyPlanSharedMail($studyPlan, $member));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
             }
         }
 

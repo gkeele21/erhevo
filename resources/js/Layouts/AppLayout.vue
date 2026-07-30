@@ -231,6 +231,19 @@ const logout = () => {
 
             <!-- Page Content -->
             <main>
+                <!-- Flash messages -->
+                <div
+                    v-if="$page.props.flash?.success || $page.props.flash?.error"
+                    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
+                >
+                    <div v-if="$page.props.flash.success" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                        {{ $page.props.flash.success }}
+                    </div>
+                    <div v-if="$page.props.flash.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        {{ $page.props.flash.error }}
+                    </div>
+                </div>
+
                 <slot />
             </main>
 

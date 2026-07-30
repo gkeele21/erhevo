@@ -56,6 +56,10 @@ class FriendInvitationTest extends TestCase
         // was removed so the user can retry later.
         $response->assertRedirect()->assertSessionHas('error');
         $this->assertDatabaseMissing('friend_invitations', ['email' => 'newfriend@example.com']);
+
+        // The error actually reaches the page as a shared flash prop.
+        $this->actingAs($user)->get('/friends')->assertInertia(fn ($page) => $page
+            ->where('flash.error', "We couldn't send the invitation email — please try again later."));
     }
 
     public function test_inviting_an_existing_member_sends_a_friend_request_instead(): void

@@ -201,13 +201,15 @@ const cfmDateRange = (week) => {
                 </div>
 
                 <div v-else class="rounded-lg border-2 border-dashed border-stone-200 p-12 text-center">
-                    <p class="text-stone-500">No lessons yet.</p>
+                    <p class="text-stone-500">
+                        {{ kind === 'talk' ? 'No talks yet.' : kind === 'lesson' ? 'No lessons yet.' : 'No lessons or talks yet.' }}
+                    </p>
                     <Link
                         v-if="page.props.auth.user"
-                        :href="route('lessons.create')"
+                        :href="kind === 'talk' ? route('lessons.create', { kind: 'talk' }) : route('lessons.create')"
                         class="mt-3 inline-block text-amber-600 hover:text-amber-800"
                     >
-                        Create your first lesson →
+                        {{ kind === 'talk' ? 'Write your first talk →' : 'Create your first lesson →' }}
                     </Link>
                 </div>
 

@@ -52,6 +52,11 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div v-if="inviterName" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
                 {{ inviterName }} invited you to join! When you register, you'll automatically be added as friends.
+                <span class="block mt-1">
+                    Already have an account?
+                    <Link :href="route('login')" class="font-medium underline hover:text-amber-950">Log in instead</Link>
+                    and we'll connect you automatically.
+                </span>
             </div>
 
             <div>

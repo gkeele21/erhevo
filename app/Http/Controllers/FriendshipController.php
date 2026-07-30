@@ -95,6 +95,55 @@ class FriendshipController extends Controller
     }
 
     /**
+     * Landing page for the "Join" link in invitation emails. Works whatever
+     * state the recipient is in:
+     *  - guest: on to registration (with the invite carried through, and the
+     *    intended URL saved so logging in instead also connects them)
+     *  - logged-in member: befriend the inviter right now
+     *  - already connected (e.g. they just registered): friendly confirmation
+     */
+    public function acceptInvitationLink(Request $request, string $token)
+    {
+        $invitation = FriendInvitation::with('inviter')->where('token', $token)->first();
+
+        if (! $invitation || ! $invitation->inviter) {
+            return $request->user()
+                ? redirect()->route('friends.index')->with('error', 'That invitation link is no longer valid.')
+                : redirect()->route('register');
+        }
+
+        if (! $request->user()) {
+            // After registering — or logging in instead — come back here so
+            // the friendship gets made either way.
+            $request->session()->put('url.intended', $request->fullUrl());
+
+            return redirect()->route('register', ['invite' => $invitation->token]);
+        }
+
+        $user = $request->user();
+
+        if ($invitation->inviter_id === $user->id) {
+            return redirect()->route('friends.index')
+                ->with('error', 'That is your own invitation — forward it to your friend instead.');
+        }
+
+        if (! $invitation->accepted_at) {
+            $invitation->acceptFor($user);
+
+            return redirect()->route('friends.index')
+                ->with('success', "You and {$invitation->inviter->name} are now friends!");
+        }
+
+        if ($invitation->registered_user_id === $user->id || $invitation->inviter->isFriendWith($user->id)) {
+            return redirect()->route('friends.index')
+                ->with('success', "You and {$invitation->inviter->name} are connected!");
+        }
+
+        return redirect()->route('friends.index')
+            ->with('error', 'That invitation was already used by someone else.');
+    }
+
+    /**
      * Cancel a pending invitation.
      */
     public function cancelInvitation(Request $request, FriendInvitation $invitation)

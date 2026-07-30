@@ -95,6 +95,69 @@ class FriendInvitationTest extends TestCase
         Mail::assertSentCount(1);
     }
 
+    public function test_invite_link_sends_guests_to_registration_and_remembers_the_link(): void
+    {
+        $inviter = User::factory()->create();
+        $invitation = FriendInvitation::create([
+            'inviter_id' => $inviter->id,
+            'email' => 'friend@example.com',
+            'token' => FriendInvitation::generateToken(),
+        ]);
+
+        $response = $this->get(route('friends.invite-link', $invitation->token));
+
+        $response->assertRedirect(route('register', ['invite' => $invitation->token]));
+        // Logging in (or registering) returns here so the friendship still happens.
+        $this->assertSame(
+            route('friends.invite-link', $invitation->token),
+            session('url.intended')
+        );
+    }
+
+    public function test_invite_link_connects_an_existing_logged_in_member_immediately(): void
+    {
+        $inviter = User::factory()->create();
+        $member = User::factory()->create();
+        $invitation = FriendInvitation::create([
+            'inviter_id' => $inviter->id,
+            'email' => $member->email,
+            'token' => FriendInvitation::generateToken(),
+        ]);
+
+        $response = $this->actingAs($member)->get(route('friends.invite-link', $invitation->token));
+
+        $response->assertRedirect(route('friends.index'))->assertSessionHas('success');
+        $this->assertTrue($inviter->fresh()->isFriendWith($member->id));
+        $this->assertNotNull($invitation->fresh()->accepted_at);
+
+        // Clicking the link again is a friendly no-op.
+        $this->actingAs($member)->get(route('friends.invite-link', $invitation->token))
+            ->assertRedirect(route('friends.index'))->assertSessionHas('success');
+        $this->assertSame(1, \App\Models\Friendship::count());
+    }
+
+    public function test_invite_link_handles_the_inviter_and_invalid_tokens(): void
+    {
+        $inviter = User::factory()->create();
+        $invitation = FriendInvitation::create([
+            'inviter_id' => $inviter->id,
+            'email' => 'friend@example.com',
+            'token' => FriendInvitation::generateToken(),
+        ]);
+
+        // Bad tokens fail soft for guests (before authenticating below).
+        $this->get(route('friends.invite-link', 'not-a-real-token'))
+            ->assertRedirect(route('register'));
+
+        // The inviter clicking their own link gets an explanation, not a crash.
+        $this->actingAs($inviter)->get(route('friends.invite-link', $invitation->token))
+            ->assertRedirect(route('friends.index'))->assertSessionHas('error');
+
+        // ...and bad tokens fail soft for members too.
+        $this->actingAs($inviter)->get(route('friends.invite-link', 'not-a-real-token'))
+            ->assertRedirect(route('friends.index'))->assertSessionHas('error');
+    }
+
     public function test_registering_with_invite_token_creates_friendship(): void
     {
         if (! Features::enabled(Features::registration())) {

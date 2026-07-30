@@ -30,7 +30,7 @@ class FriendInvitationMail extends Mailable
             markdown: 'emails.friend-invitation',
             with: [
                 'inviterName' => $this->invitation->inviter->name,
-                'registerUrl' => route('register', ['invite' => $this->invitation->token]),
+                'registerUrl' => route('friends.invite-link', $this->invitation->token),
             ],
         );
     }

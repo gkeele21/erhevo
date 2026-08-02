@@ -89,17 +89,18 @@ class PostController extends Controller
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'churchCallings' => $this->churchCallings(),
+            'friends' => $this->friendOptions($request),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'post_type' => 'required|in:story,thought,note,quote,video,meeting_notes',
+            'post_type' => 'required|in:story,thought,note,quote,video,image,meeting_notes',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
-            'cover_image' => 'nullable|string',
+            'cover_image' => 'required_if:post_type,image|nullable|string|max:2048',
             'category_id' => 'nullable|exists:categories,id',
             'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',
@@ -110,7 +111,9 @@ class PostController extends Controller
             'author_text' => 'nullable|string|max:255',
             'author_id' => 'nullable|exists:authors,id',
             'church_calling_id' => 'nullable|exists:church_callings,id',
-            'visibility' => 'required|in:public,private,friends',
+            'visibility' => 'required|in:public,private,friends,custom',
+            'shared_user_ids' => 'nullable|array',
+            'shared_user_ids.*' => 'integer',
             'hide_creator' => 'boolean',
             'hide_author' => 'boolean',
             'anonymize_names' => 'boolean',
@@ -145,6 +148,7 @@ class PostController extends Controller
         }
 
         $post->cfmWeeks()->sync($validated['cfm_week_ids'] ?? []);
+        $post->syncSharedWith($validated['shared_user_ids'] ?? []);
 
         return redirect()->route('posts.show', $post)
             ->with('success', 'Post created successfully.');
@@ -183,6 +187,7 @@ class PostController extends Controller
 
         return Inertia::render('Posts/Edit', [
             'post' => $post,
+            'sharedUserIds' => $post->sharedWith()->pluck('users.id'),
             'categories' => Category::approved()->orderBy('name')->get(),
             'userCategories' => $request->user()->userCategories()->root()->with('children')->orderBy('sort_order')->get(),
             'postTypes' => collect(PostType::cases())->map(fn ($p) => [
@@ -203,6 +208,7 @@ class PostController extends Controller
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'churchCallings' => $this->churchCallings(),
+            'friends' => $this->friendOptions($request),
         ]);
     }
 
@@ -244,11 +250,11 @@ class PostController extends Controller
         Gate::authorize('update', $post);
 
         $validated = $request->validate([
-            'post_type' => 'required|in:story,thought,note,quote,video,meeting_notes',
+            'post_type' => 'required|in:story,thought,note,quote,video,image,meeting_notes',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
-            'cover_image' => 'nullable|string',
+            'cover_image' => 'required_if:post_type,image|nullable|string|max:2048',
             'category_id' => 'nullable|exists:categories,id',
             'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',
@@ -259,7 +265,9 @@ class PostController extends Controller
             'author_text' => 'nullable|string|max:255',
             'author_id' => 'nullable|exists:authors,id',
             'church_calling_id' => 'nullable|exists:church_callings,id',
-            'visibility' => 'required|in:public,private,friends',
+            'visibility' => 'required|in:public,private,friends,custom',
+            'shared_user_ids' => 'nullable|array',
+            'shared_user_ids.*' => 'integer',
             'hide_creator' => 'boolean',
             'hide_author' => 'boolean',
             'anonymize_names' => 'boolean',
@@ -296,6 +304,7 @@ class PostController extends Controller
         }
 
         $post->cfmWeeks()->sync($validated['cfm_week_ids'] ?? []);
+        $post->syncSharedWith($validated['shared_user_ids'] ?? []);
 
         return redirect()->route('posts.show', $post)
             ->with('success', 'Post updated successfully.');
@@ -369,6 +378,14 @@ class PostController extends Controller
     /**
      * Active church callings for the calling picker.
      */
+    /** The user's friends, for the specific-friends visibility picker. */
+    protected function friendOptions(Request $request)
+    {
+        return User::whereIn('id', $request->user()->friendIds())
+            ->orderBy('first_name')
+            ->get(['id', 'first_name', 'last_name']);
+    }
+
     protected function churchCallings(): array
     {
         return ChurchCalling::with('organization')

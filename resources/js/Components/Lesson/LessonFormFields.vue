@@ -8,6 +8,10 @@ const props = defineProps({
         type: Object,
         required: true
     },
+    friends: {
+        type: Array,
+        default: () => []
+    },
     itemTypes: {
         type: Array,
         default: () => []
@@ -111,7 +115,9 @@ const weekLabel = (week) => {
         <div class="rounded-lg border border-stone-100 bg-white p-6 shadow">
             <VisibilitySelector
                 v-model="form.visibility"
+                v-model:shared-user-ids="form.shared_user_ids"
                 :options="visibilityOptions"
+                :friends="friends"
             />
         </div>
     </div>

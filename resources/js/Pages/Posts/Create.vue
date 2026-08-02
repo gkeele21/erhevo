@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Head, useForm, Link, router } from '@inertiajs/vue3'
+import axios from 'axios'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryEditor from '@/Components/Story/StoryEditor.vue'
 import VisibilitySelector from '@/Components/Story/VisibilitySelector.vue'
@@ -26,7 +27,8 @@ const props = defineProps({
     authorTypes: Array,
     cfmWeeks: Array,
     currentCfmWeek: Object,
-    churchCallings: Array
+    churchCallings: Array,
+    friends: Array
 })
 
 const form = useForm({
@@ -46,6 +48,7 @@ const form = useForm({
     date_given: '',
     source_url: '',
     visibility: 'private',
+    shared_user_ids: [],
     hide_creator: false,
     hide_author: false,
     anonymize_names: false,
@@ -59,7 +62,8 @@ const postTypeIcons = {
     'document-text': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>`,
     'chat-bubble-bottom-center-text': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>`,
     'clipboard-document-list': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>`,
-    'film': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/>`
+    'film': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/>`,
+    'photo': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>`
 }
 
 const submit = () => {
@@ -115,6 +119,28 @@ const handleCategoryCreated = () => {
     // Reload the page data to get updated categories
     router.reload({ only: ['userCategories'] })
 }
+
+// --- Cover image (for image posts) ---
+const uploadingImage = ref(false)
+const imageUploadError = ref('')
+
+const uploadCoverImage = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    uploadingImage.value = true
+    imageUploadError.value = ''
+    try {
+        const data = new FormData()
+        data.append('image', file)
+        const res = await axios.post('/upload-image', data)
+        form.cover_image = res.data.url
+    } catch (err) {
+        imageUploadError.value = err.response?.data?.message || 'Upload failed — try a smaller image (max 5MB).'
+    } finally {
+        uploadingImage.value = false
+        e.target.value = ''
+    }
+}
 </script>
 
 <template>
@@ -160,6 +186,22 @@ const handleCategoryCreated = () => {
 
                     <!-- Writing Prompts -->
                     <AiWritingPrompts @select-prompt="handlePromptSelect" />
+
+                    <!-- Image (for image posts) -->
+                    <div v-if="form.post_type === 'image'" class="bg-white rounded-lg shadow p-6 border border-stone-100 space-y-3">
+                        <label class="block text-sm font-medium text-stone-700">Image</label>
+                        <img v-if="form.cover_image" :src="form.cover_image" alt="" class="max-h-64 rounded-lg">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
+                                <span>{{ uploadingImage ? 'Uploading…' : (form.cover_image ? 'Replace image' : 'Upload an image') }}</span>
+                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden" :disabled="uploadingImage" @change="uploadCoverImage">
+                            </label>
+                            <span class="text-sm text-stone-400">or</span>
+                            <input v-model="form.cover_image" type="url" placeholder="Paste an image URL..." class="flex-1 min-w-48 rounded-lg border-stone-300 text-sm focus:border-amber-500 focus:ring-amber-500">
+                        </div>
+                        <p v-if="imageUploadError" class="text-sm text-red-600">{{ imageUploadError }}</p>
+                        <p v-if="form.errors.cover_image" class="text-sm text-red-600">{{ form.errors.cover_image }}</p>
+                    </div>
 
                     <div class="bg-white rounded-lg shadow p-6 space-y-6 border border-stone-100">
                         <!-- Title -->
@@ -287,7 +329,9 @@ const handleCategoryCreated = () => {
                         <div class="flex items-start justify-between gap-4">
                             <VisibilitySelector
                                 v-model="form.visibility"
+                                v-model:shared-user-ids="form.shared_user_ids"
                                 :options="visibilityOptions"
+                                :friends="friends"
                                 class="flex-1"
                             />
                             <AiPrivacyCheck

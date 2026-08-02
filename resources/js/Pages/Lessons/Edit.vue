@@ -6,6 +6,7 @@ import LessonFormFields from '@/Components/Lesson/LessonFormFields.vue'
 
 const props = defineProps({
     lesson: Object,
+    sharedUserIds: Array,
     itemTypes: Array,
     visibilityOptions: Array,
     cfmWeeks: Array,
@@ -13,6 +14,7 @@ const props = defineProps({
     scriptureBooks: Array,
     uploadLimits: Object,
     churchCallings: Array,
+    friends: Array,
 })
 
 // Existing elements start collapsed so a long lesson is easy to scan;
@@ -44,6 +46,7 @@ const form = useForm({
     kind: props.lesson.kind ?? 'lesson',
     cfm_week_id: source.cfm_week_id ?? null,
     visibility: source.visibility,
+    shared_user_ids: source.shared_user_ids ?? props.sharedUserIds ?? [],
     publish: !!props.lesson.published_at,
     items: (source.items ?? []).map(mapNode),
 })
@@ -151,6 +154,7 @@ onUnmounted(() => clearInterval(autosaveTimer))
                 <form @submit.prevent="submit(true)" class="space-y-8">
                     <LessonFormFields
                         :form="form"
+                        :friends="friends"
                         :item-types="itemTypes"
                         :visibility-options="visibilityOptions"
                         :cfm-weeks="cfmWeeks"

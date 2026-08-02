@@ -39,6 +39,72 @@ const hasTextContent = computed(() =>
     (props.item.content || '').replace(/<[^>]*>/g, ' ').trim().length > 0
 )
 
+// --- Image block ↔ image posts ---
+const savingImagePost = ref(false)
+const imagePostError = ref('')
+const imageSearchOpen = ref(false)
+const imageQuery = ref('')
+const imageResults = ref([])
+const imageSearching = ref(false)
+const imageSearched = ref(false)
+let imageDebounce = null
+
+const blockHasImage = computed(() =>
+    mediaSource.value === 'url' ? !!props.item.config.url : !!props.item.config.file_url
+)
+
+const saveImageAsPost = async () => {
+    savingImagePost.value = true
+    imagePostError.value = ''
+    try {
+        const { data } = await axios.post(route('lessons.save-post'), {
+            post_type: 'image',
+            title: props.item.config.caption || props.item.config.filename || null,
+            content: props.item.config.caption || null,
+            cover_image: mediaSource.value === 'url' ? props.item.config.url : null,
+            image_path: mediaSource.value === 'upload' ? props.item.config.file_path : null,
+            visibility: 'private'
+        })
+        props.item.post_id = data.id
+        props.item.config = { ...(props.item.config || {}), saved_post_url: data.url }
+    } catch (e) {
+        imagePostError.value = e.response?.data?.message || 'Could not save the post — please try again.'
+    } finally {
+        savingImagePost.value = false
+    }
+}
+
+const runImageSearch = () => {
+    clearTimeout(imageDebounce)
+    imageDebounce = setTimeout(async () => {
+        imageSearching.value = true
+        try {
+            const { data } = await axios.get(route('lessons.post-search'), {
+                params: { q: imageQuery.value.trim(), type: 'image' }
+            })
+            imageResults.value = data
+            imageSearched.value = true
+        } catch (e) {
+            imageResults.value = []
+        } finally {
+            imageSearching.value = false
+        }
+    }, 300)
+}
+
+const attachImagePost = (post) => {
+    props.item.post_id = post.post_id
+    props.item.config = {
+        ...(props.item.config || {}),
+        url: post.cover_image,
+        caption: props.item.config.caption || post.title,
+        saved_post_url: route('posts.show', post.slug)
+    }
+    imageSearchOpen.value = false
+    imageQuery.value = ''
+    imageResults.value = []
+}
+
 // --- Video block ↔ video posts ---
 const savingVideoPost = ref(false)
 const videoPostError = ref('')
@@ -529,6 +595,73 @@ const summary = computed(() => {
                     </label>
                     <p class="mt-1 text-xs text-stone-400">JPEG, PNG, GIF or WebP, up to {{ uploadLimits.image_mb }}MB.</p>
                     <p v-if="uploadError" class="mt-1 text-xs text-red-600">{{ uploadError }}</p>
+                </div>
+
+                <!-- Post linkage: reuse a saved image post, or keep this one -->
+                <div>
+                    <div v-if="item.post_id" class="flex items-center gap-2 text-sm text-green-700">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        Saved as a post
+                        <a
+                            v-if="item.config?.saved_post_url"
+                            :href="item.config.saved_post_url"
+                            target="_blank"
+                            class="text-amber-700 hover:text-amber-800 font-medium"
+                        >View &rarr;</a>
+                    </div>
+                    <div v-else class="flex flex-wrap items-center gap-4">
+                        <button
+                            type="button"
+                            class="text-sm text-amber-700 hover:text-amber-800 font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                            :disabled="!blockHasImage || savingImagePost"
+                            :title="blockHasImage ? 'Keep this image as a post so you can find and reuse it' : 'Add an image first'"
+                            @click="saveImageAsPost"
+                        >
+                            {{ savingImagePost ? 'Saving…' : 'Save as a Post' }}
+                        </button>
+                        <button
+                            v-if="mediaSource === 'url'"
+                            type="button"
+                            class="text-sm text-stone-500 hover:text-stone-700"
+                            @click="imageSearchOpen = !imageSearchOpen"
+                        >
+                            {{ imageSearchOpen ? 'Hide saved images' : 'Use a saved image' }}
+                        </button>
+                    </div>
+                    <p v-if="imagePostError" class="mt-1 text-xs text-red-600">{{ imagePostError }}</p>
+
+                    <div v-if="imageSearchOpen && !item.post_id && mediaSource === 'url'" class="relative mt-2">
+                        <input
+                            v-model="imageQuery"
+                            @input="runImageSearch"
+                            @focus="runImageSearch"
+                            type="text"
+                            class="w-full rounded-lg border-stone-300 text-sm focus:border-amber-500 focus:ring-amber-500"
+                            placeholder="Search your saved images..."
+                        >
+                        <ul
+                            v-if="imageResults.length"
+                            class="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-stone-200 bg-white shadow-lg"
+                        >
+                            <li
+                                v-for="post in imageResults"
+                                :key="post.post_id"
+                                @click="attachImagePost(post)"
+                                class="flex cursor-pointer items-center gap-3 border-b border-stone-100 px-3 py-2 last:border-0 hover:bg-amber-50"
+                            >
+                                <img v-if="post.cover_image" :src="post.cover_image" alt="" class="h-10 w-10 rounded object-cover">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-stone-800">{{ post.title }}</p>
+                                    <p class="truncate text-xs text-stone-500">{{ post.excerpt }}</p>
+                                </div>
+                            </li>
+                        </ul>
+                        <p v-else-if="imageSearched && !imageSearching" class="mt-1 text-xs text-stone-400">
+                            No saved images yet — save one with “Save as a Post”.
+                        </p>
+                    </div>
                 </div>
 
                 <div>

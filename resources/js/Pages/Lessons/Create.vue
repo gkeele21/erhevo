@@ -12,6 +12,7 @@ const props = defineProps({
     scriptureBooks: Array,
     uploadLimits: Object,
     churchCallings: Array,
+    friends: Array,
 })
 
 const isTalk = props.kind === 'talk'
@@ -22,6 +23,7 @@ const form = useForm({
     kind: props.kind ?? 'lesson',
     cfm_week_id: null,
     visibility: 'private',
+    shared_user_ids: [],
     publish: true,
     items: [],
 })
@@ -46,6 +48,7 @@ const submit = (publish) => {
                 <form @submit.prevent="submit(true)" class="space-y-8">
                     <LessonFormFields
                         :form="form"
+                        :friends="friends"
                         :item-types="itemTypes"
                         :visibility-options="visibilityOptions"
                         :cfm-weeks="cfmWeeks"

@@ -73,6 +73,18 @@ const typeConfig = computed(() => ({
         badgeClass: 'bg-gold-50 text-gold-700',
         contentClass: 'text-center',
     },
+    video: {
+        label: 'Video / Link',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/>`,
+        badgeClass: 'bg-aqua-50 text-navy',
+        contentClass: '',
+    },
+    image: {
+        label: 'Image',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>`,
+        badgeClass: 'bg-navy-50 text-teal',
+        contentClass: '',
+    },
 }[postType.value] || {
     label: 'Post',
     icon: '',

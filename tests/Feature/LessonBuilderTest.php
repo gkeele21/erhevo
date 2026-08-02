@@ -57,6 +57,28 @@ class LessonBuilderTest extends TestCase
         $this->assertSame('What is faith?', $items[2]->content);
     }
 
+    public function test_custom_visibility_lesson_shows_only_to_selected_friends(): void
+    {
+        $owner = User::factory()->create();
+        $chosen = User::factory()->create();
+        $otherFriend = User::factory()->create();
+        \App\Models\Friendship::create(['requester_id' => $owner->id, 'addressee_id' => $chosen->id, 'status' => 'accepted']);
+        \App\Models\Friendship::create(['requester_id' => $owner->id, 'addressee_id' => $otherFriend->id, 'status' => 'accepted']);
+
+        $this->actingAs($owner)->post('/lessons', [
+            'title' => 'Private Group Lesson',
+            'visibility' => 'custom',
+            'shared_user_ids' => [$chosen->id],
+            'publish' => true,
+            'items' => [],
+        ])->assertSessionHasNoErrors();
+
+        $lesson = Lesson::firstOrFail();
+
+        $this->actingAs($chosen)->get(route('lessons.show', $lesson->slug))->assertOk();
+        $this->actingAs($otherFriend)->get(route('lessons.show', $lesson->slug))->assertForbidden();
+    }
+
     public function test_a_user_can_write_a_talk(): void
     {
         $user = User::factory()->create();
@@ -142,6 +164,38 @@ class LessonBuilderTest extends TestCase
         // Asking for videos explicitly returns them (the Video block's search).
         $videos = $this->actingAs($user)->getJson(route('lessons.post-search', ['type' => 'video']));
         $this->assertSame(['My Video'], collect($videos->json())->pluck('title')->all());
+    }
+
+    public function test_an_uploaded_lesson_image_can_be_saved_as_an_image_post(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $user = User::factory()->create();
+
+        // Simulate a lesson image upload on disk.
+        $path = "lesson-images/{$user->id}/photo.jpg";
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, 'fake-image-bytes');
+
+        $response = $this->actingAs($user)->postJson(route('lessons.save-post'), [
+            'post_type' => 'image',
+            'title' => 'Family Photo',
+            'content' => null,
+            'image_path' => $path,
+            'visibility' => 'private',
+        ]);
+
+        $response->assertOk();
+        $post = \App\Models\Post::firstOrFail();
+        $this->assertSame('image', $post->post_type->value);
+        // The post got its own copy — deleting the lesson file can't break it.
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists('post-images/photo.jpg');
+        $this->assertStringContainsString('post-images/photo.jpg', $post->cover_image);
+
+        // Someone else's path (or a traversal attempt) is rejected.
+        $other = User::factory()->create();
+        $this->actingAs($other)->postJson(route('lessons.save-post'), [
+            'post_type' => 'image',
+            'image_path' => $path,
+        ])->assertStatus(422);
     }
 
     public function test_a_video_link_can_be_saved_as_a_video_post(): void

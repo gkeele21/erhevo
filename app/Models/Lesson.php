@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class Lesson extends Model
 {
-    use HasFactory, SoftDeletes;
+    use Concerns\HasFriendShares, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'uuid',
@@ -150,6 +150,10 @@ class Lesson extends Model
                             ->orWhere(function ($q4) use ($user) {
                                 $q4->where('visibility', Visibility::Friends)
                                     ->whereIn('user_id', $user->friendIds());
+                            })
+                            ->orWhere(function ($q4) use ($user) {
+                                $q4->where('visibility', Visibility::Custom)
+                                    ->whereHas('sharedWith', fn ($q5) => $q5->whereKey($user->id));
                             });
                     });
                 });
@@ -173,6 +177,10 @@ class Lesson extends Model
 
         if ($user && $this->visibility === Visibility::Friends) {
             return $user->isFriendWith($this->user_id);
+        }
+
+        if ($user && $this->visibility === Visibility::Custom) {
+            return $this->isSharedWithUser($user);
         }
 
         return false;

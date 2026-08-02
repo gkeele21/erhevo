@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 
 class Post extends Model
 {
-    use HasFactory, SoftDeletes;
+    use Concerns\HasFriendShares, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'uuid',
@@ -213,6 +213,10 @@ class Post extends Model
                 ->orWhere(function ($q2) use ($user) {
                     $q2->where('visibility', Visibility::Friends)
                         ->whereIn('user_id', $user->friendIds());
+                })
+                ->orWhere(function ($q2) use ($user) {
+                    $q2->where('visibility', Visibility::Custom)
+                        ->whereHas('sharedWith', fn ($q3) => $q3->whereKey($user->id));
                 });
         });
     }
@@ -233,6 +237,10 @@ class Post extends Model
 
         if ($this->visibility === Visibility::Friends) {
             return $user->isFriendWith($this->user_id);
+        }
+
+        if ($this->visibility === Visibility::Custom) {
+            return $this->isSharedWithUser($user);
         }
 
         return false;

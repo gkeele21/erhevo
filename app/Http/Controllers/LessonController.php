@@ -72,6 +72,9 @@ class LessonController extends Controller
             'scriptureBooks' => $this->scriptureBooksTree(),
             'uploadLimits' => $this->uploadLimits(),
             'churchCallings' => $this->churchCallings(),
+            'friends' => \App\Models\User::whereIn('id', $request->user()->friendIds())
+                ->orderBy('first_name')
+                ->get(['id', 'first_name', 'last_name']),
         ]);
     }
 
@@ -89,6 +92,7 @@ class LessonController extends Controller
 
         $lesson->save();
         $lesson->syncItems($validated['items'] ?? []);
+        $lesson->syncSharedWith($validated['shared_user_ids'] ?? []);
 
         return redirect()->route('lessons.show', $lesson)
             ->with('success', 'Lesson created successfully.');
@@ -126,6 +130,7 @@ class LessonController extends Controller
 
         return Inertia::render('Lessons/Edit', [
             'lesson' => $lesson,
+            'sharedUserIds' => $lesson->sharedWith()->pluck('users.id'),
             'itemTypes' => $this->itemTypeOptions(),
             'visibilityOptions' => $this->visibilityOptions(),
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
@@ -133,6 +138,9 @@ class LessonController extends Controller
             'scriptureBooks' => $this->scriptureBooksTree(),
             'uploadLimits' => $this->uploadLimits(),
             'churchCallings' => $this->churchCallings(),
+            'friends' => \App\Models\User::whereIn('id', $request->user()->friendIds())
+                ->orderBy('first_name')
+                ->get(['id', 'first_name', 'last_name']),
         ]);
     }
 
@@ -173,6 +181,7 @@ class LessonController extends Controller
         $lesson->draft_data = null;
         $lesson->save();
         $lesson->syncItems($validated['items'] ?? []);
+        $lesson->syncSharedWith($validated['shared_user_ids'] ?? []);
         // Item-only edits don't dirty the lessons row, so bump updated_at
         // explicitly — it feeds the "Recently updated" sort.
         $lesson->touch();
@@ -346,13 +355,13 @@ class LessonController extends Controller
         $query = trim((string) $request->input('q', ''));
         $type = $request->input('type');
 
-        // Quotes and videos have dedicated blocks with their own pickers, so
-        // the generic "My Post" search skips them unless asked for a type.
+        // Quotes, videos, and images have dedicated blocks with their own
+        // pickers, so the generic "My Post" search skips them unless asked.
         $posts = Post::where('user_id', $request->user()->id)
             ->when(
-                in_array($type, ['story', 'thought', 'note', 'meeting_notes', 'video'], true),
+                in_array($type, ['story', 'thought', 'note', 'meeting_notes', 'video', 'image'], true),
                 fn ($qb) => $qb->where('post_type', $type),
-                fn ($qb) => $qb->whereNotIn('post_type', [PostType::Quote, PostType::Video])
+                fn ($qb) => $qb->whereNotIn('post_type', [PostType::Quote, PostType::Video, PostType::Image])
             )
             ->when(strlen($query) >= 2, fn ($qb) => $qb->where(function ($q2) use ($query) {
                 $q2->where('title', 'like', "%{$query}%")
@@ -370,6 +379,7 @@ class LessonController extends Controller
                 'post_type' => $post->post_type->value,
                 'content' => $post->content,
                 'source_url' => $post->source_url,
+                'cover_image' => $post->cover_image,
                 'excerpt' => Str::limit(strip_tags($post->content ?? ''), 140),
                 'created_at' => $post->created_at?->toDateString(),
                 'tags' => $post->tags->pluck('name'),
@@ -386,23 +396,43 @@ class LessonController extends Controller
     public function savePost(Request $request)
     {
         $validated = $request->validate([
-            // Video posts may be just a link with no written note.
-            'content' => 'required_without:source_url|nullable|string',
+            // Video/image posts may carry no written note — just the media.
+            'content' => 'required_without_all:source_url,cover_image,image_path|nullable|string',
             'title' => 'nullable|string|max:255',
-            'post_type' => 'nullable|in:thought,note,story,video',
+            'post_type' => 'nullable|in:thought,note,story,video,image',
             'source_url' => 'nullable|url|max:2048',
+            'cover_image' => 'nullable|string|max:2048',
+            'image_path' => 'nullable|string|max:2048',
             'visibility' => 'nullable|in:public,private,friends',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
 
+        $coverImage = $validated['cover_image'] ?? null;
+
+        // An uploaded lesson image gets its own copy in post storage, so the
+        // post survives the lesson block (and its file) being deleted later.
+        if (! empty($validated['image_path'])) {
+            $path = $validated['image_path'];
+            $prefix = 'lesson-images/' . $request->user()->id . '/';
+
+            abort_unless(str_starts_with($path, $prefix) && Storage::disk('public')->exists($path), 422,
+                'That image file could not be found.');
+
+            $copy = 'post-images/' . basename($path);
+            Storage::disk('public')->copy($path, $copy);
+            $coverImage = Storage::disk('public')->url($copy);
+        }
+
         $post = new Post([
             'post_type' => PostType::from($validated['post_type'] ?? 'thought'),
             'title' => ($validated['title'] ?? null)
-                ?: (Str::limit(strip_tags($validated['content'] ?? ''), 60, '') ?: 'Video / Link'),
+                ?: (Str::limit(strip_tags($validated['content'] ?? ''), 60, '')
+                    ?: (($validated['post_type'] ?? null) === 'image' ? 'Image' : 'Video / Link')),
             'content' => $validated['content'] ?? '',
             'source_url' => $validated['source_url'] ?? null,
             'source_platform' => \App\Services\SourceLink::platformFor($validated['source_url'] ?? null),
+            'cover_image' => $coverImage,
             'author_type' => AuthorType::Self,
             'author_id' => Author::forUser($request->user())->id,
             'visibility' => Visibility::from($validated['visibility'] ?? 'private'),
@@ -698,7 +728,9 @@ class LessonController extends Controller
             'description' => 'nullable|string|max:1000',
             'kind' => 'sometimes|in:lesson,talk',
             'cfm_week_id' => 'nullable|exists:cfm_weeks,id',
-            'visibility' => 'required|in:public,private,friends',
+            'visibility' => 'required|in:public,private,friends,custom',
+            'shared_user_ids' => 'nullable|array',
+            'shared_user_ids.*' => 'integer',
             'publish' => 'boolean',
             'items' => 'nullable|array',
             'items.*.type' => 'required|in:scripture,talk,quote,post,video,image,text,question,group',

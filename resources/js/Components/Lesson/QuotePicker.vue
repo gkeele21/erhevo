@@ -389,6 +389,10 @@ const clearSource = () => {
                 >
                     {{ saving ? 'Saving...' : 'Save & add quote' }}
                 </button>
+                <p class="text-xs text-stone-400">
+                    New quotes are also saved to your Posts (private), so you can find and reuse
+                    them in any future lesson or talk.
+                </p>
             </div>
         </template>
     </div>

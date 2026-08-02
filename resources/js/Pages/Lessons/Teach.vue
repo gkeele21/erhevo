@@ -88,6 +88,7 @@ function typeLabel(item) {
         case 'video': return 'Video'
         case 'image': return 'Image'
         case 'text': return 'My Words'
+        case 'scripture_help': return 'Scripture Help'
         case 'question': return 'Question'
         default: return 'Item'
     }
@@ -106,6 +107,7 @@ function summary(item) {
         case 'video': return c.title || c.filename || c.url || 'Video / link'
         case 'image': return c.caption || c.filename || c.url || 'Image'
         case 'text': return stripHtml(item.content) || 'Empty'
+        case 'scripture_help': return stripHtml(item.content) || 'Scripture help'
         case 'question': return item.content || 'Question'
         default: return ''
     }
@@ -261,7 +263,7 @@ function summary(item) {
                     </section>
                 </template>
             </div>
-            <p v-else class="text-stone-400">This lesson has no content yet.</p>
+            <p v-else class="text-stone-400">This {{ lesson.kind === 'talk' ? 'talk' : 'lesson' }} has no content yet.</p>
         </main>
     </div>
 </template>

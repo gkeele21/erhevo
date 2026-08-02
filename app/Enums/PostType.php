@@ -10,6 +10,7 @@ enum PostType: string
     case Quote = 'quote';
     case Video = 'video';
     case Image = 'image';
+    case ScriptureHelp = 'scripture_help';
     case MeetingNotes = 'meeting_notes';
 
     public function label(): string
@@ -21,6 +22,7 @@ enum PostType: string
             self::Quote => 'Quote',
             self::Video => 'Video / Link',
             self::Image => 'Image',
+            self::ScriptureHelp => 'Scripture Help',
             self::MeetingNotes => 'Meeting Notes',
         };
     }
@@ -34,6 +36,7 @@ enum PostType: string
             self::Quote => 'Quotes',
             self::Video => 'Videos / Links',
             self::Image => 'Images',
+            self::ScriptureHelp => 'Scripture Helps',
             self::MeetingNotes => 'Meeting Notes',
         };
     }
@@ -47,6 +50,7 @@ enum PostType: string
             self::Quote => 'Words from someone else',
             self::Video => 'A video or link worth keeping, with your notes',
             self::Image => 'A picture worth keeping, with your notes',
+            self::ScriptureHelp => 'Insight, context, or explanation for a scripture',
             self::MeetingNotes => 'Notes from a church meeting or class',
         };
     }
@@ -60,6 +64,7 @@ enum PostType: string
             self::Quote => 'chat-bubble-bottom-center-text',
             self::Video => 'film',
             self::Image => 'photo',
+            self::ScriptureHelp => 'academic-cap',
             self::MeetingNotes => 'clipboard-document-list',
         };
     }

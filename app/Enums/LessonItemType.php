@@ -8,6 +8,7 @@ enum LessonItemType: string
     case Talk = 'talk';
     case Quote = 'quote';
     case MyPost = 'post';
+    case ScriptureHelp = 'scripture_help';
     case Video = 'video';
     case Image = 'image';
     case Text = 'text';
@@ -21,6 +22,7 @@ enum LessonItemType: string
             self::Talk => 'Talk',
             self::Quote => 'Quote',
             self::MyPost => 'My Post',
+            self::ScriptureHelp => 'Scripture Help',
             self::Video => 'Video / Link',
             self::Image => 'Image',
             self::Text => 'My Words',
@@ -36,6 +38,7 @@ enum LessonItemType: string
             self::Talk => 'A talk from the library',
             self::Quote => 'A quote you can save, tag, and reuse',
             self::MyPost => 'One of your own stories, thoughts, or notes',
+            self::ScriptureHelp => 'Insight or context for a scripture passage',
             self::Video => 'A video or external link',
             self::Image => 'A picture, with an optional caption',
             self::Text => 'Your own writing',
@@ -51,6 +54,7 @@ enum LessonItemType: string
             self::Talk => 'chat-bubble-bottom-center-text',
             self::Quote => 'chat-bubble-left-right',
             self::MyPost => 'bookmark',
+            self::ScriptureHelp => 'academic-cap',
             self::Video => 'film',
             self::Image => 'photo',
             self::Text => 'document-text',

@@ -57,6 +57,34 @@ class LessonBuilderTest extends TestCase
         $this->assertSame('What is faith?', $items[2]->content);
     }
 
+    public function test_scripture_help_blocks_and_posts_work(): void
+    {
+        $user = User::factory()->create();
+
+        // A scripture_help block is a valid lesson item.
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'Lesson with Help',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [
+                ['type' => 'scripture_help', 'content' => '<p>Context for 1 Nephi 3.</p>', 'config' => []],
+            ],
+        ])->assertSessionHasNoErrors();
+        $this->assertSame('scripture_help', Lesson::firstOrFail()->items()->firstOrFail()->type->value);
+
+        // It can be kept as a Scripture Help post from the builder.
+        $this->actingAs($user)->postJson(route('lessons.save-post'), [
+            'content' => '<p>Context for 1 Nephi 3.</p>',
+            'post_type' => 'scripture_help',
+            'visibility' => 'private',
+        ])->assertOk();
+        $this->assertSame('scripture_help', \App\Models\Post::firstOrFail()->post_type->value);
+
+        // And found again via the My Post picker's type filter.
+        $found = $this->actingAs($user)->getJson(route('lessons.post-search', ['type' => 'scripture_help']));
+        $this->assertCount(1, $found->json());
+    }
+
     public function test_a_lesson_block_can_be_presented_full_screen(): void
     {
         $user = User::factory()->create();

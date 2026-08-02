@@ -177,6 +177,7 @@ const attachVideoPost = (post) => {
 
 const openSaveAsPost = () => {
     postForm.value.title = stripHtml(props.item.content).slice(0, 60)
+    postForm.value.post_type = props.item.type === 'scripture_help' ? 'scripture_help' : 'thought'
     savePostError.value = ''
     showSaveAsPost.value = true
 }
@@ -314,6 +315,7 @@ const summary = computed(() => {
         case 'image': return c.caption || c.filename || c.url || 'Image'
         case 'post': return c.post_title || stripHtml(props.item.content) || 'My post'
         case 'text': return stripHtml(props.item.content) || 'Empty'
+        case 'scripture_help': return stripHtml(props.item.content) || 'Scripture help'
         case 'question': return props.item.content || 'Question'
         default: return ''
     }
@@ -413,11 +415,11 @@ const summary = computed(() => {
                 <QuotePicker :item="item" />
                 <div v-if="item.post_id">
                     <label class="mb-1 block text-sm font-medium text-stone-700">
-                        Your copy of the quote — highlight or trim it for this lesson
+                        Your copy of the quote — highlight or trim it for this lesson or talk
                     </label>
                     <StoryEditor v-model="item.content" placeholder="The quote text..." />
                     <p class="mt-1 text-xs text-stone-400">
-                        Edits and highlights here only affect this lesson; the saved quote stays unchanged.
+                        Edits and highlights here only affect this lesson or talk; the saved quote stays unchanged.
                     </p>
                 </div>
             </div>
@@ -427,11 +429,11 @@ const summary = computed(() => {
                 <PostPicker :item="item" />
                 <div v-if="item.post_id">
                     <label class="mb-1 block text-sm font-medium text-stone-700">
-                        Your copy for this lesson — trim it to the part you'll share
+                        Your copy for this lesson or talk — trim it to the part you'll share
                     </label>
                     <StoryEditor v-model="item.content" placeholder="The post text..." />
                     <p class="mt-1 text-xs text-stone-400">
-                        Edits here only affect this lesson; the post itself stays unchanged.
+                        Edits here only affect this lesson or talk; the post itself stays unchanged.
                     </p>
                 </div>
             </div>
@@ -709,9 +711,14 @@ const summary = computed(() => {
                 </div>
             </div>
 
-            <!-- My Words (rich text) -->
-            <div v-else-if="item.type === 'text'">
-                <StoryEditor v-model="item.content" placeholder="Write your own words..." />
+            <!-- My Words / Scripture Help (rich text) -->
+            <div v-else-if="item.type === 'text' || item.type === 'scripture_help'">
+                <StoryEditor
+                    v-model="item.content"
+                    :placeholder="item.type === 'scripture_help'
+                        ? 'Explain the passage — context, background, what it means...'
+                        : 'Write your own words...'"
+                />
 
                 <!-- Save as Post -->
                 <div class="mt-3">
@@ -762,6 +769,7 @@ const summary = computed(() => {
                                     <option value="thought">Thought</option>
                                     <option value="note">Note</option>
                                     <option value="story">Story</option>
+                                    <option value="scripture_help">Scripture Help</option>
                                 </select>
                             </div>
                             <div>

@@ -96,7 +96,7 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'post_type' => 'required|in:story,thought,note,quote,video,image,meeting_notes',
+            'post_type' => 'required|in:story,thought,note,quote,video,image,scripture_help,meeting_notes',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
@@ -250,7 +250,7 @@ class PostController extends Controller
         Gate::authorize('update', $post);
 
         $validated = $request->validate([
-            'post_type' => 'required|in:story,thought,note,quote,video,image,meeting_notes',
+            'post_type' => 'required|in:story,thought,note,quote,video,image,scripture_help,meeting_notes',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',

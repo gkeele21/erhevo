@@ -51,7 +51,7 @@ const weekLabel = (week) => {
         <!-- Title & description -->
         <div class="space-y-6 rounded-lg border border-stone-100 bg-white p-6 shadow">
             <div>
-                <label class="mb-1 block text-sm font-medium text-stone-700">Lesson title</label>
+                <label class="mb-1 block text-sm font-medium text-stone-700">{{ form.kind === 'talk' ? 'Talk title' : 'Lesson title' }}</label>
                 <input
                     v-model="form.title"
                     type="text"
@@ -68,7 +68,7 @@ const weekLabel = (week) => {
                     v-model="form.description"
                     rows="2"
                     class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-                    placeholder="A short summary of what this lesson is about..."
+                    :placeholder="`A short summary of what this ${form.kind === 'talk' ? 'talk' : 'lesson'} is about...`"
                 ></textarea>
                 <p v-if="form.errors.description" class="mt-1 text-sm text-red-600">{{ form.errors.description }}</p>
             </div>
@@ -76,7 +76,7 @@ const weekLabel = (week) => {
 
         <!-- Lesson builder -->
         <div>
-            <h3 class="mb-3 text-sm font-medium text-stone-700">Lesson content</h3>
+            <h3 class="mb-3 text-sm font-medium text-stone-700">{{ form.kind === 'talk' ? 'Talk content' : 'Lesson content' }}</h3>
             <LessonBuilder
                 :items="form.items"
                 :item-types="itemTypes"

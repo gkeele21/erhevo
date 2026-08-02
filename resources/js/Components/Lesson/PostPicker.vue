@@ -19,6 +19,7 @@ const typeChips = [
     { value: 'story', label: 'Stories' },
     { value: 'thought', label: 'Thoughts' },
     { value: 'note', label: 'Notes' },
+    { value: 'scripture_help', label: 'Scripture Helps' },
 ]
 
 const typeLabels = {
@@ -26,6 +27,7 @@ const typeLabels = {
     thought: 'Thought',
     note: 'Note',
     meeting_notes: 'Meeting Notes',
+    scripture_help: 'Scripture Help',
 }
 
 const query = ref('')

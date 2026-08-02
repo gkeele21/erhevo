@@ -57,6 +57,27 @@ class LessonBuilderTest extends TestCase
         $this->assertSame('What is faith?', $items[2]->content);
     }
 
+    public function test_item_emphasis_flags_persist_through_save(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'Prioritized Lesson',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [
+                ['type' => 'text', 'content' => '<p>Must cover</p>', 'config' => ['emphasis' => 'key']],
+                ['type' => 'question', 'content' => 'If time?', 'config' => ['emphasis' => 'optional']],
+                ['type' => 'text', 'content' => '<p>Normal</p>', 'config' => []],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $items = Lesson::firstOrFail()->items()->orderBy('sort_order')->get();
+        $this->assertSame('key', $items[0]->config['emphasis'] ?? null);
+        $this->assertSame('optional', $items[1]->config['emphasis'] ?? null);
+        $this->assertNull($items[2]->config['emphasis'] ?? null);
+    }
+
     public function test_custom_visibility_lesson_shows_only_to_selected_friends(): void
     {
         $owner = User::factory()->create();

@@ -179,14 +179,30 @@ function summary(item) {
                     </div>
                     <!-- Group: a named section with its child items -->
                     <section v-if="item.type === 'group'">
-                        <h2 v-if="item.config?.title" class="mb-6 border-b border-stone-200 pb-2 text-2xl font-bold text-stone-800">
-                            {{ item.config.title }}
+                        <h2 v-if="item.config?.title" class="mb-6 flex items-center justify-between gap-3 border-b border-stone-200 pb-2 text-2xl font-bold text-stone-800">
+                            <span>{{ item.config.title }}</span>
+                            <a
+                                :href="route('lessons.present', [lesson.slug, item.id])"
+                                target="_blank"
+                                rel="noopener"
+                                class="flex-shrink-0 rounded p-1 text-stone-300 hover:text-amber-600"
+                                title="Present this whole section on a big screen"
+                            ><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12M9 20.25v-3.375m6 3.375v-3.375m-10.5-13.5h15A1.5 1.5 0 0121 4.875v9.75a1.5 1.5 0 01-1.5 1.5h-15a1.5 1.5 0 01-1.5-1.5v-9.75a1.5 1.5 0 011.5-1.5z"/></svg></a>
                         </h2>
                         <div class="space-y-6">
                             <div v-for="child in item.children" :key="child.id">
+                                <div class="flex items-center gap-1">
+                                <a
+                                    :href="route('lessons.present', [lesson.slug, child.id])"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="flex-shrink-0 rounded p-1 text-stone-300 hover:text-amber-600"
+                                    title="Present this on a big screen (opens a new tab)"
+                                    @click.stop
+                                ><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12M9 20.25v-3.375m6 3.375v-3.375m-10.5-13.5h15A1.5 1.5 0 0121 4.875v9.75a1.5 1.5 0 01-1.5 1.5h-15a1.5 1.5 0 01-1.5-1.5v-9.75a1.5 1.5 0 011.5-1.5z"/></svg></a>
                                 <button
                                     type="button"
-                                    class="flex w-full items-center gap-2 text-left text-sm font-medium text-stone-500 hover:text-stone-800"
+                                    class="flex min-w-0 flex-1 items-center gap-2 text-left text-sm font-medium text-stone-500 hover:text-stone-800"
                                     :aria-expanded="!isCollapsed(child.id)"
                                     @click="toggle(child.id)"
                                 >
@@ -202,6 +218,7 @@ function summary(item) {
                                     <span v-else-if="child.config?.emphasis === 'optional'" class="flex-shrink-0 text-xs italic text-stone-400">(if time)</span>
                                     <span v-if="isCollapsed(child.id)" class="truncate font-normal text-stone-400">— {{ summary(child) }}</span>
                                 </button>
+                                </div>
                                 <div v-show="!isCollapsed(child.id)" class="mt-3">
                                     <LessonItemDisplay :item="child" teaching />
                                 </div>
@@ -210,9 +227,18 @@ function summary(item) {
                     </section>
                     <!-- Loose item -->
                     <section v-else>
+                        <div class="flex items-center gap-1">
+                        <a
+                                    :href="route('lessons.present', [lesson.slug, item.id])"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="flex-shrink-0 rounded p-1 text-stone-300 hover:text-amber-600"
+                                    title="Present this on a big screen (opens a new tab)"
+                                    @click.stop
+                                ><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12M9 20.25v-3.375m6 3.375v-3.375m-10.5-13.5h15A1.5 1.5 0 0121 4.875v9.75a1.5 1.5 0 01-1.5 1.5h-15a1.5 1.5 0 01-1.5-1.5v-9.75a1.5 1.5 0 011.5-1.5z"/></svg></a>
                         <button
                             type="button"
-                            class="flex w-full items-center gap-2 text-left text-sm font-medium text-stone-500 hover:text-stone-800"
+                            class="flex min-w-0 flex-1 items-center gap-2 text-left text-sm font-medium text-stone-500 hover:text-stone-800"
                             :aria-expanded="!isCollapsed(item.id)"
                             @click="toggle(item.id)"
                         >
@@ -228,6 +254,7 @@ function summary(item) {
                                     <span v-else-if="item.config?.emphasis === 'optional'" class="flex-shrink-0 text-xs italic text-stone-400">(if time)</span>
                             <span v-if="isCollapsed(item.id)" class="truncate font-normal text-stone-400">— {{ summary(item) }}</span>
                         </button>
+                        </div>
                         <div v-show="!isCollapsed(item.id)" class="mt-3">
                             <LessonItemDisplay :item="item" teaching />
                         </div>

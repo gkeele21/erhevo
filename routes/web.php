@@ -224,6 +224,8 @@ Route::get('/posts/{post:slug}', [PostController::class, 'show'])->name('posts.s
 
 // Lesson show route (must be after /lessons/create to avoid slug collision)
 Route::get('/lessons/{lesson:slug}', [LessonController::class, 'show'])->name('lessons.show');
+// Present one block full-screen (e.g. on a connected TV while teaching).
+Route::get('/lessons/{lesson:slug}/present/{item}', [LessonController::class, 'present'])->name('lessons.present');
 
 // Author profile (after /authors index + /authors/merge to avoid collisions)
 Route::get('/authors/{author:slug}', [AuthorController::class, 'show'])->name('authors.show');

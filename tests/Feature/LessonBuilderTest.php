@@ -57,6 +57,41 @@ class LessonBuilderTest extends TestCase
         $this->assertSame('What is faith?', $items[2]->content);
     }
 
+    public function test_a_lesson_block_can_be_presented_full_screen(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'With Timeline',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [['type' => 'text', 'content' => '<p>A timeline of events</p>', 'config' => []]],
+        ]);
+        $lesson = Lesson::firstOrFail();
+        $item = $lesson->items()->firstOrFail();
+
+        // Owner can present their block.
+        $this->actingAs($user)->get(route('lessons.present', [$lesson->slug, $item->id]))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('Lessons/Present')
+                ->where('item.id', $item->id));
+
+        // Visibility rules still apply — a private lesson can't be presented
+        // by someone else.
+        $this->actingAs($other)->get(route('lessons.present', [$lesson->slug, $item->id]))
+            ->assertForbidden();
+
+        // A block from a different lesson 404s rather than leaking.
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'Other Lesson', 'visibility' => 'private', 'publish' => true,
+            'items' => [['type' => 'text', 'content' => '<p>x</p>', 'config' => []]],
+        ]);
+        $foreignItem = Lesson::where('title', 'Other Lesson')->firstOrFail()->items()->firstOrFail();
+        $this->actingAs($user)->get(route('lessons.present', [$lesson->slug, $foreignItem->id]))
+            ->assertNotFound();
+    }
+
     public function test_item_emphasis_flags_persist_through_save(): void
     {
         $user = User::factory()->create();

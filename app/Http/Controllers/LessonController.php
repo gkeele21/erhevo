@@ -121,6 +121,23 @@ class LessonController extends Controller
         ]);
     }
 
+    /**
+     * Present a single block (or a group's blocks) full-screen — for showing
+     * one item, like a timeline, on a connected TV during a lesson.
+     */
+    public function present(Lesson $lesson, \App\Models\LessonItem $item): Response
+    {
+        Gate::authorize('view', $lesson);
+        abort_unless($item->lesson_id === $lesson->id, 404);
+
+        $item->load('children');
+
+        return Inertia::render('Lessons/Present', [
+            'lesson' => $lesson->only(['title', 'slug']),
+            'item' => $item,
+        ]);
+    }
+
     public function edit(Request $request, Lesson $lesson): Response
     {
         Gate::authorize('update', $lesson);

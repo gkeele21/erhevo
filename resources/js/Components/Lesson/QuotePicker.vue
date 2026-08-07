@@ -24,7 +24,7 @@ const props = defineProps({
 
 if (!props.item.config) props.item.config = {}
 
-const mode = ref('search') // 'search' | 'create'
+const mode = ref('create') // 'create' | 'search'
 
 // --- Search existing quotes ---
 const query = ref('')
@@ -70,7 +70,7 @@ const clear = () => {
     props.item.content = ''
     props.item.config = {}
     selectedTalk.value = null
-    mode.value = 'search'
+    mode.value = 'create'
 }
 
 // --- Create a new quote inline ---
@@ -99,7 +99,7 @@ const createQuote = async () => {
         attach(data)
         form.value = emptyForm()
         selectedTalk.value = null
-        mode.value = 'search'
+        mode.value = 'create'
     } catch (e) {
         createError.value = e.response?.data?.message || 'Could not save the quote.'
     } finally {
@@ -202,16 +202,8 @@ const clearSource = () => {
         </div>
 
         <template v-else>
-            <!-- Search / Create toggle -->
+            <!-- Create / Search toggle -->
             <div class="inline-flex rounded-lg border border-stone-200 p-0.5">
-                <button
-                    type="button"
-                    @click="mode = 'search'"
-                    class="rounded-md px-3 py-1 text-sm"
-                    :class="mode === 'search' ? 'bg-amber-100 text-amber-800' : 'text-stone-500'"
-                >
-                    Find a quote
-                </button>
                 <button
                     type="button"
                     @click="mode = 'create'; open = false"
@@ -219,6 +211,14 @@ const clearSource = () => {
                     :class="mode === 'create' ? 'bg-amber-100 text-amber-800' : 'text-stone-500'"
                 >
                     New quote
+                </button>
+                <button
+                    type="button"
+                    @click="mode = 'search'"
+                    class="rounded-md px-3 py-1 text-sm"
+                    :class="mode === 'search' ? 'bg-amber-100 text-amber-800' : 'text-stone-500'"
+                >
+                    Find a quote
                 </button>
             </div>
 

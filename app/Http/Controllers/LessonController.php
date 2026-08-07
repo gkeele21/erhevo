@@ -372,8 +372,9 @@ class LessonController extends Controller
         $query = trim((string) $request->input('q', ''));
         $type = $request->input('type');
 
-        // Quotes, videos, and images have dedicated blocks with their own
-        // pickers, so the generic "My Post" search skips them unless asked.
+        // Every block type searches its own post type; the untyped search
+        // (the My Writing block's "All" chip) covers the written types and
+        // skips quotes, videos, and images, which have dedicated blocks.
         $posts = Post::where('user_id', $request->user()->id)
             ->when(
                 in_array($type, ['story', 'thought', 'note', 'meeting_notes', 'video', 'image', 'scripture_help'], true),
@@ -750,13 +751,13 @@ class LessonController extends Controller
             'shared_user_ids.*' => 'integer',
             'publish' => 'boolean',
             'items' => 'nullable|array',
-            'items.*.type' => 'required|in:scripture,talk,quote,post,scripture_help,video,image,text,question,group',
+            'items.*.type' => 'required|in:scripture,talk,quote,scripture_help,video,image,text,question,group',
             'items.*.content' => 'nullable|string',
             'items.*.config' => 'nullable|array',
             'items.*.post_id' => 'nullable|exists:posts,id',
             // Group children (one level deep; children may not themselves be groups).
             'items.*.children' => 'nullable|array',
-            'items.*.children.*.type' => 'required|in:scripture,talk,quote,post,scripture_help,video,image,text,question',
+            'items.*.children.*.type' => 'required|in:scripture,talk,quote,scripture_help,video,image,text,question',
             'items.*.children.*.content' => 'nullable|string',
             'items.*.children.*.config' => 'nullable|array',
             'items.*.children.*.post_id' => 'nullable|exists:posts,id',

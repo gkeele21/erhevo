@@ -10,6 +10,12 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    // Pin the search to one post type (e.g. 'scripture_help' for the
+    // Scripture Help block). Hides the type chips.
+    lockedType: {
+        type: String,
+        default: null,
+    },
 })
 
 if (!props.item.config) props.item.config = {}
@@ -19,7 +25,6 @@ const typeChips = [
     { value: 'story', label: 'Stories' },
     { value: 'thought', label: 'Thoughts' },
     { value: 'note', label: 'Notes' },
-    { value: 'scripture_help', label: 'Scripture Helps' },
 ]
 
 const typeLabels = {
@@ -43,7 +48,7 @@ const runSearch = () => {
         searching.value = true
         try {
             const { data } = await axios.get(route('lessons.post-search'), {
-                params: { q: query.value.trim(), type: type.value || undefined }
+                params: { q: query.value.trim(), type: props.lockedType || type.value || undefined }
             })
             results.value = data
             open.value = true
@@ -64,6 +69,7 @@ const attach = (post) => {
     props.item.post_id = post.post_id
     props.item.content = post.content || ''
     props.item.config = {
+        emphasis: props.item.config?.emphasis || null,
         post_slug: post.slug,
         post_title: post.title,
         post_type: post.post_type,
@@ -78,7 +84,7 @@ const attach = (post) => {
 const clear = () => {
     props.item.post_id = null
     props.item.content = ''
-    props.item.config = {}
+    props.item.config = { emphasis: props.item.config?.emphasis || null }
 }
 </script>
 
@@ -122,7 +128,7 @@ const clear = () => {
 
         <template v-else>
             <!-- Type filter -->
-            <div class="inline-flex rounded-lg border border-stone-200 p-0.5">
+            <div v-if="!lockedType" class="inline-flex rounded-lg border border-stone-200 p-0.5">
                 <button
                     v-for="chip in typeChips"
                     :key="chip.value"
@@ -143,7 +149,9 @@ const clear = () => {
                     @focus="runSearch"
                     type="text"
                     class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-                    placeholder="Search your posts by title, text, or tag..."
+                    :placeholder="lockedType === 'scripture_help'
+                        ? 'Search your scripture helps by title, text, or tag...'
+                        : 'Search your posts by title, text, or tag...'"
                 >
                 <span v-if="searching" class="absolute right-3 top-2.5 text-xs text-stone-400">Searching...</span>
 
@@ -170,7 +178,9 @@ const clear = () => {
                     </li>
                 </ul>
                 <p v-else-if="open && !searching" class="mt-1 text-xs text-stone-400">
-                    No posts found. Stories, thoughts, and notes you write show up here.
+                    {{ lockedType === 'scripture_help'
+                        ? 'No scripture helps found. Scripture Help posts you write show up here.'
+                        : 'No posts found. Stories, thoughts, and notes you write show up here.' }}
                 </p>
             </div>
         </template>

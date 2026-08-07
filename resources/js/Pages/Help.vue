@@ -106,7 +106,7 @@ const topics = [
                                 <li><strong class="text-navy">Auto-save</strong> runs every 30 seconds while you edit — you can't lose work.</li>
                                 <li>Editing a <strong class="text-navy">published</strong> lesson creates a pending draft: readers keep seeing the live version until you hit Publish Changes.</li>
                                 <li><strong class="text-navy">Emphasis flags</strong>: the star marks a block as key ("make sure to cover"), the clock marks it optional ("if time allows"). Teach mode uses these — see below.</li>
-                                <li>Blocks flow both ways with your posts: <strong class="text-navy">Save as a Post</strong> keeps writing, quotes, videos, and images for reuse, and the <strong class="text-navy">My Post</strong> block pulls any of your posts in as an editable excerpt.</li>
+                                <li>Blocks flow both ways with your posts: <strong class="text-navy">Save as a Post</strong> keeps writing, quotes, videos, and images for reuse, and every block type can pull in a matching saved post — the <strong class="text-navy">My Writing</strong> block's "From my posts" mode brings in any story, thought, or note as an editable excerpt.</li>
                                 <li>New quotes created in the builder are automatically saved to your Posts (private), so they're searchable in every future lesson.</li>
                             </ul>
                             <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">

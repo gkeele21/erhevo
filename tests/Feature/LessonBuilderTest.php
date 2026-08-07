@@ -219,12 +219,12 @@ class LessonBuilderTest extends TestCase
             'visibility' => 'private',
             'publish' => true,
             'items' => [
-                ['type' => 'post', 'content' => '<p>An excerpt of my story.</p>', 'config' => ['post_title' => $post->title], 'post_id' => $post->id],
+                ['type' => 'text', 'content' => '<p>An excerpt of my story.</p>', 'config' => ['post_title' => $post->title], 'post_id' => $post->id],
             ],
         ])->assertSessionHasNoErrors();
 
         $item = Lesson::firstOrFail()->items()->firstOrFail();
-        $this->assertSame('post', $item->type->value);
+        $this->assertSame('text', $item->type->value);
         $this->assertSame($post->id, $item->post_id);
     }
 

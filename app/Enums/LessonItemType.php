@@ -7,7 +7,6 @@ enum LessonItemType: string
     case Scripture = 'scripture';
     case Talk = 'talk';
     case Quote = 'quote';
-    case MyPost = 'post';
     case ScriptureHelp = 'scripture_help';
     case Video = 'video';
     case Image = 'image';
@@ -21,11 +20,10 @@ enum LessonItemType: string
             self::Scripture => 'Scripture',
             self::Talk => 'Talk',
             self::Quote => 'Quote',
-            self::MyPost => 'My Post',
             self::ScriptureHelp => 'Scripture Help',
             self::Video => 'Video / Link',
             self::Image => 'Image',
-            self::Text => 'My Words',
+            self::Text => 'My Writing',
             self::Question => 'Question',
             self::Group => 'Group',
         };
@@ -37,11 +35,10 @@ enum LessonItemType: string
             self::Scripture => 'A scripture reference or passage',
             self::Talk => 'A talk from the library',
             self::Quote => 'A quote you can save, tag, and reuse',
-            self::MyPost => 'One of your own stories, thoughts, or notes',
-            self::ScriptureHelp => 'Insight or context for a scripture passage',
+            self::ScriptureHelp => 'Insight or context for a scripture passage — new or from your posts',
             self::Video => 'A video or external link',
             self::Image => 'A picture, with an optional caption',
-            self::Text => 'Your own writing',
+            self::Text => 'Write something new, or pull in one of your posts',
             self::Question => 'A question to ask the class',
             self::Group => 'A named group of items',
         };
@@ -53,7 +50,6 @@ enum LessonItemType: string
             self::Scripture => 'book-open',
             self::Talk => 'chat-bubble-bottom-center-text',
             self::Quote => 'chat-bubble-left-right',
-            self::MyPost => 'bookmark',
             self::ScriptureHelp => 'academic-cap',
             self::Video => 'film',
             self::Image => 'photo',

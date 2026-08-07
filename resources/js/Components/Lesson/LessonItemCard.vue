@@ -208,6 +208,13 @@ if (!props.item.config) {
     props.item.config = {}
 }
 
+// --- My Writing / Scripture Help: write fresh vs. pull in a saved post ---
+// A block is post-backed once the picker attaches a post (the config
+// snapshot carries post_title). Saving fresh writing AS a post also sets
+// post_id but leaves no snapshot, so the block stays in write mode.
+const attachedPost = computed(() => !!(props.item.post_id && props.item.config?.post_title))
+const textSource = ref(props.item.config?.post_title ? 'existing' : 'write')
+
 // Effective max upload size (MB) per media type, provided by the builder.
 const uploadLimits = inject('lessonUploadLimits', { video_mb: 20, image_mb: 10 })
 
@@ -313,9 +320,8 @@ const summary = computed(() => {
         case 'quote': return c.source_title || c.author || stripHtml(props.item.content) || 'Quote'
         case 'video': return c.title || c.filename || c.url || 'Video / link'
         case 'image': return c.caption || c.filename || c.url || 'Image'
-        case 'post': return c.post_title || stripHtml(props.item.content) || 'My post'
-        case 'text': return stripHtml(props.item.content) || 'Empty'
-        case 'scripture_help': return stripHtml(props.item.content) || 'Scripture help'
+        case 'text': return c.post_title || stripHtml(props.item.content) || 'Empty'
+        case 'scripture_help': return c.post_title || stripHtml(props.item.content) || 'Scripture help'
         case 'question': return props.item.content || 'Question'
         default: return ''
     }
@@ -420,20 +426,6 @@ const summary = computed(() => {
                     <StoryEditor v-model="item.content" placeholder="The quote text..." />
                     <p class="mt-1 text-xs text-stone-400">
                         Edits and highlights here only affect this lesson or talk; the saved quote stays unchanged.
-                    </p>
-                </div>
-            </div>
-
-            <!-- My Post (references one of the user's own posts) -->
-            <div v-else-if="item.type === 'post'" class="space-y-3">
-                <PostPicker :item="item" />
-                <div v-if="item.post_id">
-                    <label class="mb-1 block text-sm font-medium text-stone-700">
-                        Your copy for this lesson or talk — trim it to the part you'll share
-                    </label>
-                    <StoryEditor v-model="item.content" placeholder="The post text..." />
-                    <p class="mt-1 text-xs text-stone-400">
-                        Edits here only affect this lesson or talk; the post itself stays unchanged.
                     </p>
                 </div>
             </div>
@@ -711,90 +703,130 @@ const summary = computed(() => {
                 </div>
             </div>
 
-            <!-- My Words / Scripture Help (rich text) -->
-            <div v-else-if="item.type === 'text' || item.type === 'scripture_help'">
-                <StoryEditor
-                    v-model="item.content"
-                    :placeholder="item.type === 'scripture_help'
-                        ? 'Explain the passage — context, background, what it means...'
-                        : 'Write your own words...'"
-                />
-
-                <!-- Save as Post -->
-                <div class="mt-3">
-                    <div v-if="item.post_id" class="flex items-center gap-2 text-sm text-green-700">
-                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
-                        Saved as a post
-                        <a
-                            v-if="item.config?.saved_post_url"
-                            :href="item.config.saved_post_url"
-                            target="_blank"
-                            class="text-amber-700 hover:text-amber-800 font-medium"
-                        >
-                            View &rarr;
-                        </a>
-                    </div>
-
+            <!-- My Writing / Scripture Help (rich text, new or from a saved post) -->
+            <div v-else-if="item.type === 'text' || item.type === 'scripture_help'" class="space-y-3">
+                <!-- Source toggle: hidden once the block is tied to a post either way -->
+                <div v-if="!item.post_id" class="inline-flex rounded-lg border border-stone-200 p-0.5">
                     <button
-                        v-else-if="!showSaveAsPost"
                         type="button"
-                        class="text-sm text-amber-700 hover:text-amber-800 font-medium disabled:opacity-40 disabled:cursor-not-allowed"
-                        :disabled="!hasTextContent"
-                        :title="hasTextContent ? 'Keep this writing as a post of its own' : 'Write something first'"
-                        @click="openSaveAsPost"
+                        @click="textSource = 'write'"
+                        class="rounded-md px-3 py-1 text-sm"
+                        :class="textSource === 'write' ? 'bg-amber-100 text-amber-800' : 'text-stone-500'"
                     >
-                        Save as a Post
+                        Write new
                     </button>
+                    <button
+                        type="button"
+                        @click="textSource = 'existing'"
+                        class="rounded-md px-3 py-1 text-sm"
+                        :class="textSource === 'existing' ? 'bg-amber-100 text-amber-800' : 'text-stone-500'"
+                    >
+                        From my posts
+                    </button>
+                </div>
 
-                    <div v-else class="rounded-lg border border-stone-200 bg-stone-50 p-4 space-y-3">
-                        <p class="text-sm text-stone-600">
-                            This saves your words as a post of their own — they'll keep living in your
-                            posts even if this lesson or talk changes.
+                <!-- Reuse mode: attach one of the user's saved posts -->
+                <div v-if="textSource === 'existing'" class="space-y-3">
+                    <PostPicker
+                        :item="item"
+                        :locked-type="item.type === 'scripture_help' ? 'scripture_help' : null"
+                    />
+                    <div v-if="attachedPost">
+                        <label class="mb-1 block text-sm font-medium text-stone-700">
+                            Your copy for this lesson or talk — trim it to the part you'll share
+                        </label>
+                        <StoryEditor v-model="item.content" placeholder="The post text..." />
+                        <p class="mt-1 text-xs text-stone-400">
+                            Edits here only affect this lesson or talk; the post itself stays unchanged.
                         </p>
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-stone-700">Post title</label>
-                            <input
-                                v-model="postForm.title"
-                                type="text"
-                                maxlength="255"
-                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                    </div>
+                </div>
+
+                <!-- Write mode -->
+                <div v-else>
+                    <StoryEditor
+                        v-model="item.content"
+                        :placeholder="item.type === 'scripture_help'
+                            ? 'Explain the passage — context, background, what it means...'
+                            : 'Write your own words...'"
+                    />
+
+                    <!-- Save as Post -->
+                    <div class="mt-3">
+                        <div v-if="item.post_id" class="flex items-center gap-2 text-sm text-green-700">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Saved as a post
+                            <a
+                                v-if="item.config?.saved_post_url"
+                                :href="item.config.saved_post_url"
+                                target="_blank"
+                                class="text-amber-700 hover:text-amber-800 font-medium"
                             >
+                                View &rarr;
+                            </a>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                        <button
+                            v-else-if="!showSaveAsPost"
+                            type="button"
+                            class="text-sm text-amber-700 hover:text-amber-800 font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                            :disabled="!hasTextContent"
+                            :title="hasTextContent ? 'Keep this writing as a post of its own' : 'Write something first'"
+                            @click="openSaveAsPost"
+                        >
+                            Save as a Post
+                        </button>
+
+                        <div v-else class="rounded-lg border border-stone-200 bg-stone-50 p-4 space-y-3">
+                            <p class="text-sm text-stone-600">
+                                This saves your words as a post of their own — they'll keep living in your
+                                posts even if this lesson or talk changes.
+                            </p>
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-stone-700">Type</label>
-                                <select v-model="postForm.post_type" class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500">
-                                    <option value="thought">Thought</option>
-                                    <option value="note">Note</option>
-                                    <option value="story">Story</option>
-                                    <option value="scripture_help">Scripture Help</option>
-                                </select>
+                                <label class="mb-1 block text-sm font-medium text-stone-700">Post title</label>
+                                <input
+                                    v-model="postForm.title"
+                                    type="text"
+                                    maxlength="255"
+                                    class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                >
                             </div>
-                            <div>
-                                <label class="mb-1 block text-sm font-medium text-stone-700">Visibility</label>
-                                <select v-model="postForm.visibility" class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500">
-                                    <option value="private">Private (just me)</option>
-                                    <option value="friends">Friends</option>
-                                    <option value="public">Public</option>
-                                </select>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-stone-700">Type</label>
+                                    <select v-model="postForm.post_type" class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500">
+                                        <option value="thought">Thought</option>
+                                        <option value="note">Note</option>
+                                        <option value="story">Story</option>
+                                        <option value="scripture_help">Scripture Help</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-stone-700">Visibility</label>
+                                    <select v-model="postForm.visibility" class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500">
+                                        <option value="private">Private (just me)</option>
+                                        <option value="friends">Friends</option>
+                                        <option value="public">Public</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <TagInput v-model="postForm.tags" :content="item.content" />
-                        <p v-if="savePostError" class="text-sm text-red-600">{{ savePostError }}</p>
-                        <div class="flex justify-end gap-3">
-                            <button type="button" class="text-sm text-stone-500 hover:text-stone-700" @click="showSaveAsPost = false">
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                class="rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
-                                :disabled="savingPost"
-                                @click="saveAsPost"
-                            >
-                                {{ savingPost ? 'Saving…' : 'Save Post' }}
-                            </button>
+                            <TagInput v-model="postForm.tags" :content="item.content" />
+                            <p v-if="savePostError" class="text-sm text-red-600">{{ savePostError }}</p>
+                            <div class="flex justify-end gap-3">
+                                <button type="button" class="text-sm text-stone-500 hover:text-stone-700" @click="showSaveAsPost = false">
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                                    :disabled="savingPost"
+                                    @click="saveAsPost"
+                                >
+                                    {{ savingPost ? 'Saving…' : 'Save Post' }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

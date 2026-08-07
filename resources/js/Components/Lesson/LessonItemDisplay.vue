@@ -119,26 +119,6 @@ const formatGivenDate = (date) => {
         </div>
     </div>
 
-    <!-- My Post (the creator's own story/thought/note) -->
-    <div v-else-if="item.type === 'post'">
-        <img
-            v-if="item.config?.cover_image"
-            :src="item.config.cover_image"
-            :alt="item.config?.post_title || ''"
-            class="mb-3 rounded-lg"
-            :class="teaching ? 'max-h-[60vh]' : 'max-h-80'"
-        >
-        <div
-            v-if="item.content"
-            class="prose prose-stone max-w-none border-l-4 border-teal-300 pl-4 text-stone-700"
-            :class="teaching ? 'prose-lg' : ''"
-            v-html="item.content"
-        ></div>
-        <p v-if="item.config?.post_title" class="mt-2 text-sm text-stone-500" :class="teaching ? 'text-base' : ''">
-            from my post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
-        </p>
-    </div>
-
     <!-- Video / Link -->
     <div v-else-if="item.type === 'video'">
         <!-- Uploaded local video -->
@@ -183,13 +163,28 @@ const formatGivenDate = (date) => {
         </figcaption>
     </figure>
 
-    <!-- My Words (rich text) -->
-    <div
-        v-else-if="item.type === 'text'"
-        class="prose prose-stone max-w-none"
-        :class="teaching ? 'prose-lg' : ''"
-        v-html="item.content"
-    ></div>
+    <!-- My Writing (rich text — fresh, or pulled from one of the creator's posts) -->
+    <div v-else-if="item.type === 'text'">
+        <img
+            v-if="item.config?.cover_image"
+            :src="item.config.cover_image"
+            :alt="item.config?.post_title || ''"
+            class="mb-3 rounded-lg"
+            :class="teaching ? 'max-h-[60vh]' : 'max-h-80'"
+        >
+        <div
+            v-if="item.content"
+            class="prose prose-stone max-w-none"
+            :class="[
+                teaching ? 'prose-lg' : '',
+                item.config?.post_title ? 'border-l-4 border-teal-300 pl-4 text-stone-700' : ''
+            ]"
+            v-html="item.content"
+        ></div>
+        <p v-if="item.config?.post_title" class="mt-2 text-sm text-stone-500" :class="teaching ? 'text-base' : ''">
+            from my post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
+        </p>
+    </div>
 
     <!-- Scripture Help -->
     <div v-else-if="item.type === 'scripture_help'">
@@ -202,6 +197,9 @@ const formatGivenDate = (date) => {
             :class="teaching ? 'prose-lg' : ''"
             v-html="item.content"
         ></div>
+        <p v-if="item.config?.post_title" class="mt-2 text-sm text-stone-500" :class="teaching ? 'text-base' : ''">
+            from my post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
+        </p>
     </div>
 
     <!-- Question -->

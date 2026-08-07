@@ -2,7 +2,7 @@ import './bootstrap';
 import '../css/app.css';
 
 import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
@@ -20,4 +20,14 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+});
+
+// Fires on the initial page load and every Inertia navigation. Deferred a tick
+// so document.title has been updated for the new page.
+router.on('navigate', (event) => {
+    setTimeout(() => {
+        window.gtag?.('event', 'page_view', {
+            page_location: window.location.origin + event.detail.page.url,
+        });
+    });
 });

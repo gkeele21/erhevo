@@ -16,6 +16,19 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <!-- Google Analytics (page views are sent manually on Inertia navigation in app.js) -->
+        @production
+            @if ($gaId = config('services.google_analytics.measurement_id'))
+                <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+                <script>
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', '{{ $gaId }}', { send_page_view: false });
+                </script>
+            @endif
+        @endproduction
+
         <!-- Scripts -->
         @routes
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])

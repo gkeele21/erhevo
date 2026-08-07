@@ -189,8 +189,10 @@ const uploadCoverImage = async (e) => {
                     <AiWritingPrompts @select-prompt="handlePromptSelect" />
 
                     <!-- Image (for image posts) -->
-                    <div v-if="form.post_type === 'image'" class="bg-white rounded-lg shadow p-6 border border-stone-100 space-y-3">
-                        <label class="block text-sm font-medium text-stone-700">Image</label>
+                    <div v-if="form.post_type === 'image' || form.post_type === 'scripture_help'" class="bg-white rounded-lg shadow p-6 border border-stone-100 space-y-3">
+                        <label class="block text-sm font-medium text-stone-700">
+                            {{ form.post_type === 'image' ? 'Image' : 'Image (optional)' }}
+                        </label>
                         <img v-if="form.cover_image" :src="form.cover_image" alt="" class="max-h-64 rounded-lg">
                         <div class="flex flex-wrap items-center gap-3">
                             <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">

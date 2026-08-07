@@ -19,6 +19,8 @@ const user = page.props.auth?.user
                 <p class="text-lg text-teal px-4 sm:px-0">
                     Erhevo is a place where words lift you — for capturing what inspires you,
                     preparing to teach it, and keeping your own study on track. Here's the tour.
+                    Want the details behind each feature? See the
+                    <Link :href="route('help')" class="text-amber hover:text-amber-600 font-medium">Help &amp; Training section</Link>.
                 </p>
 
                 <!-- Posts -->

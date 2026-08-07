@@ -2,6 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3'
 import { computed, ref, watch } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 
 const props = defineProps({
     talks: Object,
@@ -80,8 +81,9 @@ watch(search, () => {
 <template>
     <AppLayout title="Library">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+            <h2 class="flex items-center gap-1.5 font-semibold text-xl text-stone-800 leading-tight">
                 Library
+                <HelpTip anchor="library" tip="Thousands of General Conference talks and BYU Speeches — filter, search, and click topic tags. Open Help to learn more." />
             </h2>
         </template>
 

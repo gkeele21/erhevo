@@ -81,6 +81,10 @@ import { Head, Link } from '@inertiajs/vue3'
                     </h2>
                     <div class="prose prose-lg">
                         <p class="text-teal leading-relaxed mb-4">
+                            <strong class="text-navy">Erhevo</strong> is pronounced
+                            <span class="text-navy font-medium">air-HAY-voh</span>.
+                        </p>
+                        <p class="text-teal leading-relaxed mb-4">
                             The name <strong class="text-navy">Erhevo</strong> is inspired by the German verb <em>"erheben"</em>,
                             which means <strong>to lift up, elevate, or raise</strong>.
                         </p>

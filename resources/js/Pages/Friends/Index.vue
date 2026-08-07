@@ -2,6 +2,7 @@
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 
 defineProps({
     friends: Array,
@@ -87,8 +88,9 @@ const removeFriend = (userId) => {
 <template>
     <AppLayout title="Friends">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+            <h2 class="flex items-center gap-1.5 font-semibold text-xl text-stone-800 leading-tight">
                 Friends
+                <HelpTip anchor="friends" tip="Invite anyone by email — joining through your link connects you automatically. Friends' shared posts show on your dashboard. Open Help to learn more." />
             </h2>
         </template>
 

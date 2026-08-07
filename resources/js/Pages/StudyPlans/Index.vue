@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 import { formatLocalDate } from '@/utils/date'
 
 defineProps({
@@ -21,8 +22,9 @@ const typeLabel = (plan) => plan.type === 'scripture' ? 'Scriptures' : 'Talks'
     <AppLayout title="Study Plans">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-navy leading-tight">
+                <h2 class="flex items-center gap-1.5 font-semibold text-xl text-navy leading-tight">
                     Study Plans
+                    <HelpTip anchor="study-plans" tip="Pick what to study, set your dates and pace, and get a schedule with check-off tracking — share with friends to study together. Open Help to learn more." />
                 </h2>
                 <Link
                     :href="route('study-plans.create')"

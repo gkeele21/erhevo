@@ -121,6 +121,13 @@ const formatGivenDate = (date) => {
 
     <!-- My Post (the creator's own story/thought/note) -->
     <div v-else-if="item.type === 'post'">
+        <img
+            v-if="item.config?.cover_image"
+            :src="item.config.cover_image"
+            :alt="item.config?.post_title || ''"
+            class="mb-3 rounded-lg"
+            :class="teaching ? 'max-h-[60vh]' : 'max-h-80'"
+        >
         <div
             v-if="item.content"
             class="prose prose-stone max-w-none border-l-4 border-teal-300 pl-4 text-stone-700"

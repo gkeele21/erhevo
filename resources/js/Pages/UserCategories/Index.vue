@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 import CategoryTree from './Partials/CategoryTree.vue'
 
 const props = defineProps({
@@ -47,8 +48,9 @@ const getParentName = () => {
 <template>
     <AppLayout title="My Categories">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+            <h2 class="flex items-center gap-1.5 font-semibold text-xl text-stone-800 leading-tight">
                 My Categories
+                <HelpTip anchor="settings" tip="Build your own category tree for organizing private writing, separate from the community categories. Open Help to learn more." />
             </h2>
         </template>
 

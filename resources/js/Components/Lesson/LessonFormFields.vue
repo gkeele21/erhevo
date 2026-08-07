@@ -1,6 +1,7 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3'
 import VisibilitySelector from '@/Components/Story/VisibilitySelector.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 import LessonBuilder from '@/Components/Lesson/LessonBuilder.vue'
 
 const props = defineProps({
@@ -76,7 +77,10 @@ const weekLabel = (week) => {
 
         <!-- Lesson builder -->
         <div>
-            <h3 class="mb-3 text-sm font-medium text-stone-700">{{ form.kind === 'talk' ? 'Talk content' : 'Lesson content' }}</h3>
+            <h3 class="mb-3 flex items-center gap-1.5 text-sm font-medium text-stone-700">
+                {{ form.kind === 'talk' ? 'Talk content' : 'Lesson content' }}
+                <HelpTip anchor="lessons-talks" tip="Blocks auto-save every 30s. Star = key, clock = if time. Save blocks as posts to reuse them — open Help for more." />
+            </h3>
             <LessonBuilder
                 :items="form.items"
                 :item-types="itemTypes"
@@ -97,7 +101,7 @@ const weekLabel = (week) => {
                 <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
-                <h3 class="font-semibold text-amber-900">Come Follow Me week (optional)</h3>
+                <h3 class="flex items-center gap-1.5 font-semibold text-amber-900">Come Follow Me week (optional) <HelpTip anchor="posts" tip="Linked content resurfaces automatically when this week's chapters come around again." /></h3>
             </div>
             <p class="text-sm text-amber-800">Tie this lesson to a study week so it's easy to find later.</p>
             <select
@@ -113,6 +117,9 @@ const weekLabel = (week) => {
 
         <!-- Visibility -->
         <div class="rounded-lg border border-stone-100 bg-white p-6 shadow">
+            <div class="mb-1 flex justify-end">
+                <HelpTip anchor="visibility" tip="Private, all friends, specific friends you pick, or public — open Help for how each works." />
+            </div>
             <VisibilitySelector
                 v-model="form.visibility"
                 v-model:shared-user-ids="form.shared_user_ids"

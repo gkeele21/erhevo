@@ -3,6 +3,7 @@ import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryCard from '@/Components/Story/StoryCard.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 
 const props = defineProps({
     posts: Object,
@@ -58,8 +59,9 @@ watch(friendsOnly, applyFilters)
 <template>
     <AppLayout title="Posts">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+            <h2 class="flex items-center gap-1.5 font-semibold text-xl text-stone-800 leading-tight">
                 Posts
+                <HelpTip anchor="posts" tip="Posts are what you capture — stories, thoughts, quotes, scriptures, images, and more. Open Help to learn how they work." />
             </h2>
         </template>
 

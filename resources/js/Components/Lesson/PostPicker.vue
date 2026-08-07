@@ -67,6 +67,7 @@ const attach = (post) => {
         post_slug: post.slug,
         post_title: post.title,
         post_type: post.post_type,
+        cover_image: post.cover_image || null,
         tags: post.tags || [],
     }
     query.value = ''
@@ -88,7 +89,13 @@ const clear = () => {
             v-if="item.post_id"
             class="flex items-start justify-between gap-3 rounded-lg border border-stone-200 bg-stone-50 p-3"
         >
-            <div class="min-w-0">
+            <img
+                v-if="item.config.cover_image"
+                :src="item.config.cover_image"
+                alt=""
+                class="h-12 w-12 flex-shrink-0 rounded object-cover"
+            >
+            <div class="min-w-0 flex-1">
                 <p class="font-medium text-stone-800">{{ item.config.post_title }}</p>
                 <p class="text-sm text-stone-500">
                     {{ typeLabels[item.config.post_type] || 'Post' }}
@@ -148,8 +155,10 @@ const clear = () => {
                         v-for="post in results"
                         :key="post.post_id"
                         @click="attach(post)"
-                        class="cursor-pointer border-b border-stone-100 px-3 py-2 last:border-0 hover:bg-amber-50"
+                        class="flex cursor-pointer items-center gap-3 border-b border-stone-100 px-3 py-2 last:border-0 hover:bg-amber-50"
                     >
+                        <img v-if="post.cover_image" :src="post.cover_image" alt="" class="h-10 w-10 flex-shrink-0 rounded object-cover">
+                        <div class="min-w-0">
                         <p class="text-sm font-medium text-stone-800">
                             {{ post.title }}
                             <span class="ml-1 rounded bg-stone-100 px-1.5 py-0.5 text-xs font-normal text-stone-500">
@@ -157,6 +166,7 @@ const clear = () => {
                             </span>
                         </p>
                         <p class="text-xs text-stone-500">{{ post.excerpt }}</p>
+                        </div>
                     </li>
                 </ul>
                 <p v-else-if="open && !searching" class="mt-1 text-xs text-stone-400">

@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 
 const props = defineProps({
     lessons: Object,
@@ -72,7 +73,10 @@ const cfmDateRange = (week) => {
     <AppLayout title="Lessons">
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-stone-800">Lessons &amp; Talks</h2>
+                <h2 class="flex items-center gap-1.5 text-xl font-semibold leading-tight text-stone-800">
+                    Lessons &amp; Talks
+                    <HelpTip anchor="lessons-talks" tip="Build lessons and talks from blocks — scriptures, quotes, your posts, and more. Auto-saves as you go. Open Help to learn more." />
+                </h2>
                 <div v-if="page.props.auth.user" class="flex gap-3">
                     <Link
                         :href="route('lessons.create', { kind: 'talk' })"

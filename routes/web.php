@@ -38,6 +38,7 @@ Route::get('/about', fn () => Inertia::render('About'))->name('about');
 // Friend-invitation email landing link — must work for guests AND members.
 Route::get('/invite/{token}', [FriendshipController::class, 'acceptInvitationLink'])->name('friends.invite-link');
 Route::get('/guide', fn () => Inertia::render('Guide'))->name('guide');
+Route::get('/help', fn () => Inertia::render('Help'))->name('help');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index');
 // LDS content library — public; logged-in users are still gated by their

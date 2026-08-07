@@ -1,16 +1,33 @@
 # Keeping the Talk Library Current
 
-Runbook for the two recurring library updates, always done **locally** and
-shipped to production via the seed snapshot:
+> **TL;DR — it's automatic.** `talks:sync-latest` runs nightly at 03:15 via
+> the Laravel scheduler: it syncs the latest General Conference while it's
+> fresh (up to 45 days after it starts), pulls new BYU Speeches, and AI-tags
+> whatever arrived. The sections below are for understanding it, running it
+> by hand, and refreshing the committed seed snapshots.
 
-1. **General Conference** — after each April and October conference, once the
-   talks are published on churchofjesuschrist.org (usually within a few days).
-2. **BYU Speeches** — periodically (devotionals post weekly during semesters;
-   monthly or each semester is plenty).
+## Nightly automation
 
-> **TL;DR** — locally: `sync-conference` and/or `import-byu-speeches` →
-> `generate-tags` → `db:snapshot-seed-data` → commit. In production:
-> `migrate` + `db:seed` + `generate-tags`.
+- Defined in `routes/console.php`; the command is
+  `app/Console/Commands/SyncLatestTalks.php`. Output logs to
+  `storage/logs/talks-sync.log`.
+- **Server requirement**: the standard Laravel scheduler cron must be
+  running (`php artisan schedule:run` every minute — Forge's Scheduler
+  panel sets this up). Verify with `php artisan schedule:list`.
+- It creates the new conference shell automatically when a season rolls
+  over (via `GeneralConferenceSeeder`, which is idempotent).
+- Tagging is best-effort: if the environment has no AI connection it warns
+  and moves on; re-run `talks:generate-tags` later.
+- `--force` re-syncs a settled conference; `--no-tags` skips tagging.
+- Nightly synced talks exist only in that environment until the seed
+  snapshots are refreshed (below). That's fine: seeding upserts, and MySQL
+  matches on the talks' unique (source, slug) key, so a later `db:seed`
+  updates rather than duplicates them.
+
+## Manual runs & seeding new environments
+
+The snapshots in `database/data/seed/` are what fresh environments seed
+from, so refresh and commit them occasionally (e.g. after each conference):
 
 ---
 
@@ -116,11 +133,16 @@ Spot-check the Library filtered to BYU Speeches: newest devotional on top
 
 # Production steps (both flows)
 
-After deploying the commit with the refreshed snapshots:
+Day to day, production keeps itself current via the nightly
+`talks:sync-latest`. These steps are only needed when deploying a
+refreshed snapshot (e.g. standing up a new environment or after a bulk
+local resync):
 
 ```bash
 php artisan migrate --force
-php artisan db:seed --force               # upserts talks/authors/sessions by id
+php artisan db:seed --force               # upserts talks/authors/sessions
+                                          # (matches existing talks by their
+                                          # unique source+slug — no dupes)
 
 # Tags are per-environment (the tags table is shared with user posts, so
 # tag rows can't ship in the snapshot without colliding with prod ids):
@@ -130,17 +152,13 @@ php artisan talks:generate-tags           # AI-tags whatever still has none
                                           # (conference talks, mostly)
 ```
 
-Production never scrapes churchofjesuschrist.org — conference data comes
-entirely from the committed snapshot. The BYU command is a light JSON API
-pull and is safe to run in production; on seeded data it mostly just
-attaches topic tags.
-
 ---
 
 ## Related commands
 
 | Command | What it does |
 |---|---|
+| `talks:sync-latest [--force] [--no-tags]` | The nightly job: latest conference + new BYU Speeches + tags |
 | `talks:sync-conference {year} {month} [--dry-run]` | Reconcile one conference against churchofjesuschrist.org |
 | `talks:import-byu-speeches [--pages=] [--no-authors]` | Import/refresh all BYU Speeches from the speeches.byu.edu API |
 | `talks:import-summaries [--force] [--limit=]` | Fetch talk-page kickers/descriptions for talks missing an excerpt |

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import LessonItemDisplay from '@/Components/Lesson/LessonItemDisplay.vue'
+import HelpTip from '@/Components/HelpTip.vue'
 
 const props = defineProps({
     lesson: Object,
@@ -151,6 +152,7 @@ function summary(item) {
                     </p>
                 </div>
                 <div class="flex flex-shrink-0 items-center gap-4">
+                    <HelpTip anchor="teach-mode" tip="Tip: the TV icon on any block presents it full-screen in a new tab — perfect for a connected TV. Open Help for more." />
                     <button
                         v-if="hasOptionals"
                         type="button"

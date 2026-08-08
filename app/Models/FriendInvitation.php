@@ -16,6 +16,7 @@ class FriendInvitation extends Model
         'inviter_id',
         'email',
         'token',
+        'message',
         'registered_user_id',
         'accepted_at',
     ];

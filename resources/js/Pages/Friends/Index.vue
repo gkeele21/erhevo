@@ -12,7 +12,8 @@ defineProps({
 })
 
 const inviteForm = useForm({
-    email: ''
+    email: '',
+    message: ''
 })
 
 const sendInvite = () => {
@@ -152,8 +153,8 @@ const removeFriend = (userId) => {
                     <p class="text-sm text-stone-500 mb-4">
                         Not here yet? Send them an email invitation. When they register, you'll automatically become friends.
                     </p>
-                    <form @submit.prevent="sendInvite" class="flex flex-col sm:flex-row gap-3">
-                        <div class="flex-1">
+                    <form @submit.prevent="sendInvite" class="space-y-3">
+                        <div>
                             <input
                                 v-model="inviteForm.email"
                                 type="email"
@@ -163,10 +164,20 @@ const removeFriend = (userId) => {
                             >
                             <p v-if="inviteForm.errors.email" class="mt-1 text-sm text-red-600">{{ inviteForm.errors.email }}</p>
                         </div>
+                        <div>
+                            <textarea
+                                v-model="inviteForm.message"
+                                rows="3"
+                                maxlength="1000"
+                                placeholder="Add a personal message (optional)"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            ></textarea>
+                            <p v-if="inviteForm.errors.message" class="mt-1 text-sm text-red-600">{{ inviteForm.errors.message }}</p>
+                        </div>
                         <button
                             type="submit"
                             :disabled="inviteForm.processing"
-                            class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 whitespace-nowrap self-start"
+                            class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 whitespace-nowrap"
                         >
                             {{ inviteForm.processing ? 'Sending...' : 'Send Invitation' }}
                         </button>

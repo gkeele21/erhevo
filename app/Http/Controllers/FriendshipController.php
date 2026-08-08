@@ -41,6 +41,7 @@ class FriendshipController extends Controller
     {
         $validated = $request->validate([
             'email' => 'required|string|email|max:255',
+            'message' => 'nullable|string|max:1000',
         ]);
 
         $currentUser = $request->user();
@@ -78,6 +79,7 @@ class FriendshipController extends Controller
             'inviter_id' => $currentUser->id,
             'email' => $email,
             'token' => FriendInvitation::generateToken(),
+            'message' => $validated['message'] ?? null,
         ]);
 
         try {

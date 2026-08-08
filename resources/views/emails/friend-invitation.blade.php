@@ -1,6 +1,14 @@
 @component('mail::message')
 {{ __(':inviter has invited you to join :app!', ['inviter' => $inviterName, 'app' => config('app.name')]) }}
 
+@if ($personalMessage)
+@component('mail::panel')
+{{ $personalMessage }}
+
+— {{ $inviterName }}
+@endcomponent
+@endif
+
 {{ __(':app is a place where words lift you. As a member you can:', ['app' => config('app.name')]) }}
 
 - {{ __('Capture and share stories, thoughts, and quotes that matter to you') }}

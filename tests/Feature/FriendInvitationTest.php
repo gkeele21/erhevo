@@ -33,6 +33,55 @@ class FriendInvitationTest extends TestCase
         Mail::assertSent(FriendInvitationMail::class, fn ($mail) => $mail->hasTo('newfriend@example.com'));
     }
 
+    public function test_invitation_can_include_a_personal_message_that_appears_in_the_email(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/friends/invite', [
+            'email' => 'newfriend@example.com',
+            'message' => "Hey, I think you'd love this app!",
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('friend_invitations', [
+            'inviter_id' => $user->id,
+            'email' => 'newfriend@example.com',
+            'message' => "Hey, I think you'd love this app!",
+        ]);
+
+        Mail::assertSent(FriendInvitationMail::class, function ($mail) {
+            $rendered = $mail->render();
+
+            return $mail->hasTo('newfriend@example.com')
+                && str_contains($rendered, "Hey, I think you'd love this app!");
+        });
+    }
+
+    public function test_personal_message_is_optional_and_limited_in_length(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+
+        // Too long: rejected.
+        $this->actingAs($user)->post('/friends/invite', [
+            'email' => 'newfriend@example.com',
+            'message' => str_repeat('a', 1001),
+        ])->assertSessionHasErrors('message');
+
+        // Omitted entirely: fine.
+        $this->actingAs($user)->post('/friends/invite', [
+            'email' => 'newfriend@example.com',
+        ])->assertSessionDoesntHaveErrors();
+
+        $this->assertDatabaseHas('friend_invitations', [
+            'email' => 'newfriend@example.com',
+            'message' => null,
+        ]);
+    }
+
     public function test_failed_invitation_email_cleans_up_and_reports_instead_of_500(): void
     {
         // Simulate the SMTP provider rejecting the send (e.g. an unverified

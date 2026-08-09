@@ -10,9 +10,10 @@ feature ships. There are three layers, shallowest to deepest:
 | **Contextual tips** | `resources/js/Components/HelpTip.vue` | A small "?" placed next to a UI section. Hover = one-line insight; click = the matching Help anchor in a new tab. |
 
 > **Definition of done for a notable feature:** add or update a Help bullet
-> (and a "Did you know?" if the feature is easy to miss), and consider a
-> HelpTip at the spot in the UI where users would wonder about it. The Guide
-> only changes for headline features.
+> (and a "Did you know?" if the feature is easy to miss), consider a
+> HelpTip at the spot in the UI where users would wonder about it, and add
+> a dated entry to `config/whats_new.php` so existing users see it on their
+> dashboard. The Guide only changes for headline features.
 
 ---
 

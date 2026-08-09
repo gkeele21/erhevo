@@ -4,6 +4,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import StoryCard from '@/Components/Story/StoryCard.vue'
 import AiInsights from '@/Components/Dashboard/AiInsights.vue'
 import GettingStarted from '@/Components/Dashboard/GettingStarted.vue'
+import WhatsNew from '@/Components/Dashboard/WhatsNew.vue'
 
 defineProps({
     myPosts: Array,
@@ -12,7 +13,8 @@ defineProps({
     friendPosts: Array,
     pendingFriendRequestsCount: Number,
     userCategories: Array,
-    gettingStarted: Array
+    gettingStarted: Array,
+    whatsNew: Array
 })
 </script>
 
@@ -34,6 +36,9 @@ defineProps({
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <!-- Announcements shipped since the user's last visit (until dismissed) -->
+                <WhatsNew v-if="whatsNew" :entries="whatsNew" class="mb-8" />
+
                 <!-- Getting Started checklist (new users, until dismissed) -->
                 <GettingStarted v-if="gettingStarted" :steps="gettingStarted" class="mb-8" />
 

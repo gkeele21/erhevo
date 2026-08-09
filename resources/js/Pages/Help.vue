@@ -67,6 +67,7 @@ const topics = [
                                 <li>Save without publishing to keep a <strong class="text-navy">draft</strong> — drafts show only to you, marked "Draft" on the Posts page.</li>
                                 <li>Organize with tags and categories; link posts to Come Follow Me weeks and scripture passages.</li>
                                 <li>Pasting a source link (YouTube, church site, etc.) can pre-fill the post for you.</li>
+                                <li>Paste an Instagram, TikTok, YouTube, or Facebook video link and hit <strong class="text-navy">Transcribe video</strong> — the spoken words become your post text, the account that posted it is attributed as the <strong class="text-navy">author</strong>, and the link is kept as the source. Takes a minute for longer videos; review and trim the text before saving.</li>
                             </ul>
                             <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
                                 💡 <strong>Did you know?</strong> A post linked to scripture chapters resurfaces automatically
@@ -108,6 +109,7 @@ const topics = [
                                 <li><strong class="text-navy">Emphasis flags</strong>: the star marks a block as key ("make sure to cover"), the clock marks it optional ("if time allows"). Teach mode uses these — see below.</li>
                                 <li>Blocks flow both ways with your posts: <strong class="text-navy">Save as a Post</strong> keeps writing, quotes, videos, and images for reuse, and every block type can pull in a matching saved post — the <strong class="text-navy">My Writing</strong> block's "From my posts" mode brings in any story, thought, or note as an editable excerpt.</li>
                                 <li>New quotes created in the builder are automatically saved to your Posts (private), so they're searchable in every future lesson.</li>
+                                <li>The quote form takes a source link too — paste a video post (an Instagram reel, say) and <strong class="text-navy">Transcribe video</strong> turns the spoken words into the quote, author included.</li>
                             </ul>
                             <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
                                 💡 <strong>Did you know?</strong> The excerpt in a block is <em>your copy</em> — trim a long

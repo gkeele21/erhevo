@@ -14,6 +14,7 @@ class UserSettingsController extends Controller
         $validated = $request->validate([
             'show_lds_content' => 'sometimes|required|boolean',
             'getting_started_dismissed' => 'sometimes|required|boolean',
+            'whats_new_seen_through' => 'sometimes|required|date_format:Y-m-d',
         ]);
 
         $user = $request->user();

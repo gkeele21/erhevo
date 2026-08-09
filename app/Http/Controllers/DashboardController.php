@@ -56,7 +56,27 @@ class DashboardController extends Controller
             'pendingFriendRequestsCount' => $pendingFriendRequests,
             'userCategories' => $userCategories,
             'gettingStarted' => $this->gettingStartedSteps($user, $myPostsCount, $myLessons->isNotEmpty()),
+            'whatsNew' => $this->whatsNewEntries($user),
         ]);
+    }
+
+    /**
+     * Announcements (config/whats_new.php) newer than what the user has seen.
+     * The cutoff falls back to the account's creation date so new users
+     * aren't greeted with the whole back-catalog. Null when caught up;
+     * dismissing stores the newest entry's date in `whats_new_seen_through`.
+     */
+    protected function whatsNewEntries($user): ?array
+    {
+        $seenThrough = $user->getSetting('whats_new_seen_through')
+            ?? $user->created_at->toDateString();
+
+        $entries = collect(config('whats_new.entries', []))
+            ->filter(fn ($entry) => ($entry['date'] ?? '') > $seenThrough)
+            ->sortByDesc('date')
+            ->values();
+
+        return $entries->isEmpty() ? null : $entries->all();
     }
 
     /**

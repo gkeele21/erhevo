@@ -1,0 +1,32 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| What's New
+|--------------------------------------------------------------------------
+|
+| Announcements shown on the dashboard to users who haven't seen them yet
+| (newest first). Add an entry here when you ship something users should
+| notice; it appears for each user until they dismiss it, tracked via the
+| `whats_new_seen_through` user setting.
+|
+| Fields: `date` (Y-m-d — bump to today when adding, it drives "unseen"),
+| `title`, `body`, and an optional `help_anchor` linking to a section id
+| in the Help page.
+|
+*/
+
+return [
+
+    'entries' => [
+
+        [
+            'date' => '2026-08-09',
+            'title' => 'Turn a video post into text — automatically',
+            'body' => 'Paste an Instagram, TikTok, YouTube, or Facebook video link into the source-link field on a post (or a lesson quote) and hit Transcribe video. The spoken words become your text, the account that posted it is attributed as the author, and the link is saved as the source.',
+            'help_anchor' => 'posts',
+        ],
+
+    ],
+
+];

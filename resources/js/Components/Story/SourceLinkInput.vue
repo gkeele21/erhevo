@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import axios from 'axios'
+import HelpTip from '@/Components/HelpTip.vue'
 
 // Paste a link to where the content came from (a Facebook post, a tweet, an
 // article). Shows the detected platform and can try to pull the post's text.
@@ -106,8 +107,12 @@ const transcribe = async () => {
 
 <template>
     <div>
-        <label class="block text-sm font-medium text-stone-700 mb-1">
+        <label class="mb-1 flex items-center gap-1 text-sm font-medium text-stone-700">
             Source link (optional)
+            <HelpTip
+                anchor="posts"
+                tip="Tip: paste an Instagram, TikTok, YouTube, or Facebook video link and Transcribe video turns the spoken words into text, author attributed automatically."
+            />
         </label>
         <div class="flex gap-2">
             <input

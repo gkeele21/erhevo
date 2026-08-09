@@ -23,11 +23,16 @@ const formatDate = (date) => {
 const postType = computed(() => props.post.post_type || 'story')
 const authorSlug = computed(() => props.post.author?.slug || null)
 
+// Mirrors PostType::label() server-side.
 const typeLabel = computed(() => ({
     story: 'Story',
     thought: 'Thought',
     note: 'Note',
-    quote: 'Quote'
+    quote: 'Quote',
+    video: 'Video / Link',
+    image: 'Image',
+    scripture_help: 'Scripture Help',
+    meeting_notes: 'Meeting Notes'
 }[postType.value] || 'Post'))
 </script>
 
@@ -221,12 +226,14 @@ const typeLabel = computed(() => ({
 
                 <!-- Default Story Display -->
                 <template v-else>
-                    <!-- Cover Image -->
+                    <!-- Cover Image: the content itself for image and scripture-help
+                         posts (never cropped), a fixed-height banner for everything else -->
                     <div v-if="post.cover_image" class="mb-8 rounded-lg overflow-hidden">
                         <img
                             :src="post.cover_image"
                             :alt="post.title"
-                            class="w-full h-64 md:h-96 object-cover"
+                            class="w-full"
+                            :class="['image', 'scripture_help'].includes(postType) ? 'h-auto max-h-[85vh] object-contain bg-stone-100' : 'h-64 md:h-96 object-cover'"
                         >
                     </div>
 

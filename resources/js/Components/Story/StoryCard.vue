@@ -208,12 +208,19 @@ const typeConfig = computed(() => ({
 
     <!-- Default Story Card -->
     <article v-else class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-navy-50">
-        <!-- Cover Image -->
-        <div v-if="post.cover_image" class="aspect-video overflow-hidden">
+        <!-- Cover Image: shown whole (letterboxed) when the image is the
+             content — image and scripture-help posts — cropped to a 16:9
+             banner otherwise -->
+        <div
+            v-if="post.cover_image"
+            class="overflow-hidden"
+            :class="['image', 'scripture_help'].includes(postType) ? 'aspect-square bg-stone-100' : 'aspect-video'"
+        >
             <img
                 :src="post.cover_image"
                 :alt="post.title"
-                class="w-full h-full object-cover"
+                class="w-full h-full"
+                :class="['image', 'scripture_help'].includes(postType) ? 'object-contain' : 'object-cover'"
             >
         </div>
 

@@ -35,65 +35,114 @@ class FriendshipController extends Controller
     }
 
     /**
-     * Invite someone by email to join and become a friend on registration.
+     * Invite one or more people by email to join and become friends on
+     * registration. Emails that already belong to members get a normal
+     * friend request instead.
      */
     public function invite(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required|string|email|max:255',
+            'emails' => 'required|array|min:1|max:10',
+            'emails.*' => 'required|string|email|max:255',
             'message' => 'nullable|string|max:1000',
+        ], [
+            'emails.required' => 'Please add at least one email address.',
+            'emails.max' => 'You can invite up to 10 people at a time.',
+            'emails.*.email' => 'One of the addresses is not a valid email.',
         ]);
 
         $currentUser = $request->user();
-        $email = strtolower($validated['email']);
+        $message = $validated['message'] ?? null;
+        $emails = collect($validated['emails'])
+            ->map(fn ($email) => strtolower(trim($email)))
+            ->unique()
+            ->values();
 
-        if ($email === strtolower($currentUser->email)) {
-            return back()->with('error', 'You cannot invite yourself.');
-        }
+        $invited = [];
+        $requested = [];
+        $skipped = [];
 
-        // Already a member? Send a normal friend request instead.
-        $existingUser = User::where('email', $email)->first();
-        if ($existingUser) {
-            if ($currentUser->isFriendWith($existingUser->id)) {
-                return back()->with('error', 'You are already friends with this user.');
+        foreach ($emails as $email) {
+            if ($email === strtolower($currentUser->email)) {
+                $skipped[] = "{$email} (that's you)";
+
+                continue;
             }
-            if ($currentUser->hasSentFriendRequestTo($existingUser->id)) {
-                return back()->with('error', 'You have already sent a friend request to this user.');
+
+            // Already a member? Send a normal friend request instead.
+            $existingUser = User::where('email', $email)->first();
+            if ($existingUser) {
+                if ($currentUser->isFriendWith($existingUser->id)) {
+                    $skipped[] = "{$email} (already friends)";
+
+                    continue;
+                }
+                if ($currentUser->hasSentFriendRequestTo($existingUser->id)) {
+                    $skipped[] = "{$email} (friend request already pending)";
+
+                    continue;
+                }
+
+                $currentUser->sendFriendRequest($existingUser);
+                $requested[] = $email;
+
+                continue;
             }
 
-            $currentUser->sendFriendRequest($existingUser);
+            $alreadyInvited = FriendInvitation::where('inviter_id', $currentUser->id)
+                ->where('email', $email)
+                ->pending()
+                ->exists();
 
-            return back()->with('success', 'That email already belongs to a member, so we sent them a friend request instead.');
+            if ($alreadyInvited) {
+                $skipped[] = "{$email} (already invited)";
+
+                continue;
+            }
+
+            $invitation = FriendInvitation::create([
+                'inviter_id' => $currentUser->id,
+                'email' => $email,
+                'token' => FriendInvitation::generateToken(),
+                'message' => $message,
+            ]);
+
+            try {
+                Mail::to($email)->send(new FriendInvitationMail($invitation));
+            } catch (\Throwable $e) {
+                report($e);
+                // The invitation is useless without its email — remove it so
+                // the user can retry once mail is working again.
+                $invitation->delete();
+                $skipped[] = "{$email} (email could not be sent)";
+
+                continue;
+            }
+
+            $invited[] = $email;
         }
 
-        $alreadyInvited = FriendInvitation::where('inviter_id', $currentUser->id)
-            ->where('email', $email)
-            ->pending()
-            ->exists();
-
-        if ($alreadyInvited) {
-            return back()->with('error', 'You have already invited this email address.');
+        $successParts = [];
+        if ($invited) {
+            $successParts[] = count($invited) === 1
+                ? "Invitation sent to {$invited[0]}!"
+                : 'Invitations sent to '.count($invited).' people!';
+        }
+        if ($requested) {
+            $successParts[] = count($requested) === 1
+                ? "{$requested[0]} is already a member, so we sent them a friend request instead."
+                : implode(', ', $requested).' are already members, so we sent them friend requests instead.';
         }
 
-        $invitation = FriendInvitation::create([
-            'inviter_id' => $currentUser->id,
-            'email' => $email,
-            'token' => FriendInvitation::generateToken(),
-            'message' => $validated['message'] ?? null,
-        ]);
-
-        try {
-            Mail::to($email)->send(new FriendInvitationMail($invitation));
-        } catch (\Throwable $e) {
-            report($e);
-            // The invitation is useless without its email — remove it so the
-            // user can retry once mail is working again.
-            $invitation->delete();
-
-            return back()->with('error', "We couldn't send the invitation email — please try again later.");
+        $response = back();
+        if ($successParts) {
+            $response->with('success', implode(' ', $successParts));
+        }
+        if ($skipped) {
+            $response->with('error', 'Skipped: '.implode(', ', $skipped).'.');
         }
 
-        return back()->with('success', 'Invitation sent!');
+        return $response;
     }
 
     /**

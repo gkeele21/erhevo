@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import HelpTip from '@/Components/HelpTip.vue'
 
@@ -12,14 +12,85 @@ defineProps({
 })
 
 const inviteForm = useForm({
-    email: '',
+    emails: [],
     message: ''
 })
 
+const emailInput = ref('')
+const emailInputError = ref('')
+const emailInputEl = ref(null)
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+// Turn whatever is typed in the text box into a chip. Returns false if the
+// text is there but not a valid email (so submit can block on it).
+const commitEmailInput = () => {
+    const raw = emailInput.value.trim().replace(/[,;]+$/, '').trim()
+    if (!raw) {
+        emailInput.value = ''
+        return true
+    }
+    if (!isValidEmail(raw)) {
+        emailInputError.value = `"${raw}" doesn't look like a valid email address.`
+        return false
+    }
+    const email = raw.toLowerCase()
+    if (!inviteForm.emails.includes(email)) {
+        inviteForm.emails.push(email)
+    }
+    emailInput.value = ''
+    emailInputError.value = ''
+    return true
+}
+
+const handleEmailKeydown = (event) => {
+    if (event.key === 'Enter' || event.key === ',' || event.key === ';' || event.key === ' ') {
+        event.preventDefault()
+        commitEmailInput()
+    } else if (event.key === 'Backspace' && !emailInput.value && inviteForm.emails.length) {
+        inviteForm.emails.pop()
+    }
+}
+
+// Pasting "a@x.com, b@y.com; c@z.com" adds each address as its own chip.
+const handleEmailPaste = (event) => {
+    const text = event.clipboardData?.getData('text') ?? ''
+    if (!/[,;\s]/.test(text.trim())) return
+
+    event.preventDefault()
+    for (const part of text.split(/[,;\s]+/)) {
+        const email = part.trim().toLowerCase()
+        if (email && isValidEmail(email) && !inviteForm.emails.includes(email)) {
+            inviteForm.emails.push(email)
+        }
+    }
+}
+
+const removeEmail = (index) => {
+    inviteForm.emails.splice(index, 1)
+}
+
+// Server-side errors for individual emails arrive keyed as "emails.0" etc.
+const serverEmailsError = computed(() => {
+    if (inviteForm.errors.emails) return inviteForm.errors.emails
+    const key = Object.keys(inviteForm.errors).find(k => k.startsWith('emails.'))
+    return key ? inviteForm.errors[key] : null
+})
+
 const sendInvite = () => {
+    if (!commitEmailInput()) return
+
+    if (!inviteForm.emails.length) {
+        emailInputError.value = 'Please add at least one email address.'
+        return
+    }
+
     inviteForm.post(route('friends.invite'), {
         preserveScroll: true,
-        onSuccess: () => inviteForm.reset()
+        onSuccess: () => {
+            inviteForm.reset()
+            emailInputError.value = ''
+        }
     })
 }
 
@@ -152,17 +223,42 @@ const removeFriend = (userId) => {
                     </h3>
                     <p class="text-sm text-stone-500 mb-4">
                         Not here yet? Send them an email invitation. When they register, you'll automatically become friends.
+                        You can invite several people at once — press Enter, space, or comma after each address.
                     </p>
                     <form @submit.prevent="sendInvite" class="space-y-3">
                         <div>
-                            <input
-                                v-model="inviteForm.email"
-                                type="email"
-                                required
-                                placeholder="friend@example.com"
-                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                            <div
+                                class="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 flex flex-wrap items-center gap-1.5 cursor-text focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500"
+                                @click="emailInputEl?.focus()"
                             >
-                            <p v-if="inviteForm.errors.email" class="mt-1 text-sm text-red-600">{{ inviteForm.errors.email }}</p>
+                                <span
+                                    v-for="(email, index) in inviteForm.emails"
+                                    :key="email"
+                                    class="inline-flex items-center gap-1 rounded-md bg-green-100 text-green-800 px-2 py-1 text-sm"
+                                >
+                                    {{ email }}
+                                    <button
+                                        type="button"
+                                        class="text-green-600 hover:text-green-900 leading-none"
+                                        :aria-label="`Remove ${email}`"
+                                        @click.stop="removeEmail(index)"
+                                    >
+                                        &times;
+                                    </button>
+                                </span>
+                                <input
+                                    ref="emailInputEl"
+                                    v-model="emailInput"
+                                    type="text"
+                                    :placeholder="inviteForm.emails.length ? 'Add another...' : 'friend@example.com'"
+                                    class="flex-1 min-w-[10rem] border-0 p-1 text-sm focus:ring-0 placeholder-stone-400"
+                                    @keydown="handleEmailKeydown"
+                                    @paste="handleEmailPaste"
+                                    @blur="commitEmailInput"
+                                >
+                            </div>
+                            <p v-if="emailInputError" class="mt-1 text-sm text-red-600">{{ emailInputError }}</p>
+                            <p v-else-if="serverEmailsError" class="mt-1 text-sm text-red-600">{{ serverEmailsError }}</p>
                         </div>
                         <div>
                             <textarea

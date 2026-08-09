@@ -21,7 +21,7 @@ class FriendInvitationTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post('/friends/invite', [
-            'email' => 'newfriend@example.com',
+            'emails' => ['newfriend@example.com'],
         ]);
 
         $response->assertRedirect();
@@ -33,6 +33,52 @@ class FriendInvitationTest extends TestCase
         Mail::assertSent(FriendInvitationMail::class, fn ($mail) => $mail->hasTo('newfriend@example.com'));
     }
 
+    public function test_user_can_invite_several_emails_at_once(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/friends/invite', [
+            'emails' => ['one@example.com', 'two@example.com', 'One@Example.com'],
+        ]);
+
+        $response->assertRedirect()->assertSessionHas('success');
+        // The duplicate (differing only in case) is collapsed.
+        $this->assertSame(2, FriendInvitation::where('inviter_id', $user->id)->count());
+        Mail::assertSentCount(2);
+        Mail::assertSent(FriendInvitationMail::class, fn ($mail) => $mail->hasTo('one@example.com'));
+        Mail::assertSent(FriendInvitationMail::class, fn ($mail) => $mail->hasTo('two@example.com'));
+    }
+
+    public function test_mixed_batch_reports_sent_requested_and_skipped_addresses(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create(['email' => 'me@example.com']);
+        $member = User::factory()->create(['email' => 'member@example.com']);
+
+        $response = $this->actingAs($user)->post('/friends/invite', [
+            'emails' => ['new@example.com', 'member@example.com', 'me@example.com'],
+        ]);
+
+        $response->assertRedirect()
+            ->assertSessionHas('success')
+            ->assertSessionHas('error');
+
+        // The new address got an email invitation.
+        $this->assertDatabaseHas('friend_invitations', ['email' => 'new@example.com']);
+        // The member got a friend request instead.
+        $this->assertDatabaseHas('friendships', [
+            'requester_id' => $user->id,
+            'addressee_id' => $member->id,
+            'status' => 'pending',
+        ]);
+        // Inviting yourself is skipped.
+        $this->assertDatabaseMissing('friend_invitations', ['email' => 'me@example.com']);
+        Mail::assertSentCount(1);
+    }
+
     public function test_invitation_can_include_a_personal_message_that_appears_in_the_email(): void
     {
         Mail::fake();
@@ -40,7 +86,7 @@ class FriendInvitationTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post('/friends/invite', [
-            'email' => 'newfriend@example.com',
+            'emails' => ['newfriend@example.com'],
             'message' => "Hey, I think you'd love this app!",
         ]);
 
@@ -67,13 +113,13 @@ class FriendInvitationTest extends TestCase
 
         // Too long: rejected.
         $this->actingAs($user)->post('/friends/invite', [
-            'email' => 'newfriend@example.com',
+            'emails' => ['newfriend@example.com'],
             'message' => str_repeat('a', 1001),
         ])->assertSessionHasErrors('message');
 
         // Omitted entirely: fine.
         $this->actingAs($user)->post('/friends/invite', [
-            'email' => 'newfriend@example.com',
+            'emails' => ['newfriend@example.com'],
         ])->assertSessionDoesntHaveErrors();
 
         $this->assertDatabaseHas('friend_invitations', [
@@ -98,7 +144,7 @@ class FriendInvitationTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post('/friends/invite', [
-            'email' => 'newfriend@example.com',
+            'emails' => ['newfriend@example.com'],
         ]);
 
         // No 500: redirected back with an error, and the dangling invitation
@@ -108,7 +154,7 @@ class FriendInvitationTest extends TestCase
 
         // The error actually reaches the page as a shared flash prop.
         $this->actingAs($user)->get('/friends')->assertInertia(fn ($page) => $page
-            ->where('flash.error', "We couldn't send the invitation email — please try again later."));
+            ->where('flash.error', 'Skipped: newfriend@example.com (email could not be sent).'));
     }
 
     public function test_inviting_an_existing_member_sends_a_friend_request_instead(): void
@@ -119,7 +165,7 @@ class FriendInvitationTest extends TestCase
         $member = User::factory()->create(['email' => 'member@example.com']);
 
         $this->actingAs($user)->post('/friends/invite', [
-            'email' => 'member@example.com',
+            'emails' => ['member@example.com'],
         ]);
 
         $this->assertDatabaseMissing('friend_invitations', ['email' => 'member@example.com']);
@@ -137,8 +183,8 @@ class FriendInvitationTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->actingAs($user)->post('/friends/invite', ['email' => 'friend@example.com']);
-        $this->actingAs($user)->post('/friends/invite', ['email' => 'friend@example.com']);
+        $this->actingAs($user)->post('/friends/invite', ['emails' => ['friend@example.com']]);
+        $this->actingAs($user)->post('/friends/invite', ['emails' => ['friend@example.com']]);
 
         $this->assertSame(1, FriendInvitation::where('email', 'friend@example.com')->count());
         Mail::assertSentCount(1);

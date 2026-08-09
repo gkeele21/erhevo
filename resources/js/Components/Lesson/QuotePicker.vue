@@ -4,6 +4,7 @@ import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import TagInput from '@/Components/Story/TagInput.vue'
 import AuthorSelect from '@/Components/Story/AuthorSelect.vue'
+import SourceLinkInput from '@/Components/Story/SourceLinkInput.vue'
 
 // Church callings for the calling picker, provided by the lesson builder.
 const churchCallings = inject('lessonChurchCallings', [])
@@ -74,7 +75,7 @@ const clear = () => {
 }
 
 // --- Create a new quote inline ---
-const emptyForm = () => ({ content: '', title: '', author: '', author_id: null, church_calling_id: '', date_given: '', tags: [] })
+const emptyForm = () => ({ content: '', title: '', author: '', author_id: null, church_calling_id: '', date_given: '', source_url: '', tags: [] })
 const form = ref(emptyForm())
 const saving = ref(false)
 const createError = ref('')
@@ -94,6 +95,7 @@ const createQuote = async () => {
             author_id: form.value.author_id || null,
             church_calling_id: form.value.church_calling_id || null,
             date_given: form.value.date_given || null,
+            source_url: form.value.source_url || null,
             tags: form.value.tags,
         })
         attach(data)
@@ -104,6 +106,24 @@ const createQuote = async () => {
         createError.value = e.response?.data?.message || 'Could not save the quote.'
     } finally {
         saving.value = false
+    }
+}
+
+// Text pulled from a pasted source link (OG scrape) fills the quote body.
+const handleSourceText = ({ text, title }) => {
+    if (!form.value.content) form.value.content = text
+    if (title && !form.value.title) form.value.title = title
+}
+
+// A transcribed video (e.g. an Instagram reel): the spoken words become the
+// quote, and the posting account becomes the author.
+const handleTranscribed = ({ text, author_name, date_given }) => {
+    form.value.content = form.value.content ? form.value.content + '\n\n' + text : text
+    if (author_name && !form.value.author_id && !form.value.author) {
+        form.value.author = author_name
+    }
+    if (date_given && !form.value.date_given) {
+        form.value.date_given = date_given
     }
 }
 
@@ -259,6 +279,11 @@ const clearSource = () => {
 
             <!-- Create new -->
             <div v-else class="space-y-3 rounded-lg border border-stone-200 p-3">
+                <SourceLinkInput
+                    v-model="form.source_url"
+                    @text-fetched="handleSourceText"
+                    @transcribed="handleTranscribed"
+                />
                 <div>
                     <label class="mb-1 block text-sm font-medium text-stone-700">Quote</label>
                     <textarea

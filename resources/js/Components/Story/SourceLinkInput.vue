@@ -11,11 +11,16 @@ const props = defineProps({
     },
 })
 
-const emit = defineEmits(['update:modelValue', 'text-fetched'])
+const emit = defineEmits(['update:modelValue', 'text-fetched', 'transcribed'])
 
 const fetching = ref(false)
+const transcribing = ref(false)
 const error = ref('')
 const fetched = ref(false)
+const transcribed = ref(false)
+
+// Platforms whose links are usually videos we can download + transcribe.
+const VIDEO_PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'Facebook']
 
 // Client-side mirror of SourceLink::platformFor, for instant feedback.
 const PLATFORMS = {
@@ -48,9 +53,12 @@ const platform = computed(() => {
     }
 })
 
+const canTranscribe = computed(() => VIDEO_PLATFORMS.includes(platform.value))
+
 const onInput = (event) => {
     error.value = ''
     fetched.value = false
+    transcribed.value = false
     emit('update:modelValue', event.target.value)
 }
 
@@ -72,6 +80,28 @@ const fetchText = async () => {
         fetching.value = false
     }
 }
+
+const transcribe = async () => {
+    error.value = ''
+    fetched.value = false
+    transcribed.value = false
+    transcribing.value = true
+    try {
+        const { data } = await axios.post(
+            route('ai.transcribe-link'),
+            { url: props.modelValue },
+            { timeout: 300000 },
+        )
+        emit('transcribed', data)
+        transcribed.value = true
+    } catch (e) {
+        error.value = e.response?.data?.error
+            ?? e.response?.data?.errors?.url?.[0]
+            ?? 'Something went wrong transcribing that video.'
+    } finally {
+        transcribing.value = false
+    }
+}
 </script>
 
 <template>
@@ -90,18 +120,33 @@ const fetchText = async () => {
             <button
                 type="button"
                 @click="fetchText"
-                :disabled="!modelValue || fetching"
+                :disabled="!modelValue || fetching || transcribing"
                 class="shrink-0 rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50"
             >
                 {{ fetching ? 'Fetching...' : 'Get text' }}
+            </button>
+            <button
+                v-if="canTranscribe"
+                type="button"
+                @click="transcribe"
+                :disabled="!modelValue || fetching || transcribing"
+                class="shrink-0 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+            >
+                {{ transcribing ? 'Transcribing...' : 'Transcribe video' }}
             </button>
         </div>
         <p v-if="platform" class="mt-1 text-xs text-stone-500">
             Source:
             <span class="rounded bg-stone-100 px-1.5 py-0.5 font-medium text-stone-600">{{ platform }}</span>
         </p>
+        <p v-if="transcribing" class="mt-1 text-xs text-stone-500">
+            Downloading the video and transcribing the audio — this can take a minute...
+        </p>
         <p v-if="fetched" class="mt-1 text-xs text-green-700">
             Text pulled from the link — review and edit it below.
+        </p>
+        <p v-if="transcribed" class="mt-1 text-xs text-green-700">
+            Video transcribed — review the text and author below.
         </p>
         <p v-if="error" class="mt-1 text-xs text-amber-700">{{ error }}</p>
     </div>

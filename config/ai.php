@@ -21,6 +21,7 @@ return [
             'label' => 'OpenAI (ChatGPT)',
             'text_model' => env('AI_OPENAI_TEXT_MODEL', 'gpt-4o-mini'),
             'vision_model' => env('AI_OPENAI_VISION_MODEL', 'gpt-4o'),
+            'audio_model' => env('AI_OPENAI_AUDIO_MODEL', 'gpt-4o-mini-transcribe'),
             'supports_vision' => true,
             'key_hint' => 'Starts with "sk-".',
             // Shown on the profile connection form to guide key creation.
@@ -48,6 +49,7 @@ return [
             'label' => 'Google Gemini',
             'text_model' => env('AI_GEMINI_TEXT_MODEL', 'gemini-2.0-flash'),
             'vision_model' => env('AI_GEMINI_VISION_MODEL', 'gemini-2.0-flash'),
+            'audio_model' => env('AI_GEMINI_AUDIO_MODEL', 'gemini-2.0-flash'),
             'supports_vision' => true,
             'base_uri' => env('AI_GEMINI_BASE_URI', 'https://generativelanguage.googleapis.com/v1beta'),
             'key_hint' => '',

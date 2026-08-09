@@ -23,6 +23,16 @@ class AnthropicProvider implements AiProvider
         return (bool) ($this->config['supports_vision'] ?? true);
     }
 
+    public function supportsTranscription(): bool
+    {
+        return false;
+    }
+
+    public function transcribeAudio(string $path, string $mime = 'audio/mpeg'): string
+    {
+        throw new \RuntimeException('Anthropic does not support audio transcription.');
+    }
+
     public function complete(string $system, array $userParts, array $opts = []): string
     {
         $useVision = (bool) ($opts['vision'] ?? false);

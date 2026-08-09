@@ -96,6 +96,29 @@ class AiManager
     }
 
     /**
+     * Resolve a provider able to transcribe audio for the user: their own
+     * connected provider when it supports audio, otherwise the app's server
+     * OpenAI key (transcription is the one AI feature Anthropic can't do,
+     * so a connected user shouldn't be locked out of it).
+     *
+     * Returns null when no transcription-capable provider is available.
+     */
+    public function transcriberFor(User $user): ?AiProvider
+    {
+        $provider = $this->providerFor($user);
+
+        if ($provider->supportsTranscription()) {
+            return $provider;
+        }
+
+        $serverKey = config('openai.api_key');
+
+        return filled($serverKey)
+            ? new OpenAiProvider($serverKey, config('ai.providers.openai', []))
+            : null;
+    }
+
+    /**
      * Verify that a provider/key pair works by issuing a tiny request.
      *
      * @return array{ok: bool, error?: string}

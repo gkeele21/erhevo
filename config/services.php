@@ -39,4 +39,10 @@ return [
         ],
     ],
 
+    // Used for video transcription (see App\Services\SocialVideo). Only
+    // needed when the binary isn't in a standard location.
+    'yt-dlp' => [
+        'path' => env('YTDLP_PATH'),
+    ],
+
 ];

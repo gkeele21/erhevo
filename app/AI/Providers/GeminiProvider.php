@@ -23,6 +23,48 @@ class GeminiProvider implements AiProvider
         return (bool) ($this->config['supports_vision'] ?? true);
     }
 
+    public function supportsTranscription(): bool
+    {
+        return true;
+    }
+
+    public function transcribeAudio(string $path, string $mime = 'audio/mpeg'): string
+    {
+        $model = $this->config['audio_model'] ?? 'gemini-2.0-flash';
+
+        $payload = [
+            'contents' => [
+                [
+                    'role' => 'user',
+                    'parts' => [
+                        ['text' => 'Transcribe the speech in this audio verbatim. Return only the spoken words with sensible punctuation — no commentary, no timestamps, no speaker labels.'],
+                        ['inlineData' => ['mimeType' => $mime, 'data' => base64_encode(file_get_contents($path))]],
+                    ],
+                ],
+            ],
+        ];
+
+        $base = rtrim($this->config['base_uri'] ?? 'https://generativelanguage.googleapis.com/v1beta', '/');
+
+        // Audio uploads are slow to process; give this more room than text calls.
+        $response = Http::timeout(max($this->timeout, 120))
+            ->acceptJson()
+            ->withHeaders(['x-goog-api-key' => $this->apiKey])
+            ->post("{$base}/models/{$model}:generateContent", $payload);
+
+        if ($response->failed()) {
+            $message = $response->json('error.message') ?? $response->body();
+            throw new \RuntimeException('Gemini transcription failed: ' . $message);
+        }
+
+        $text = collect($response->json('candidates.0.content.parts', []))
+            ->pluck('text')
+            ->filter()
+            ->implode('');
+
+        return trim($text);
+    }
+
     public function complete(string $system, array $userParts, array $opts = []): string
     {
         $useVision = (bool) ($opts['vision'] ?? false);

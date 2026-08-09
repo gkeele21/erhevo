@@ -96,6 +96,23 @@ const handleSourceText = ({ text, title }) => {
     }
 }
 
+// A transcribed video: the spoken words become the content, and the account
+// that posted it becomes the author (find-or-created server-side on save).
+const handleTranscribed = ({ text, author_name, title, date_given }) => {
+    handleExtractedText(text)
+    if (title && !form.title) {
+        form.title = title
+    }
+    if (author_name) {
+        form.author_type = 'author'
+        form.author_text = author_name
+        form.author_id = null
+    }
+    if (date_given && form.post_type === 'quote' && !form.date_given) {
+        form.date_given = date_given
+    }
+}
+
 const handleScriptureAdd = (suggestion) => {
     const reference = suggestion.reference
     if (form.content) {
@@ -232,6 +249,7 @@ const uploadCoverImage = async (e) => {
                         <SourceLinkInput
                             v-model="form.source_url"
                             @text-fetched="handleSourceText"
+                            @transcribed="handleTranscribed"
                         />
 
                         <!-- Content Editor -->

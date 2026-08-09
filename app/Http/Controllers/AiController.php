@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\AI\AiManager;
 use App\Services\ScriptureReferenceParser;
+use App\Services\SocialVideo;
+use App\Services\SourceLink;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +27,82 @@ class AiController extends Controller
             'code' => 'ai_not_connected',
             'error' => 'Connect an AI account in your profile settings to use AI features.',
         ], 409);
+    }
+
+    /**
+     * Download a social-media video (Instagram reel, TikTok, ...) and
+     * transcribe its audio with the user's connected AI provider, so a
+     * pasted link can become quote text with the right attribution.
+     */
+    public function transcribeLink(Request $request, SocialVideo $socialVideo): JsonResponse
+    {
+        if (! $this->aiManager->isConnected($request->user())) {
+            return $this->notConnected();
+        }
+
+        $transcriber = $this->aiManager->transcriberFor($request->user());
+
+        if ($transcriber === null) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Your connected AI provider cannot transcribe audio. Connect an OpenAI or Google Gemini key in your profile settings to transcribe videos.',
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'url' => 'required|url|max:2048',
+        ]);
+
+        $platform = SourceLink::platformFor($validated['url']);
+
+        // Downloading + transcribing a reel can take a minute.
+        set_time_limit(300);
+
+        try {
+            $media = $socialVideo->fetchAudio($validated['url']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'platform' => $platform,
+                'error' => $e->getMessage(),
+            ], 422);
+        }
+
+        try {
+            $text = $transcriber->transcribeAudio($media['audio_path']);
+        } catch (\Exception $e) {
+            Log::error('AI Transcribe Link Error', [
+                'url' => $validated['url'],
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'platform' => $platform,
+                'error' => 'The video downloaded fine, but transcription failed. Please try again.',
+            ], 500);
+        } finally {
+            $socialVideo->cleanup($media['audio_path']);
+        }
+
+        if ($text === '') {
+            return response()->json([
+                'success' => false,
+                'platform' => $platform,
+                'error' => 'No speech was detected in that video.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'platform' => $platform,
+            'text' => $text,
+            'author_name' => $media['author_name'],
+            'username' => $media['username'],
+            'caption' => $media['caption'],
+            'title' => $media['title'],
+            'date_given' => $media['date_given'],
+        ]);
     }
 
     /**

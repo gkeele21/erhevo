@@ -59,7 +59,7 @@ class SourceLink
      */
     public function fetchText(string $url): array
     {
-        $this->assertSafe($url);
+        self::assertSafe($url);
 
         $response = Http::timeout(8)
             ->withHeaders([
@@ -86,8 +86,9 @@ class SourceLink
 
     /**
      * Refuse URLs that could reach internal services (SSRF).
+     * Shared with other link-fetching services (e.g. SocialVideo).
      */
-    private function assertSafe(string $url): void
+    public static function assertSafe(string $url): void
     {
         $parts = parse_url($url);
         $scheme = strtolower($parts['scheme'] ?? '');

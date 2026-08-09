@@ -148,6 +148,7 @@ Route::middleware([
 
     // AI Features
     Route::post('/api/ai/extract-text', [AiController::class, 'extractText'])->name('ai.extract-text');
+    Route::post('/api/ai/transcribe-link', [AiController::class, 'transcribeLink'])->name('ai.transcribe-link');
     Route::post('/api/ai/generate-excerpt', [AiController::class, 'generateExcerpt'])->name('ai.generate-excerpt');
     Route::post('/api/ai/suggest-tags', [AiController::class, 'suggestTags'])->name('ai.suggest-tags');
     Route::post('/api/ai/suggest-titles', [AiController::class, 'suggestTitles'])->name('ai.suggest-titles');

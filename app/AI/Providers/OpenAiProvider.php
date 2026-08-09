@@ -22,6 +22,27 @@ class OpenAiProvider implements AiProvider
         return (bool) ($this->config['supports_vision'] ?? true);
     }
 
+    public function supportsTranscription(): bool
+    {
+        return true;
+    }
+
+    public function transcribeAudio(string $path, string $mime = 'audio/mpeg'): string
+    {
+        try {
+            $client = OpenAIClient::client($this->apiKey);
+            $response = $client->audio()->transcribe([
+                'model' => $this->config['audio_model'] ?? 'gpt-4o-mini-transcribe',
+                'file' => fopen($path, 'r'),
+                'response_format' => 'text',
+            ]);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('OpenAI transcription failed: ' . $e->getMessage(), 0, $e);
+        }
+
+        return trim((string) $response->text);
+    }
+
     public function complete(string $system, array $userParts, array $opts = []): string
     {
         $useVision = (bool) ($opts['vision'] ?? false);

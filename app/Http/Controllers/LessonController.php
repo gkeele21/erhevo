@@ -480,6 +480,7 @@ class LessonController extends Controller
             'author_id' => 'nullable|exists:authors,id',
             'church_calling_id' => 'nullable|exists:church_callings,id',
             'date_given' => 'nullable|date',
+            'source_url' => 'nullable|url|max:2048',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
@@ -506,6 +507,8 @@ class LessonController extends Controller
             'author_id' => $authorEntity?->id,
             'church_calling_id' => $validated['church_calling_id'] ?? null,
             'date_given' => $validated['date_given'] ?? null,
+            'source_url' => $validated['source_url'] ?? null,
+            'source_platform' => \App\Services\SourceLink::platformFor($validated['source_url'] ?? null),
             'visibility' => Visibility::Private,
         ]);
         $post->user_id = $request->user()->id;

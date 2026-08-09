@@ -15,6 +15,21 @@ interface AiProvider
     public function supportsVision(): bool;
 
     /**
+     * Whether this provider can transcribe audio.
+     */
+    public function supportsTranscription(): bool;
+
+    /**
+     * Transcribe an audio file and return the spoken text.
+     *
+     * @param string $path Absolute path to a local audio file (mp3 preferred).
+     *
+     * @throws \RuntimeException When the provider rejects the request or
+     *         does not support audio input.
+     */
+    public function transcribeAudio(string $path, string $mime = 'audio/mpeg'): string;
+
+    /**
      * Run a single-turn completion and return the response text.
      *
      * @param string $system System / instruction prompt.

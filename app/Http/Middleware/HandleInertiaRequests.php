@@ -53,6 +53,7 @@ class HandleInertiaRequests extends Middleware
             'ai' => fn () => [
                 'connected' => $request->user()?->hasAiConnection() ?? false,
                 'provider' => $request->user()?->ai_provider,
+                'connections' => $request->user()?->aiConnections->pluck('provider')->values() ?? [],
                 'providers' => app(\App\AI\AiManager::class)->providerOptions(),
             ],
         ];

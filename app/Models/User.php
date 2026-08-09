@@ -36,7 +36,6 @@ class User extends Authenticatable
         'is_admin',
         'settings',
         'ai_provider',
-        'ai_api_key',
     ];
 
     /**
@@ -49,7 +48,6 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
-        'ai_api_key',
     ];
 
     /**
@@ -75,7 +73,6 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'settings' => 'array',
-            'ai_api_key' => 'encrypted',
         ];
     }
 
@@ -254,10 +251,24 @@ class User extends Authenticatable
     }
 
     /**
-     * Whether the user has connected their own AI account.
+     * The user's AI provider connections (one key per provider).
+     * `ai_provider` names the default one for general AI features.
+     */
+    public function aiConnections(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserAiConnection::class);
+    }
+
+    public function aiConnection(string $provider): ?UserAiConnection
+    {
+        return $this->aiConnections->firstWhere('provider', $provider);
+    }
+
+    /**
+     * Whether the user has connected at least one AI account.
      */
     public function hasAiConnection(): bool
     {
-        return filled($this->ai_provider) && filled($this->ai_api_key);
+        return $this->aiConnections->isNotEmpty();
     }
 }

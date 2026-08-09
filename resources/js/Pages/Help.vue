@@ -191,7 +191,7 @@ const topics = [
                         <section id="settings" class="scroll-mt-6 bg-white rounded-lg shadow border border-navy-50 p-6">
                             <h3 class="text-xl font-semibold text-navy mb-3">⚙️ Settings &amp; AI</h3>
                             <ul class="list-disc list-inside text-teal space-y-1 mb-4">
-                                <li><strong class="text-navy">Bring your own AI</strong>: connect an Anthropic, OpenAI, or Gemini key in your profile and get suggested titles, tags, scriptures, excerpts, and journal insights — billed to your own account, never shared.</li>
+                                <li><strong class="text-navy">Bring your own AI</strong>: connect Anthropic, OpenAI, or Gemini keys in your profile (one or several) and get suggested titles, tags, scriptures, excerpts, and journal insights — billed to your own account, never shared. Your <strong class="text-navy">default</strong> provider handles general features; anything it can't do (like transcribing video) automatically uses another of your connections.</li>
                                 <li><strong class="text-navy">LDS content toggle</strong>: the Library, Come Follow Me, and scripture features can be switched off in your profile.</li>
                                 <li><strong class="text-navy">My Categories</strong>: build your own category tree for organizing private writing, separate from the community categories.</li>
                             </ul>

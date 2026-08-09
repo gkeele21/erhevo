@@ -15,7 +15,9 @@ class AiConnectionController extends Controller
     ) {}
 
     /**
-     * Connect (or replace) the user's own AI account.
+     * Connect an AI account (or replace the stored key for that provider).
+     * A user can hold one connection per provider; the first one connected
+     * becomes their default.
      */
     public function update(Request $request): RedirectResponse
     {
@@ -34,22 +36,58 @@ class AiConnectionController extends Controller
         }
 
         $user = $request->user();
-        $user->ai_provider = $validated['ai_provider'];
-        $user->ai_api_key = $validated['ai_api_key'];
-        $user->save();
+
+        $user->aiConnections()->updateOrCreate(
+            ['provider' => $validated['ai_provider']],
+            ['api_key' => $validated['ai_api_key']],
+        );
+
+        if (! $user->ai_provider) {
+            $user->ai_provider = $validated['ai_provider'];
+            $user->save();
+        }
 
         return back()->with('success', 'AI account connected.');
     }
 
     /**
-     * Disconnect the user's AI account.
+     * Choose which connected provider general AI features use.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function setDefault(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ai_provider' => ['required', 'string', Rule::in($this->aiManager->availableProviders())],
+        ]);
+
+        $user = $request->user();
+
+        if (! $user->aiConnection($validated['ai_provider'])) {
+            throw ValidationException::withMessages([
+                'ai_provider' => 'Connect that provider first.',
+            ]);
+        }
+
+        $user->ai_provider = $validated['ai_provider'];
+        $user->save();
+
+        return back()->with('success', 'Default AI provider updated.');
+    }
+
+    /**
+     * Disconnect one provider. If it was the default, another remaining
+     * connection (if any) becomes the default.
+     */
+    public function destroy(Request $request, string $provider): RedirectResponse
     {
         $user = $request->user();
-        $user->ai_provider = null;
-        $user->ai_api_key = null;
-        $user->save();
+
+        $user->aiConnections()->where('provider', $provider)->delete();
+        $user->load('aiConnections');
+
+        if ($user->ai_provider === $provider) {
+            $user->ai_provider = $user->aiConnections->first()?->provider;
+            $user->save();
+        }
 
         return back()->with('success', 'AI account disconnected.');
     }

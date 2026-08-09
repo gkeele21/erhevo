@@ -22,6 +22,13 @@ return [
 
         [
             'date' => '2026-08-09',
+            'title' => 'Connect more than one AI account',
+            'body' => 'Your profile now holds a key for each AI provider — Anthropic, OpenAI, and Gemini — instead of just one. Pick a default for everyday AI features; anything your default can\'t do (like transcribing a video) automatically uses another of your connected accounts.',
+            'help_anchor' => 'settings',
+        ],
+
+        [
+            'date' => '2026-08-09',
             'title' => 'Turn a video post into text — automatically',
             'body' => 'Paste an Instagram, TikTok, YouTube, or Facebook video link into the source-link field on a post (or a lesson quote) and hit Transcribe video. The spoken words become your text, the account that posted it is attributed as the author, and the link is saved as the source.',
             'help_anchor' => 'posts',

@@ -51,9 +51,7 @@ class AiManager
 
     public function isConnected(?User $user): bool
     {
-        return $user !== null
-            && $this->isValidProvider($user->ai_provider)
-            && filled($user->ai_api_key);
+        return $user !== null && $user->hasAiConnection();
     }
 
     /**
@@ -76,15 +74,19 @@ class AiManager
     }
 
     /**
-     * Resolve the provider configured for the given user.
+     * Resolve the user's default provider: the connection named by
+     * `ai_provider`, or their only/first connection as a fallback.
      */
     public function providerFor(User $user): AiProvider
     {
-        if (! $this->isConnected($user)) {
+        $connection = ($user->ai_provider ? $user->aiConnection($user->ai_provider) : null)
+            ?? $user->aiConnections->first();
+
+        if ($connection === null) {
             throw new AiNotConnectedException();
         }
 
-        return $this->makeProvider($user->ai_provider, $user->ai_api_key);
+        return $this->makeProvider($connection->provider, $connection->api_key);
     }
 
     /**
@@ -96,19 +98,27 @@ class AiManager
     }
 
     /**
-     * Resolve a provider able to transcribe audio for the user: their own
-     * connected provider when it supports audio, otherwise the app's server
-     * OpenAI key (transcription is the one AI feature Anthropic can't do,
-     * so a connected user shouldn't be locked out of it).
+     * Resolve a provider able to transcribe audio for the user: their
+     * default provider when it supports audio, else any of their other
+     * connections that does, else the app's server OpenAI key
+     * (transcription is the one AI feature Anthropic can't do, so a
+     * connected user shouldn't be locked out of it).
      *
      * Returns null when no transcription-capable provider is available.
      */
     public function transcriberFor(User $user): ?AiProvider
     {
-        $provider = $this->providerFor($user);
+        $default = $this->providerFor($user);
 
-        if ($provider->supportsTranscription()) {
-            return $provider;
+        if ($default->supportsTranscription()) {
+            return $default;
+        }
+
+        foreach ($user->aiConnections as $connection) {
+            $provider = $this->makeProvider($connection->provider, $connection->api_key);
+            if ($provider->supportsTranscription()) {
+                return $provider;
+            }
         }
 
         $serverKey = config('openai.api_key');

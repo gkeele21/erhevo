@@ -25,7 +25,7 @@ return [
             'supports_vision' => true,
             'key_hint' => 'Starts with "sk-".',
             // Shown on the profile connection form to guide key creation.
-            'console_url' => 'https://platform.openai.com/api-keys',
+            'console_url' => 'https://platform.openai.com/settings/organization/api-keys',
             'console_host' => 'platform.openai.com',
             'console_path' => 'API keys → Create new secret key',
             'note' => 'Billed by usage — separate from a ChatGPT subscription.',

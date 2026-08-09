@@ -144,7 +144,8 @@ Route::middleware([
 
     // AI Connection (bring-your-own AI account)
     Route::put('/user/ai-connection', [AiConnectionController::class, 'update'])->name('ai-connection.update');
-    Route::delete('/user/ai-connection', [AiConnectionController::class, 'destroy'])->name('ai-connection.destroy');
+    Route::put('/user/ai-connection/default', [AiConnectionController::class, 'setDefault'])->name('ai-connection.default');
+    Route::delete('/user/ai-connection/{provider}', [AiConnectionController::class, 'destroy'])->name('ai-connection.destroy');
 
     // AI Features
     Route::post('/api/ai/extract-text', [AiController::class, 'extractText'])->name('ai.extract-text');

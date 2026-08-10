@@ -53,7 +53,12 @@ class HandleInertiaRequests extends Middleware
             'ai' => fn () => [
                 'connected' => $request->user()?->hasAiConnection() ?? false,
                 'provider' => $request->user()?->ai_provider,
-                'connections' => $request->user()?->aiConnections->pluck('provider')->values() ?? [],
+                // key_preview: just enough of the stored key ("sk-") to make
+                // "you already have a key here" visually obvious.
+                'connections' => $request->user()?->aiConnections->map(fn ($c) => [
+                    'provider' => $c->provider,
+                    'key_preview' => substr($c->api_key, 0, 3),
+                ])->values() ?? [],
                 'providers' => app(\App\AI\AiManager::class)->providerOptions(),
             ],
         ];

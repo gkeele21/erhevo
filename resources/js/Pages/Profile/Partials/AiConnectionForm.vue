@@ -11,14 +11,15 @@ import InputError from '@/Components/InputError.vue';
 const page = usePage();
 
 const providers = computed(() => page.props.ai?.providers ?? []);
-const connectedKeys = computed(() => page.props.ai?.connections ?? []);
+const rawConnections = computed(() => page.props.ai?.connections ?? []);
+const connectedKeys = computed(() => rawConnections.value.map(c => c.provider));
 const defaultProviderKey = computed(() => page.props.ai?.provider ?? null);
 
 const connections = computed(() =>
-    connectedKeys.value.map(key => ({
-        key,
-        label: providers.value.find(p => p.key === key)?.label ?? key,
-        isDefault: key === defaultProviderKey.value,
+    rawConnections.value.map(c => ({
+        key: c.provider,
+        label: providers.value.find(p => p.key === c.provider)?.label ?? c.provider,
+        isDefault: c.provider === defaultProviderKey.value,
     }))
 );
 
@@ -34,6 +35,13 @@ const selectedProvider = computed(() =>
 
 const selectedHint = computed(() => selectedProvider.value?.key_hint ?? '');
 const replacingKey = computed(() => connectedKeys.value.includes(form.ai_provider));
+
+// "sk-************" — the stored key's real prefix, starred out, so an
+// already-saved key is obvious at a glance.
+const maskedKey = computed(() => {
+    const prefix = rawConnections.value.find(c => c.provider === form.ai_provider)?.key_preview ?? '';
+    return prefix + '*'.repeat(24);
+});
 
 const connect = () => {
     form.put(route('ai-connection.update'), {
@@ -153,10 +161,11 @@ const disconnect = (provider) => {
                     type="password"
                     autocomplete="off"
                     class="mt-1 block w-full"
-                    placeholder="Paste your API key"
+                    :placeholder="replacingKey ? maskedKey : 'Paste your API key'"
                 />
-                <p v-if="selectedHint" class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ selectedHint }}
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    <template v-if="replacingKey">A key is already saved for this provider — enter a new one only to replace it.</template>
+                    <template v-else-if="selectedHint">{{ selectedHint }}</template>
                 </p>
                 <InputError :message="form.errors.ai_api_key" class="mt-2" />
             </div>

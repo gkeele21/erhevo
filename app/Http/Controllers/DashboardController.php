@@ -108,6 +108,15 @@ class DashboardController extends Controller
             ];
         }
 
+        if ($user->show_lds_content) {
+            $steps[] = [
+                'label' => 'Log a temple visit',
+                'description' => 'Track which temples you\'ve visited and plan trips to the rest.',
+                'href' => route('temples.index'),
+                'done' => $user->templeVisits()->exists(),
+            ];
+        }
+
         $steps[] = [
             'label' => 'Create a study plan',
             'description' => 'Pick scriptures or talks, set your pace, and track your reading.',

@@ -6,11 +6,15 @@ use App\Models\Category;
 use App\Models\Friendship;
 use App\Models\Lesson;
 use App\Models\Post;
+use App\Models\TempleTrip;
+use App\Models\TempleVisit;
 use App\Models\UserCategory;
 use App\Policies\CategoryPolicy;
 use App\Policies\FriendshipPolicy;
 use App\Policies\LessonPolicy;
 use App\Policies\PostPolicy;
+use App\Policies\TempleTripPolicy;
+use App\Policies\TempleVisitPolicy;
 use App\Policies\UserCategoryPolicy;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Mail\Events\MessageSent;
@@ -39,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Category::class, CategoryPolicy::class);
         Gate::policy(Friendship::class, FriendshipPolicy::class);
         Gate::policy(UserCategory::class, UserCategoryPolicy::class);
+        Gate::policy(TempleVisit::class, TempleVisitPolicy::class);
+        Gate::policy(TempleTrip::class, TempleTripPolicy::class);
 
         // Trace every outgoing email so delivery problems are diagnosable:
         // one line when a send is attempted, one when the SMTP server accepts

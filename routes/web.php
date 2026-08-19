@@ -2,16 +2,18 @@
 
 use App\Http\Controllers\Admin\AdminAuthorController;
 use App\Http\Controllers\Admin\AdminCategoryController;
-use App\Http\Controllers\Admin\AdminChurchCallingController;
-use App\Http\Controllers\Admin\AdminPostController;
-use App\Http\Controllers\Admin\AdminTalkController;
 use App\Http\Controllers\Admin\AdminCfmPublisherContentController;
 use App\Http\Controllers\Admin\AdminCfmPublisherController;
 use App\Http\Controllers\Admin\AdminCfmSpecialTopicController;
 use App\Http\Controllers\Admin\AdminCfmStudyYearController;
 use App\Http\Controllers\Admin\AdminCfmWeekController;
+use App\Http\Controllers\Admin\AdminChurchCallingController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminPostController;
+use App\Http\Controllers\Admin\AdminTalkController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\AiConnectionController;
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
@@ -23,10 +25,11 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostShareController;
 use App\Http\Controllers\SharedPostController;
 use App\Http\Controllers\StudyPlanController;
-use App\Http\Controllers\AiController;
-use App\Http\Controllers\AiConnectionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TalkController;
+use App\Http\Controllers\TempleController;
+use App\Http\Controllers\TempleTripController;
+use App\Http\Controllers\TempleVisitController;
 use App\Http\Controllers\UserCategoryController;
 use App\Http\Controllers\UserSettingsController;
 use Illuminate\Support\Facades\Route;
@@ -138,6 +141,34 @@ Route::middleware([
     Route::delete('/study-plans/{studyPlan}', [StudyPlanController::class, 'destroy'])->name('study-plans.destroy');
     Route::patch('/study-plans/{studyPlan}/items/{item}', [StudyPlanController::class, 'toggleItem'])->name('study-plans.items.toggle');
     Route::put('/study-plans/{studyPlan}/members', [StudyPlanController::class, 'updateMembers'])->name('study-plans.members.update');
+
+    // Temple Tracker — auth-only (visits and trips are personal), and the
+    // whole section is LDS content, so it sits behind the lds gate.
+    Route::middleware('lds')->group(function () {
+        Route::get('/temples', [TempleController::class, 'index'])->name('temples.index');
+        // Must precede the {temple:slug} route.
+        Route::get('/temples/explore', [TempleController::class, 'explore'])->name('temples.explore');
+        // Address lookup for the explorer; throttled to stay a good Nominatim citizen.
+        Route::get('/temples/geocode', [TempleController::class, 'geocode'])
+            ->middleware('throttle:20,1')
+            ->name('temples.geocode');
+        Route::get('/temples/{temple:slug}', [TempleController::class, 'show'])->name('temples.show');
+        Route::post('/temples/{temple:slug}/favorite', [TempleController::class, 'toggleFavorite'])->name('temples.favorite');
+
+        Route::get('/temple-visits', [TempleVisitController::class, 'index'])->name('temple-visits.index');
+        Route::post('/temple-visits', [TempleVisitController::class, 'store'])->name('temple-visits.store');
+        Route::put('/temple-visits/{visit}', [TempleVisitController::class, 'update'])->name('temple-visits.update');
+        Route::delete('/temple-visits/{visit}', [TempleVisitController::class, 'destroy'])->name('temple-visits.destroy');
+
+        Route::get('/temple-trips', [TempleTripController::class, 'index'])->name('temple-trips.index');
+        Route::post('/temple-trips', [TempleTripController::class, 'store'])->name('temple-trips.store');
+        Route::get('/temple-trips/{trip}', [TempleTripController::class, 'show'])->name('temple-trips.show');
+        Route::put('/temple-trips/{trip}', [TempleTripController::class, 'update'])->name('temple-trips.update');
+        Route::delete('/temple-trips/{trip}', [TempleTripController::class, 'destroy'])->name('temple-trips.destroy');
+        Route::post('/temple-trips/{trip}/items', [TempleTripController::class, 'addItem'])->name('temple-trips.items.store');
+        Route::patch('/temple-trips/{trip}/items/{item}', [TempleTripController::class, 'toggleItem'])->name('temple-trips.items.toggle');
+        Route::delete('/temple-trips/{trip}/items/{item}', [TempleTripController::class, 'removeItem'])->name('temple-trips.items.destroy');
+    });
 
     // User Settings
     Route::put('/user/settings', [UserSettingsController::class, 'update'])->name('user-settings.update');

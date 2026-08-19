@@ -42,6 +42,8 @@ class DatabaseSeeder extends Seeder
             CfmScheduleSeeder::class,
             CfmSpecialTopicSeeder::class,
             ScriptureSeeder::class,
+
+            TempleSeeder::class,
         ]);
 
         // Sample/demo data relies on model factories (faker), which is a

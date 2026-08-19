@@ -41,7 +41,7 @@ const logout = () => {
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div class="hidden space-x-8 lg:-my-px lg:ms-10 lg:flex">
                                 <NavLink v-if="user" :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
@@ -54,19 +54,17 @@ const logout = () => {
                                 <NavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                                     Study Plans
                                 </NavLink>
-                                <NavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
-                                    Friends
-                                </NavLink>
                                 <NavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
                                     Library
                                 </NavLink>
-                                <NavLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')" :active="route().current('admin.*')">
-                                    Admin
+                                <!-- Auth-only (visits/trips are personal), unlike the guest-browsable Library. -->
+                                <NavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('temples.index')" :active="route().current('temples.*') || route().current('temple-visits.*') || route().current('temple-trips.*')">
+                                    Temples
                                 </NavLink>
                             </div>
                         </div>
 
-                        <div class="hidden sm:flex sm:items-center sm:ms-6">
+                        <div class="hidden lg:flex lg:items-center lg:ms-6">
                             <!-- Authenticated User Nav -->
                             <template v-if="user">
                                 <!-- New Post Button -->
@@ -104,7 +102,7 @@ const logout = () => {
                         </div>
 
                         <!-- Hamburger (with notifications alongside on mobile) -->
-                        <div class="-me-2 flex items-center gap-1 sm:hidden">
+                        <div class="-me-2 flex items-center gap-1 lg:hidden">
                             <NotificationsBell v-if="user" />
                             <button class="inline-flex items-center justify-center p-2 rounded-md text-teal hover:text-navy hover:bg-navy-50 focus:outline-none focus:bg-navy-50 focus:text-navy transition duration-150 ease-in-out" @click="showingNavigationDropdown = ! showingNavigationDropdown">
                                 <svg
@@ -134,7 +132,7 @@ const logout = () => {
                 </div>
 
                 <!-- Responsive Navigation Menu -->
-                <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
+                <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="lg:hidden">
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink v-if="user" :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
@@ -148,14 +146,11 @@ const logout = () => {
                         <ResponsiveNavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
                             Study Plans
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="user" :href="route('friends.index')" :active="route().current('friends.index')">
-                            Friends
-                        </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
                             Library
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')" :active="route().current('admin.*')">
-                            Admin
+                        <ResponsiveNavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('temples.index')" :active="route().current('temples.*') || route().current('temple-visits.*') || route().current('temple-trips.*')">
+                            Temples
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user" :href="route('posts.create')" :active="route().current('posts.create')">
                             New Post
@@ -180,6 +175,14 @@ const logout = () => {
                         </div>
 
                         <div class="mt-3 space-y-1">
+                            <ResponsiveNavLink :href="route('friends.index')" :active="route().current('friends.index')">
+                                Friends
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')" :active="route().current('admin.*')">
+                                Admin
+                            </ResponsiveNavLink>
+
                             <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">
                                 Profile
                             </ResponsiveNavLink>

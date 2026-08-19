@@ -32,6 +32,16 @@ const logout = () => {
             </template>
 
             <template #content>
+                <DropdownLink :href="route('friends.index')">
+                    Friends
+                </DropdownLink>
+
+                <DropdownLink v-if="$page.props.isAdmin" :href="route('admin.dashboard')">
+                    Admin
+                </DropdownLink>
+
+                <div class="border-t border-navy-100" />
+
                 <!-- Account Management -->
                 <div class="block px-4 py-2 text-xs text-teal">
                     Manage Account

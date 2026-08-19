@@ -175,6 +175,161 @@ class StudyPlanTest extends TestCase
         $this->assertStringContainsString('Apostle', $plan->criteria_summary);
     }
 
+    public function test_a_plan_shows_each_talks_average_and_the_viewers_own_rating(): void
+    {
+        $viewer = User::factory()->create();
+        $other = User::factory()->create();
+
+        $source = \App\Models\Source::create(['name' => 'General Conference', 'slug' => 'gc']);
+        $talk = Talk::create([
+            'source_id' => $source->id,
+            'speaker_name' => 'Russell M. Nelson',
+            'title' => 'Rated Talk',
+            'talk_date' => '2024-04-06',
+        ]);
+
+        $plan = StudyPlan::create([
+            'user_id' => $viewer->id,
+            'name' => 'Rated Plan',
+            'type' => 'talks',
+            'config' => ['mode' => 'author'],
+        ]);
+        \App\Models\StudyPlanItem::create([
+            'study_plan_id' => $plan->id,
+            'talk_id' => $talk->id,
+            'session_number' => 1,
+            'sort_order' => 1,
+        ]);
+
+        \App\Models\TalkRating::create(['talk_id' => $talk->id, 'user_id' => $viewer->id, 'rating' => 4]);
+        \App\Models\TalkRating::create(['talk_id' => $talk->id, 'user_id' => $other->id, 'rating' => 2]);
+
+        $this->actingAs($viewer)
+            ->get(route('study-plans.show', $plan))
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->component('StudyPlans/Show')
+                // The average blends both raters; my_rating is only mine.
+                ->where('plan.items.0.talk.average_rating', fn ($average) => (float) $average === 3.0)
+                ->where('plan.items.0.talk.ratings_count', 2)
+                ->where('plan.items.0.talk.my_rating', 4)
+                // The other user's rating rows must not ride along.
+                ->missing('plan.items.0.talk.ratings'));
+    }
+
+    public function test_a_plan_viewer_who_has_not_rated_sees_a_null_own_rating(): void
+    {
+        $viewer = User::factory()->create();
+        $source = \App\Models\Source::create(['name' => 'General Conference', 'slug' => 'gc']);
+        $talk = Talk::create([
+            'source_id' => $source->id,
+            'speaker_name' => 'Russell M. Nelson',
+            'title' => 'Unrated Talk',
+            'talk_date' => '2024-04-06',
+        ]);
+
+        $plan = StudyPlan::create([
+            'user_id' => $viewer->id,
+            'name' => 'Plan',
+            'type' => 'talks',
+            'config' => ['mode' => 'author'],
+        ]);
+        \App\Models\StudyPlanItem::create([
+            'study_plan_id' => $plan->id,
+            'talk_id' => $talk->id,
+            'session_number' => 1,
+            'sort_order' => 1,
+        ]);
+
+        \App\Models\TalkRating::create([
+            'talk_id' => $talk->id,
+            'user_id' => User::factory()->create()->id,
+            'rating' => 5,
+        ]);
+
+        $this->actingAs($viewer)
+            ->get(route('study-plans.show', $plan))
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('plan.items.0.talk.average_rating', fn ($average) => (float) $average === 5.0)
+                ->where('plan.items.0.talk.my_rating', null));
+    }
+
+    public function test_rating_a_talk_from_a_plan_returns_to_the_plan(): void
+    {
+        $viewer = User::factory()->create();
+        $source = \App\Models\Source::create(['name' => 'General Conference', 'slug' => 'gc']);
+        $talk = Talk::create([
+            'source_id' => $source->id,
+            'speaker_name' => 'Russell M. Nelson',
+            'title' => 'Talk',
+            'talk_date' => '2024-04-06',
+        ]);
+
+        $plan = StudyPlan::create([
+            'user_id' => $viewer->id,
+            'name' => 'Plan',
+            'type' => 'talks',
+            'config' => ['mode' => 'author'],
+        ]);
+        \App\Models\StudyPlanItem::create([
+            'study_plan_id' => $plan->id,
+            'talk_id' => $talk->id,
+            'session_number' => 1,
+            'sort_order' => 1,
+        ]);
+
+        // The plan page reuses the library's endpoint, which redirects back.
+        $this->actingAs($viewer)
+            ->from(route('study-plans.show', $plan))
+            ->put(route('talks.rate', $talk), ['rating' => 5])
+            ->assertRedirect(route('study-plans.show', $plan));
+
+        $this->assertSame(5.0, (float) $talk->fresh()->average_rating);
+    }
+
+    public function test_a_shared_member_can_rate_a_talk_in_the_plan(): void
+    {
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
+
+        $source = \App\Models\Source::create(['name' => 'General Conference', 'slug' => 'gc']);
+        $talk = Talk::create([
+            'source_id' => $source->id,
+            'speaker_name' => 'Russell M. Nelson',
+            'title' => 'Talk',
+            'talk_date' => '2024-04-06',
+        ]);
+
+        $plan = StudyPlan::create([
+            'user_id' => $owner->id,
+            'name' => 'Shared Plan',
+            'type' => 'talks',
+            'config' => ['mode' => 'author'],
+        ]);
+        $plan->members()->attach($member->id);
+        \App\Models\StudyPlanItem::create([
+            'study_plan_id' => $plan->id,
+            'talk_id' => $talk->id,
+            'session_number' => 1,
+            'sort_order' => 1,
+        ]);
+
+        // Ratings are personal, so a member rates for themselves, not the plan.
+        $this->actingAs($member)
+            ->put(route('talks.rate', $talk), ['rating' => 3])
+            ->assertRedirect();
+
+        $this->actingAs($member)
+            ->get(route('study-plans.show', $plan))
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('plan.items.0.talk.my_rating', 3));
+
+        $this->actingAs($owner)
+            ->get(route('study-plans.show', $plan))
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('plan.items.0.talk.my_rating', null)
+                ->where('plan.items.0.talk.ratings_count', 1));
+    }
+
     public function test_scripture_plan_requires_a_volume(): void
     {
         $user = User::factory()->create();

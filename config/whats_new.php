@@ -22,6 +22,20 @@ return [
 
         [
             'date' => '2026-08-19',
+            'title' => 'More ways to search the Library',
+            'body' => 'The Library now filters the way the study plan builder does: narrow to one speaker — and optionally only the talks they gave while holding particular callings, picking as many as you like — or to everyone who held a calling when they spoke, to a single General Conference, or to just the last few years. Results show a total count, and every search also turns up one random pick matching your filters, with a Shuffle button for another — a good way to find something you would not have thought to search for.',
+            'help_anchor' => 'library',
+        ],
+
+        [
+            'date' => '2026-08-19',
+            'title' => 'Rate, favorite, and track the talks you read',
+            'body' => 'Give any talk in the Library a one-to-five star rating. Each talk shows the average rating from everyone who has rated it, and you can narrow the Library to talks rated 4+ stars or sort by highest rated. Favorite the talks worth returning to and find them again under My Favorite Talks in your account menu. You can also mark a talk as read and enter the date — read it again later and log that date too, so each talk lists every date you have read it.',
+            'help_anchor' => 'library',
+        ],
+
+        [
+            'date' => '2026-08-19',
             'title' => 'Temple Tracker',
             'body' => 'A new Temples section for members with LDS content on: browse every dedicated temple in a list or on a map, star your favorites to keep them at the top, log your visits (with ordinances), find temples near your location or any address you type, and plan trips as check-off lists that suggest other temples along the way.',
             'help_anchor' => 'temple-tracker',

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { formatLocalDate, parseLocalDate } from '@/utils/date'
+import StarRating from '@/Components/StarRating.vue'
 
 const props = defineProps({
     plan: Object,
@@ -31,6 +32,19 @@ const saveMembers = () => {
 }
 
 const isShared = computed(() => (props.plan.members ?? []).length > 0)
+
+// --- Talk ratings ---
+// Same endpoints the Library uses; each redirects back so the row re-renders
+// with the new average alongside your own stars.
+const ratingVisit = { preserveScroll: true, preserveState: true }
+
+const rateTalk = (talk, rating) => {
+    router.put(route('talks.rate', talk.id), { rating }, ratingVisit)
+}
+
+const clearTalkRating = (talk) => {
+    router.delete(route('talks.rating.destroy', talk.id), ratingVisit)
+}
 
 const sessions = computed(() => {
     const groups = new Map()
@@ -271,6 +285,35 @@ const destroy = () => {
                                         >
                                             #{{ tag.name }}
                                         </Link>
+                                    </div>
+
+                                    <!-- Everyone's average, then your own stars -->
+                                    <div v-if="item.talk" class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
+                                        <div class="flex items-center gap-1.5">
+                                            <StarRating :model-value="item.talk.average_rating" readonly size="sm" />
+                                            <span v-if="item.talk.ratings_count" class="text-xs text-teal">
+                                                {{ item.talk.average_rating.toFixed(1) }}
+                                                <span class="text-teal-300">({{ item.talk.ratings_count }})</span>
+                                            </span>
+                                            <span v-else class="text-xs text-teal-300">Not yet rated</span>
+                                        </div>
+
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xs text-teal">{{ item.talk.my_rating ? 'Your rating' : 'Rate it' }}</span>
+                                            <StarRating
+                                                :model-value="item.talk.my_rating"
+                                                size="sm"
+                                                @update:model-value="rateTalk(item.talk, $event)"
+                                            />
+                                            <button
+                                                v-if="item.talk.my_rating"
+                                                type="button"
+                                                class="text-xs text-teal-300 hover:text-navy underline"
+                                                @click="clearTalkRating(item.talk)"
+                                            >
+                                                Clear
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </li>

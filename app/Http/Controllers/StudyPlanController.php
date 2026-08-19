@@ -117,19 +117,24 @@ class StudyPlanController extends Controller
     {
         Gate::authorize('view', $studyPlan);
 
+        $userId = request()->user()->id;
+
         $studyPlan->append('criteria_summary');
         $studyPlan->load([
             'user:id,first_name,last_name',
             'members:id,first_name,last_name',
             'items.completedBy:id,first_name,last_name',
             'items.chapter.book:id,name',
-            'items.talk:id,title,slug,speaker_name,speaker_title,summary,talk_date,url,church_calling_id',
+            'items.talk:id,title,slug,speaker_name,speaker_title,summary,talk_date,url,church_calling_id,average_rating,ratings_count',
             'items.talk.calling:id,prefix,name,church_organization_id',
             'items.talk.calling.organization:id,name',
             'items.talk.tags:id,name,slug',
+            // Just this user's rating — a plan shows the shared average plus
+            // your own stars, never anyone else's.
+            'items.talk.ratings' => fn ($q) => $q->where('user_id', $userId),
         ]);
 
-        $isOwner = $studyPlan->user_id === request()->user()->id;
+        $isOwner = $studyPlan->user_id === $userId;
 
         // Opening the plan clears the member's "new shared plan" indicator.
         if (! $isOwner) {
@@ -146,6 +151,13 @@ class StudyPlanController extends Controller
         $studyPlan->items->each(function ($item) {
             $item->talk?->append('speaker_display_name');
             $item->talk?->calling?->append('display_label');
+
+            // Flatten the constrained relation to a scalar the page can bind
+            // to, then drop it so the payload doesn't carry the pivot rows.
+            if ($item->talk) {
+                $item->talk->setAttribute('my_rating', $item->talk->ratings->first()?->rating);
+                $item->talk->unsetRelation('ratings');
+            }
         });
 
         return Inertia::render('StudyPlans/Show', [

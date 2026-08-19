@@ -21,6 +21,13 @@ return [
     'entries' => [
 
         [
+            'date' => '2026-08-19',
+            'title' => 'Temple Tracker',
+            'body' => 'A new Temples section for members with LDS content on: browse every dedicated temple in a list or on a map, star your favorites to keep them at the top, log your visits (with ordinances), find temples near your location or any address you type, and plan trips as check-off lists that suggest other temples along the way.',
+            'help_anchor' => 'temple-tracker',
+        ],
+
+        [
             'date' => '2026-08-09',
             'title' => 'Connect more than one AI account',
             'body' => 'Your profile now holds a key for each AI provider — Anthropic, OpenAI, and Gemini — instead of just one. Pick a default for everyday AI features; anything your default can\'t do (like transcribing a video) automatically uses another of your connected accounts.',

@@ -183,6 +183,27 @@ const topics = [
                             </div>
                         </section>
 
+                        <!-- Temple Tracker -->
+                        <section id="temple-tracker" class="scroll-mt-6 bg-white rounded-lg shadow border border-navy-50 p-6">
+                            <h3 class="text-xl font-semibold text-navy mb-3">🕍 Temple Tracker</h3>
+                            <p class="text-teal mb-3">
+                                Every dedicated temple — with its address, photo, and dedication date — in a filterable
+                                list and on a world map. Log your visits (with the ordinances you performed), and plan
+                                trips to temples you haven't been to yet.
+                            </p>
+                            <ul class="list-disc list-inside text-teal space-y-1 mb-4">
+                                <li>Filter by <strong class="text-navy">country and state</strong>, or flip to the map — visited temples show as filled pins.</li>
+                                <li><strong class="text-navy">Star a favorite</strong> on any temple card or its page, and your favorites sit in their own section at the top of the list (gold-ringed pins on the map).</li>
+                                <li>Log a visit from any temple's page: date, ordinances (Baptism &amp; Confirmation, Initiatory, Endowment, Sealing) — or none for "just a visit" — and a note.</li>
+                                <li><strong class="text-navy">Explore</strong> shows every temple within a chosen radius of you, an address you type, or any spot you click — nearest first.</li>
+                                <li><strong class="text-navy">Trips</strong> are named checklists ("Utah trip") you mark off as you go — checking one off offers to log the visit too. A trip's map also shows other temples near your stops, so you can add a detour in one click.</li>
+                            </ul>
+                            <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
+                                💡 <strong>Did you know?</strong> Temple Tracker only appears when "Show LDS content" is
+                                enabled in your profile settings.
+                            </div>
+                        </section>
+
                         <!-- Friends -->
                         <section id="friends" class="scroll-mt-6 bg-white rounded-lg shadow border border-navy-50 p-6">
                             <h3 class="text-xl font-semibold text-navy mb-3">👥 Friends &amp; invitations</h3>

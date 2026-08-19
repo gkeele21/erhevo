@@ -40,7 +40,8 @@ const emit = defineEmits(['update:cfmWeekIds'])
         />
 
         <p class="text-xs text-amber-700 italic">
-            More LDS features coming soon: General Conference session linking, temple experience posts, and more.
+            Track your temple visits in the new <a href="/temples" class="underline font-medium">Temple Tracker</a>.
+            More LDS features coming soon: General Conference session linking and more.
         </p>
     </div>
 </template>

@@ -36,12 +36,13 @@ class ExportSeedSnapshots extends Command
             'general_conferences' => DB::table('general_conferences'),
             'general_conference_sessions' => DB::table('general_conference_sessions'),
             'talks' => DB::table('talks'),
+            'temples' => DB::table('temples'),
         ];
 
         foreach ($targets as $name => $query) {
             $rows = $query->orderBy('id')->get()->map(fn ($r) => (array) $r)->all();
             $json = json_encode($rows, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            file_put_contents("{$dir}/{$name}.json", $json . "\n");
+            file_put_contents("{$dir}/{$name}.json", $json."\n");
             $this->line(sprintf('  %-24s %d rows  %.1f KB', $name, count($rows), strlen($json) / 1024));
         }
 

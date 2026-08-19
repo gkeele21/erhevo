@@ -3,23 +3,25 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\FriendshipStatus;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
-use App\Enums\FriendshipStatus;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
     use HasApiTokens;
 
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
@@ -91,7 +93,7 @@ class User extends Authenticatable
      */
     public function getNameAttribute(): string
     {
-        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
+        return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
     }
 
     public function posts(): HasMany
@@ -136,6 +138,21 @@ class User extends Authenticatable
     public function userCategories(): HasMany
     {
         return $this->hasMany(UserCategory::class);
+    }
+
+    public function templeVisits(): HasMany
+    {
+        return $this->hasMany(TempleVisit::class);
+    }
+
+    public function favoriteTemples(): BelongsToMany
+    {
+        return $this->belongsToMany(Temple::class, 'temple_favorites')->withTimestamps();
+    }
+
+    public function templeTrips(): HasMany
+    {
+        return $this->hasMany(TempleTrip::class);
     }
 
     public function sentFriendRequests(): HasMany
@@ -278,7 +295,7 @@ class User extends Authenticatable
      * The user's AI provider connections (one key per provider).
      * `ai_provider` names the default one for general AI features.
      */
-    public function aiConnections(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function aiConnections(): HasMany
     {
         return $this->hasMany(UserAiConnection::class);
     }

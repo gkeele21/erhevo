@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\AuthorCalling;
 use App\Models\GeneralConferenceSession;
 use App\Models\ScriptureBook;
 use App\Models\StudyPlan;
@@ -90,8 +89,8 @@ class StudyPlanScheduler
 
     /**
      * Ordered talk ids for a talks plan. Three modes:
-     *  - author: all talks by one author, optionally limited to the window
-     *    of a specific calling they held (e.g. only while President).
+     *  - author: all talks by one author, optionally limited to the windows
+     *    of one or more callings they held (e.g. only while President).
      *  - calling: all talks given while holding a calling (e.g. Apostle),
      *    optionally limited to the last N years.
      *  - conference: every talk from one General Conference, in session
@@ -114,19 +113,12 @@ class StudyPlanScheduler
         if (($config['mode'] ?? null) === 'author') {
             $query->where('author_id', $config['author_id']);
 
-            if (! empty($config['author_calling_id'])) {
-                $period = AuthorCalling::find($config['author_calling_id']);
+            // Talk::withinCallingWindows() is shared with the library filters,
+            // so a plan and a library search agree on what a calling covers.
+            $callingIds = StudyPlan::callingIdsFromConfig($config);
 
-                if ($period) {
-                    $query->whereNotNull('talk_date');
-
-                    if ($period->start_date) {
-                        $query->whereDate('talk_date', '>=', $period->start_date);
-                    }
-                    if ($period->end_date) {
-                        $query->whereDate('talk_date', '<=', $period->end_date);
-                    }
-                }
+            if ($callingIds) {
+                $query->withinCallingWindows($callingIds);
             }
         } else {
             $query->where('church_calling_id', $config['church_calling_id']);

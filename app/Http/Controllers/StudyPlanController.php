@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Author;
-use App\Models\ChurchCalling;
-use App\Models\GeneralConference;
 use App\Models\ScriptureVolume;
 use App\Models\StudyPlan;
 use App\Models\StudyPlanItem;
 use App\Models\User;
 use App\Services\StudyPlanScheduler;
+use App\Services\TalkFilterOptions;
 use App\Mail\StudyPlanSharedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -80,7 +78,9 @@ class StudyPlanController extends Controller
         Gate::authorize('update', $studyPlan);
 
         return Inertia::render('StudyPlans/Edit', [
-            'plan' => $studyPlan,
+            // Appended so the form can prefill the calling picker, including for
+            // plans saved when it only held a single calling.
+            'plan' => $studyPlan->append('author_calling_ids'),
             ...$this->pickerData(),
         ]);
     }
@@ -240,7 +240,8 @@ class StudyPlanController extends Controller
             // Talk criteria
             'mode' => 'required_if:type,talks|nullable|in:author,calling,conference',
             'author_id' => [Rule::requiredIf($talksByAuthor), 'nullable', 'exists:authors,id'],
-            'author_calling_id' => 'nullable|exists:author_callings,id',
+            'author_calling_ids' => 'nullable|array',
+            'author_calling_ids.*' => 'integer|exists:author_callings,id',
             'church_calling_id' => [Rule::requiredIf($talksByCalling), 'nullable', 'exists:church_callings,id'],
             'years_back' => 'nullable|integer|min:1|max:100',
             'general_conference_id' => [Rule::requiredIf($talksByConference), 'nullable', 'exists:general_conferences,id'],
@@ -259,7 +260,10 @@ class StudyPlanController extends Controller
                 'author' => [
                     'mode' => 'author',
                     'author_id' => $validated['author_id'],
-                    'author_calling_id' => $validated['author_calling_id'] ?? null,
+                    // Empty array normalizes to null so "no limit" stays one shape.
+                    'author_calling_ids' => ! empty($validated['author_calling_ids'])
+                        ? array_values(array_unique(array_map('intval', $validated['author_calling_ids'])))
+                        : null,
                 ],
                 'calling' => [
                     'mode' => 'calling',
@@ -285,44 +289,16 @@ class StudyPlanController extends Controller
     /** Shared props for the create/edit form pickers. */
     protected function pickerData(): array
     {
+        // The talk pickers are shared with the library filters.
+        $talkOptions = app(TalkFilterOptions::class);
+
         return [
             'volumes' => ScriptureVolume::with('books:id,volume_id,name,sort_order')
                 ->orderBy('sort_order')
                 ->get(['id', 'name', 'sort_order']),
-            'authors' => $this->authorsWithCallings(),
-            'churchCallings' => ChurchCalling::with('organization')
-                ->orderBy('church_organization_id')
-                ->orderBy('name')
-                ->get()
-                ->map(fn (ChurchCalling $c) => ['id' => $c->id, 'label' => $c->display_label])
-                ->values(),
-            'conferences' => GeneralConference::whereHas('talks')
-                ->orderByDesc('start_date')
-                ->get(['id', 'name']),
+            'authors' => $talkOptions->authorsWithCallings(),
+            'churchCallings' => $talkOptions->churchCallings(),
+            'conferences' => $talkOptions->conferences(),
         ];
-    }
-
-    /**
-     * Authors for the picker, with their calling history so a plan can be
-     * limited to one calling's window (e.g. talks given only as President).
-     */
-    protected function authorsWithCallings()
-    {
-        return Author::whereHas('talks')
-            ->with(['callings.calling.organization'])
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get()
-            ->map(fn (Author $author) => [
-                'id' => $author->id,
-                'name' => $author->full_name,
-                'callings' => $author->callings->map(fn ($ac) => [
-                    'id' => $ac->id,
-                    'label' => $ac->calling?->display_label ?? 'Calling',
-                    'start_date' => $ac->start_date?->toDateString(),
-                    'end_date' => $ac->end_date?->toDateString(),
-                ])->values(),
-            ])
-            ->values();
     }
 }

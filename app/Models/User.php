@@ -10,6 +10,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Enums\FriendshipStatus;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -107,6 +108,29 @@ class User extends Authenticatable
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
+    }
+
+    /** This user's own star ratings of library talks. */
+    public function talkRatings(): HasMany
+    {
+        return $this->hasMany(TalkRating::class);
+    }
+
+    public function talkFavorites(): HasMany
+    {
+        return $this->hasMany(TalkFavorite::class);
+    }
+
+    /** The library talks this user starred, for their "My Favorites" list. */
+    public function favoriteTalks(): BelongsToMany
+    {
+        return $this->belongsToMany(Talk::class, 'talk_favorites')->withTimestamps();
+    }
+
+    /** Every date this user logged reading a talk. */
+    public function talkReads(): HasMany
+    {
+        return $this->hasMany(TalkRead::class);
     }
 
     public function userCategories(): HasMany

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Talk extends Model
@@ -28,6 +29,8 @@ class Talk extends Model
     protected $casts = [
         'talk_date' => 'date',
         'display_order' => 'integer',
+        'average_rating' => 'float',
+        'ratings_count' => 'integer',
     ];
 
     protected static function boot()
@@ -64,6 +67,24 @@ class Talk extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(Author::class);
+    }
+
+    /** Every user's 1–5 star rating of this talk. */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(TalkRating::class);
+    }
+
+    /** The users who starred this talk. */
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(TalkFavorite::class);
+    }
+
+    /** Every logged reading of this talk, by any user. */
+    public function reads(): HasMany
+    {
+        return $this->hasMany(TalkRead::class);
     }
 
     public function tags(): BelongsToMany
@@ -153,5 +174,63 @@ class Talk extends Model
     public function scopeGeneralConference($query)
     {
         return $query->whereNotNull('general_conference_session_id');
+    }
+
+    /**
+     * Talks whose cached average is at least $rating stars. Columns are
+     * qualified because the library joins the sessions table.
+     */
+    public function scopeMinRating($query, float $rating)
+    {
+        return $query->where('talks.average_rating', '>=', $rating);
+    }
+
+    /**
+     * Talks dated inside any one of the given author-calling windows, so a
+     * speaker's talks can be narrowed to several callings at once (e.g. as an
+     * Apostle or in the First Presidency).
+     *
+     * Shared by the library filters and the study plan builder so the two never
+     * disagree about which talks a set of callings covers. An undated talk sits
+     * inside no window; a window with neither bound covers every dated talk.
+     */
+    public function scopeWithinCallingWindows($query, array $authorCallingIds)
+    {
+        $periods = AuthorCalling::whereIn('id', array_filter($authorCallingIds))->get();
+
+        // Unknown ids shouldn't silently empty the result set.
+        if ($periods->isEmpty()) {
+            return $query;
+        }
+
+        $query->whereNotNull('talks.talk_date');
+
+        // A boundless window already covers everything the others could add.
+        if ($periods->contains(fn (AuthorCalling $period) => ! $period->start_date && ! $period->end_date)) {
+            return $query;
+        }
+
+        return $query->where(function ($outer) use ($periods) {
+            foreach ($periods as $period) {
+                $outer->orWhere(function ($window) use ($period) {
+                    if ($period->start_date) {
+                        $window->whereDate('talks.talk_date', '>=', $period->start_date);
+                    }
+                    if ($period->end_date) {
+                        $window->whereDate('talks.talk_date', '<=', $period->end_date);
+                    }
+                });
+            }
+        });
+    }
+
+    public function scopeFavoritedBy($query, int $userId)
+    {
+        return $query->whereHas('favorites', fn ($q) => $q->where('user_id', $userId));
+    }
+
+    public function scopeReadBy($query, int $userId)
+    {
+        return $query->whereHas('reads', fn ($q) => $q->where('user_id', $userId));
     }
 }

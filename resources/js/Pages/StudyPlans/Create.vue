@@ -19,7 +19,7 @@ const form = useForm({
     // Talk criteria
     mode: 'author',
     author_id: null,
-    author_calling_id: null,
+    author_calling_ids: [],
     church_calling_id: null,
     years_back: null,
     general_conference_id: null,

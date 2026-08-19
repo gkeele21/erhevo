@@ -168,12 +168,18 @@ const topics = [
                             </p>
                             <ul class="list-disc list-inside text-teal space-y-1 mb-4">
                                 <li>Filter by source, conference, session, or session type — or search titles, speakers, and excerpts.</li>
+                                <li>Narrow by <strong class="text-navy">speaker</strong> (and optionally only the talks they gave while holding a particular calling), by <strong class="text-navy">calling</strong>, or to the last few years — the same criteria you can build a study plan from.</li>
                                 <li>Click any <strong class="text-navy">#topic tag</strong> to see every talk on that theme, across both sources.</li>
-                                <li>Sort oldest-first, newest-first, or alphabetically by title or speaker.</li>
+                                <li>Sort oldest-first, newest-first, alphabetically by title or speaker, or by <strong class="text-navy">highest rated</strong>.</li>
+                                <li>Give any talk a <strong class="text-navy">1&ndash;5 star rating</strong>. Every card shows the community average, and you can filter the library down to talks rated 4+ stars.</li>
+                                <li><strong class="text-navy">Favorite</strong> the talks you want to come back to — find them again under "My Favorite Talks" in your account menu.</li>
+                                <li><strong class="text-navy">Mark a talk as read</strong> and enter the date. Read it again later and log that date too — the card lists every date you've read it.</li>
                             </ul>
                             <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
-                                💡 <strong>Did you know?</strong> Library talks are searchable right inside the lesson builder —
-                                add one to a lesson without ever leaving the editor.
+                                💡 <strong>Did you know?</strong> Every search also turns up one <strong>random pick</strong> that
+                                matches your filters — a good way to stumble onto something you'd never have searched for.
+                                Library talks are searchable right inside the lesson builder, too, so you can add one to a
+                                lesson without ever leaving the editor.
                             </div>
                         </section>
 

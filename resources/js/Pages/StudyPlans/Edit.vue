@@ -22,7 +22,7 @@ const form = useForm({
     // Talk criteria
     mode: props.plan.config.mode ?? 'author',
     author_id: props.plan.config.author_id ?? null,
-    author_calling_id: props.plan.config.author_calling_id ?? null,
+    author_calling_ids: props.plan.author_calling_ids ?? [],
     church_calling_id: props.plan.config.church_calling_id ?? null,
     years_back: props.plan.config.years_back ?? null,
     general_conference_id: props.plan.config.general_conference_id ?? null,

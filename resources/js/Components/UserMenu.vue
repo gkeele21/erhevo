@@ -55,6 +55,10 @@ const logout = () => {
                     My Categories
                 </DropdownLink>
 
+                <DropdownLink v-if="$page.props.userSettings?.show_lds_content" :href="route('talks.favorites')">
+                    My Favorite Talks
+                </DropdownLink>
+
                 <DropdownLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">
                     API Tokens
                 </DropdownLink>

@@ -40,7 +40,7 @@ class StudyPlanTest extends TestCase
             'book_ids' => null,
             'mode' => 'author',
             'author_id' => null,
-            'author_calling_id' => null,
+            'author_calling_ids' => [],
             'church_calling_id' => null,
             'years_back' => null,
             'start_date' => null,
@@ -71,7 +71,7 @@ class StudyPlanTest extends TestCase
             'book_ids' => null,
             'mode' => 'author',
             'author_id' => $author->id,
-            'author_calling_id' => null,
+            'author_calling_ids' => [],
             'church_calling_id' => null,
             'years_back' => null,
             'start_date' => '2026-08-01',
@@ -83,6 +83,96 @@ class StudyPlanTest extends TestCase
         $plan = StudyPlan::first();
         $this->assertSame(2, $plan->items()->count());
         $this->assertSame('2026-08-01', $plan->items()->first()->scheduled_date->toDateString());
+    }
+
+    public function test_a_talks_plan_can_be_limited_to_several_callings(): void
+    {
+        $user = User::factory()->create();
+        $author = Author::create(['first_name' => 'Russell', 'last_name' => 'Nelson']);
+        $source = \App\Models\Source::create(['name' => 'General Conference', 'slug' => 'gc']);
+
+        $organization = \App\Models\ChurchOrganization::create(['name' => 'The Quorum of the Twelve Apostles']);
+        $apostle = \App\Models\ChurchCalling::create(['church_organization_id' => $organization->id, 'name' => 'Apostle']);
+        $president = \App\Models\ChurchCalling::create(['church_organization_id' => $organization->id, 'name' => 'President']);
+
+        $asApostle = \App\Models\AuthorCalling::create([
+            'author_id' => $author->id,
+            'church_calling_id' => $apostle->id,
+            'start_date' => '1990-01-01',
+            'end_date' => '2000-12-31',
+        ]);
+        $asPresident = \App\Models\AuthorCalling::create([
+            'author_id' => $author->id,
+            'church_calling_id' => $president->id,
+            'start_date' => '2010-01-01',
+            'end_date' => '2015-12-31',
+        ]);
+
+        foreach (['1995-04-01' => 'As Apostle', '2005-04-01' => 'In The Gap', '2012-04-01' => 'As President'] as $date => $title) {
+            Talk::create([
+                'source_id' => $source->id,
+                'author_id' => $author->id,
+                'speaker_name' => 'Russell M. Nelson',
+                'title' => $title,
+                'talk_date' => $date,
+            ]);
+        }
+
+        $response = $this->actingAs($user)->post(route('study-plans.store'), [
+            'name' => 'Nelson by Calling',
+            'type' => 'talks',
+            'volume_id' => null,
+            'book_ids' => null,
+            'mode' => 'author',
+            'author_id' => $author->id,
+            'author_calling_ids' => [$asApostle->id, $asPresident->id],
+            'church_calling_id' => null,
+            'years_back' => null,
+            'start_date' => null,
+            'end_date' => null,
+            'frequency' => null,
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $plan = StudyPlan::first();
+
+        // Both windows are included; the talk between them is not.
+        $this->assertSame([$asApostle->id, $asPresident->id], $plan->config['author_calling_ids']);
+        $this->assertSame(2, $plan->items()->count());
+        $this->assertSame(
+            ['As Apostle', 'As President'],
+            $plan->items()->with('talk')->get()->pluck('talk.title')->sort()->values()->all()
+        );
+        $this->assertStringContainsString('Apostle', $plan->criteria_summary);
+        $this->assertStringContainsString('President', $plan->criteria_summary);
+    }
+
+    public function test_a_plan_saved_with_a_single_calling_id_still_resolves(): void
+    {
+        $author = Author::create(['first_name' => 'Russell', 'last_name' => 'Nelson']);
+        $organization = \App\Models\ChurchOrganization::create(['name' => 'The Quorum of the Twelve Apostles']);
+        $apostle = \App\Models\ChurchCalling::create(['church_organization_id' => $organization->id, 'name' => 'Apostle']);
+        $period = \App\Models\AuthorCalling::create([
+            'author_id' => $author->id,
+            'church_calling_id' => $apostle->id,
+            'start_date' => '1990-01-01',
+            'end_date' => '2000-12-31',
+        ]);
+
+        // Shape written before this filter became multi-select.
+        $plan = StudyPlan::create([
+            'user_id' => User::factory()->create()->id,
+            'name' => 'Legacy Plan',
+            'type' => 'talks',
+            'config' => [
+                'mode' => 'author',
+                'author_id' => $author->id,
+                'author_calling_id' => $period->id,
+            ],
+        ]);
+
+        $this->assertSame([$period->id], $plan->author_calling_ids);
+        $this->assertStringContainsString('Apostle', $plan->criteria_summary);
     }
 
     public function test_scripture_plan_requires_a_volume(): void

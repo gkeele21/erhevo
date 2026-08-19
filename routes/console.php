@@ -17,7 +17,13 @@ Schedule::command('talks:sync-latest')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/talks-sync.log'));
 
-Schedule::comand('temples:import')
-    ->dailyAt('04:15')
+// New temples are dedicated a few times a year; a nightly scrape keeps the
+// tracker current without anyone remembering to run it. Several minutes of
+// paced requests, so it runs detached and logs — a layout change on the source
+// site fails the command, and that needs to be visible.
+Schedule::command('temples:import')
+    ->dailyAt('04:00')
     ->onOneServer()
-    ->withoutOverlapping();
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/temples-import.log'));

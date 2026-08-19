@@ -48,6 +48,33 @@ class StudyPlan extends Model
     }
 
     /**
+     * The calling windows an author-mode plan is limited to. Plans saved before
+     * this filter became multi-select stored a single `author_calling_id`, so
+     * that key is still read.
+     *
+     * @return array<int, int>
+     */
+    public static function callingIdsFromConfig(array $config): array
+    {
+        $ids = ! empty($config['author_calling_ids'])
+            ? (array) $config['author_calling_ids']
+            : (array) ($config['author_calling_id'] ?? []);
+
+        return collect($ids)
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /** @return array<int, int> */
+    public function getAuthorCallingIdsAttribute(): array
+    {
+        return static::callingIdsFromConfig($this->config ?? []);
+    }
+
+    /**
      * Human-readable description of what the plan covers, resolved from the
      * ids in config (e.g. "Talks by Russell M. Nelson — President
      * (2018–2025)"). Not appended by default; controllers append it where
@@ -80,16 +107,29 @@ class StudyPlan extends Model
 
         if (($config['mode'] ?? null) === 'author') {
             $author = Author::find($config['author_id'] ?? null)?->full_name ?? 'Unknown author';
-            $period = ! empty($config['author_calling_id'])
-                ? AuthorCalling::with('calling.organization')->find($config['author_calling_id'])
-                : null;
+            $callingIds = static::callingIdsFromConfig($config);
 
-            if ($period) {
-                $label = $period->calling?->display_label ?? 'Calling';
-                $start = $period->start_date?->format('Y') ?? '?';
-                $end = $period->end_date?->format('Y') ?? 'present';
+            if ($callingIds) {
+                $periods = AuthorCalling::with('calling.organization')
+                    ->whereIn('id', $callingIds)
+                    ->orderByRaw('start_date IS NULL DESC')
+                    ->orderBy('start_date')
+                    ->get()
+                    ->map(function (AuthorCalling $period) {
+                        $label = $period->calling?->display_label ?? 'Calling';
+                        $start = $period->start_date?->format('Y') ?? '?';
+                        $end = $period->end_date?->format('Y') ?? 'present';
 
-                return "Talks by {$author} — {$label} ({$start}–{$end})";
+                        return "{$label} ({$start}–{$end})";
+                    });
+
+                if ($periods->isNotEmpty()) {
+                    // Two labels is about as much as the summary line can carry.
+                    $list = $periods->take(2)->implode('; ')
+                        . ($periods->count() > 2 ? ' + ' . ($periods->count() - 2) . ' more' : '');
+
+                    return "Talks by {$author} — {$list}";
+                }
             }
 
             return "All talks by {$author}";

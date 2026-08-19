@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { Link } from '@inertiajs/vue3'
+import CallingWindowPicker from '@/Components/CallingWindowPicker.vue'
 
 const props = defineProps({
     form: Object,
@@ -30,17 +31,9 @@ const selectedVolume = computed(() =>
     props.volumes.find(v => v.id === props.form.volume_id)
 )
 
-const callingPeriodLabel = (calling) => {
-    // Slice the year straight off the date string — Date-parsing a date-only
-    // value shifts it a day (and possibly a year) in timezones behind UTC.
-    const start = calling.start_date ? calling.start_date.slice(0, 4) : '?'
-    const end = calling.end_date ? calling.end_date.slice(0, 4) : 'present'
-    return `${calling.label} (${start}–${end})`
-}
-
 const selectAuthor = (author) => {
     props.form.author_id = author.id
-    props.form.author_calling_id = null
+    props.form.author_calling_ids = []
     authorSearch.value = ''
 }
 
@@ -158,7 +151,7 @@ const toggleBook = (bookId) => {
                     <label class="block font-medium text-navy mb-1" for="author-search">Author</label>
                     <div v-if="selectedAuthor" class="flex items-center justify-between bg-aqua-50 border border-teal rounded-md px-3 py-2">
                         <span class="font-medium text-navy">{{ selectedAuthor.name }}</span>
-                        <button type="button" class="text-sm text-teal hover:text-navy" @click="form.author_id = null; form.author_calling_id = null">
+                        <button type="button" class="text-sm text-teal hover:text-navy" @click="form.author_id = null; form.author_calling_ids = []">
                             Change
                         </button>
                     </div>
@@ -187,18 +180,16 @@ const toggleBook = (bookId) => {
                 </div>
 
                 <div v-if="selectedAuthor?.callings?.length">
-                    <label class="block font-medium text-navy mb-1" for="author-calling">Limit to a calling</label>
-                    <p class="text-sm text-teal mb-1">Only include talks given while holding this calling.</p>
-                    <select
-                        id="author-calling"
-                        v-model="form.author_calling_id"
-                        class="w-full rounded-md border-navy-100 focus:border-aqua focus:ring-aqua"
-                    >
-                        <option :value="null">All talks, any calling</option>
-                        <option v-for="calling in selectedAuthor.callings" :key="calling.id" :value="calling.id">
-                            {{ callingPeriodLabel(calling) }}
-                        </option>
-                    </select>
+                    <span class="block font-medium text-navy mb-1">Limit to callings</span>
+                    <p class="text-sm text-teal mb-1">
+                        Only include talks given while holding these callings. Pick as many as you like,
+                        or none to include everything they spoke.
+                    </p>
+                    <CallingWindowPicker
+                        v-model="form.author_calling_ids"
+                        :callings="selectedAuthor.callings"
+                        variant="plan"
+                    />
                 </div>
             </template>
 

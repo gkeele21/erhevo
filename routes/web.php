@@ -27,6 +27,7 @@ use App\Http\Controllers\SharedPostController;
 use App\Http\Controllers\StudyPlanController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TalkController;
+use App\Http\Controllers\TalkEngagementController;
 use App\Http\Controllers\TempleController;
 use App\Http\Controllers\TempleTripController;
 use App\Http\Controllers\TempleVisitController;
@@ -47,6 +48,8 @@ Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index'
 // LDS content library — public; logged-in users are still gated by their
 // show_lds_content setting in the controller.
 Route::get('/library', [TalkController::class, 'index'])->name('talks.index');
+// Author type-ahead for the library filters — public, like the library itself.
+Route::get('/api/library/authors', [TalkController::class, 'searchAuthors'])->name('talks.authors.search');
 Route::get('/authors', [AuthorController::class, 'index'])->name('authors.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
@@ -117,6 +120,15 @@ Route::middleware([
     Route::post('/friends/invite', [FriendshipController::class, 'invite'])->name('friends.invite');
     Route::delete('/friends/invitations/{invitation}', [FriendshipController::class, 'cancelInvitation'])->name('friends.invitations.cancel');
     Route::get('/users/search', [FriendshipController::class, 'searchUsers'])->name('users.search');
+
+    // Library — a user's own favorites list, and their rating / favorite /
+    // read-date actions on a talk.
+    Route::get('/library/favorites', [TalkController::class, 'favorites'])->name('talks.favorites');
+    Route::put('/library/talks/{talk}/rating', [TalkEngagementController::class, 'rate'])->name('talks.rate');
+    Route::delete('/library/talks/{talk}/rating', [TalkEngagementController::class, 'destroyRating'])->name('talks.rating.destroy');
+    Route::post('/library/talks/{talk}/favorite', [TalkEngagementController::class, 'toggleFavorite'])->name('talks.favorite');
+    Route::post('/library/talks/{talk}/reads', [TalkEngagementController::class, 'storeRead'])->name('talks.reads.store');
+    Route::delete('/library/talks/{talk}/reads/{read}', [TalkEngagementController::class, 'destroyRead'])->name('talks.reads.destroy');
 
     // Tags API
     Route::get('/api/tags/search', [TagController::class, 'search'])->name('tags.search');

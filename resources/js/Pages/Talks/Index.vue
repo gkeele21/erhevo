@@ -3,14 +3,23 @@ import { Head, Link, router } from '@inertiajs/vue3'
 import { computed, ref, watch } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import HelpTip from '@/Components/HelpTip.vue'
+import TalkCard from '@/Components/TalkCard.vue'
+import AuthorFilterPicker from '@/Components/AuthorFilterPicker.vue'
+import CallingWindowPicker from '@/Components/CallingWindowPicker.vue'
 
 const props = defineProps({
     talks: Object,
+    randomTalk: Object,
     sources: Array,
     conferenceFilters: Object,
     sessionTypes: Array,
+    churchCallings: Array,
+    conferences: Array,
+    selectedAuthor: Object,
+    authorCallings: Array,
     filters: Object,
-    activeTag: Object
+    activeTag: Object,
+    canEngage: Boolean
 })
 
 const search = ref(props.filters?.search || '')
@@ -21,6 +30,13 @@ const selectedSession = ref(props.filters?.session || '')
 const selectedSessionType = ref(props.filters?.session_type || '')
 const selectedTag = ref(props.filters?.tag || '')
 const selectedSort = ref(props.filters?.sort || 'oldest')
+const selectedMinRating = ref(props.filters?.min_rating || '')
+const favoritesOnly = ref(Boolean(props.filters?.favorites))
+const selectedAuthorId = ref(props.filters?.author_id || '')
+const selectedAuthorCallings = ref(props.filters?.author_calling_ids ?? [])
+const selectedChurchCalling = ref(props.filters?.church_calling_id || '')
+const selectedConference = ref(props.filters?.general_conference_id || '')
+const yearsBack = ref(props.filters?.years_back || '')
 
 const isGeneralConference = computed(() => selectedSource.value === 'general-conference')
 
@@ -33,6 +49,13 @@ const applyFilters = () => {
         session: selectedSession.value || undefined,
         session_type: selectedSessionType.value || undefined,
         tag: selectedTag.value || undefined,
+        min_rating: selectedMinRating.value || undefined,
+        favorites: favoritesOnly.value ? 1 : undefined,
+        author_id: selectedAuthorId.value || undefined,
+        author_calling_ids: selectedAuthorCallings.value.length ? selectedAuthorCallings.value : undefined,
+        church_calling_id: selectedChurchCalling.value || undefined,
+        general_conference_id: selectedConference.value || undefined,
+        years_back: yearsBack.value || undefined,
         sort: selectedSort.value !== 'oldest' ? selectedSort.value : undefined
     }, {
         preserveState: true,
@@ -71,6 +94,52 @@ const onMonthChange = () => {
     applyFilters()
 }
 
+// Picking a new author invalidates the calling window chosen for the old one.
+const onAuthorSelected = (author) => {
+    selectedAuthorId.value = author.id
+    selectedAuthorCallings.value = []
+    applyFilters()
+}
+
+const onAuthorCleared = () => {
+    selectedAuthorId.value = ''
+    selectedAuthorCallings.value = []
+    applyFilters()
+}
+
+// Set the ref then refetch, rather than leaning on v-model's handler ordering.
+const onCallingWindowsChanged = (ids) => {
+    selectedAuthorCallings.value = ids
+    applyFilters()
+}
+
+// Everything except the free-text search, which has its own visible input.
+const activeFilterCount = computed(() => [
+    selectedSource.value,
+    selectedYear.value,
+    selectedMonth.value,
+    selectedSession.value,
+    selectedSessionType.value,
+    selectedTag.value,
+    selectedMinRating.value,
+    favoritesOnly.value,
+    selectedAuthorId.value,
+    selectedAuthorCallings.value.length,
+    selectedChurchCalling.value,
+    selectedConference.value,
+    yearsBack.value
+].filter(Boolean).length)
+
+const clearAllFilters = () => {
+    router.get(route('talks.index'), {}, { preserveState: false, replace: true })
+}
+
+// Re-roll just the random pick — the result list and filter options are
+// already on screen and don't need to come down the wire again.
+const shuffleRandomTalk = () => {
+    router.reload({ only: ['randomTalk'], preserveScroll: true })
+}
+
 let debounceTimer = null
 watch(search, () => {
     clearTimeout(debounceTimer)
@@ -82,7 +151,7 @@ watch(search, () => {
     <AppLayout title="Library">
         <template #header>
             <h2 class="flex items-center gap-1.5 font-semibold text-xl text-stone-800 leading-tight">
-                Library
+                {{ favoritesOnly ? 'Library · My Favorites' : 'Library' }}
                 <HelpTip anchor="library" tip="Thousands of General Conference talks and BYU Speeches — filter, search, and click topic tags. Open Help to learn more." />
             </h2>
         </template>
@@ -95,6 +164,22 @@ watch(search, () => {
 
                 <!-- Filters -->
                 <div class="bg-white rounded-lg shadow p-4 mb-8 border border-stone-100">
+                    <!-- With this many filters available, a way back to "everything" matters -->
+                    <div v-if="activeFilterCount || search" class="flex items-center justify-between gap-4 mb-3 pb-3 border-b border-stone-100">
+                        <p class="text-sm text-stone-500">
+                            {{ activeFilterCount
+                                ? `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} applied`
+                                : 'Searching all talks' }}
+                        </p>
+                        <button
+                            type="button"
+                            class="shrink-0 text-sm text-amber-700 hover:text-amber-900 underline"
+                            @click="clearAllFilters"
+                        >
+                            Clear all
+                        </button>
+                    </div>
+
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="flex-1">
                             <input
@@ -126,9 +211,107 @@ watch(search, () => {
                                 <option value="newest">Newest first</option>
                                 <option value="title">Title A&ndash;Z</option>
                                 <option value="speaker">Speaker A&ndash;Z</option>
+                                <option value="rating">Highest rated</option>
                             </select>
                         </div>
                     </div>
+
+                    <!-- Speaker: the same author / calling narrowing the study plan builder offers -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label class="block text-xs font-medium text-stone-500 mb-1" for="author-filter">Speaker</label>
+                            <AuthorFilterPicker
+                                id="author-filter"
+                                :selected="selectedAuthor"
+                                @select="onAuthorSelected"
+                                @clear="onAuthorCleared"
+                            />
+                        </div>
+
+                        <div v-if="selectedAuthor && authorCallings.length">
+                            <span class="block text-xs font-medium text-stone-500 mb-1">While serving as</span>
+                            <CallingWindowPicker
+                                :model-value="selectedAuthorCallings"
+                                :callings="authorCallings"
+                                @update:model-value="onCallingWindowsChanged"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-stone-500 mb-1" for="church-calling">Calling</label>
+                            <select
+                                id="church-calling"
+                                v-model="selectedChurchCalling"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                @change="applyFilters"
+                            >
+                                <option value="">Any calling</option>
+                                <option v-for="calling in churchCallings" :key="calling.id" :value="calling.id">
+                                    {{ calling.label }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Timeframe: one named conference, or a recency window -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label class="block text-xs font-medium text-stone-500 mb-1" for="conference">Conference</label>
+                            <select
+                                id="conference"
+                                v-model="selectedConference"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                @change="applyFilters"
+                            >
+                                <option value="">Any conference</option>
+                                <option v-for="conference in conferences" :key="conference.id" :value="conference.id">
+                                    {{ conference.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-stone-500 mb-1" for="years-back">Within the last</label>
+                            <div class="flex items-center gap-2">
+                                <input
+                                    id="years-back"
+                                    v-model="yearsBack"
+                                    type="number"
+                                    min="1"
+                                    max="100"
+                                    placeholder="Any"
+                                    class="w-24 rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                    @change="applyFilters"
+                                >
+                                <span class="text-sm text-stone-500">years</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-stone-500 mb-1" for="min-rating">Minimum rating</label>
+                            <select
+                                id="min-rating"
+                                v-model="selectedMinRating"
+                                class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
+                                @change="applyFilters"
+                            >
+                                <option value="">Any rating</option>
+                                <option v-for="stars in [5, 4, 3, 2, 1]" :key="stars" :value="stars">
+                                    {{ stars }}{{ stars === 5 ? ' stars' : '+ stars' }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label v-if="canEngage" class="flex items-center gap-2 mt-4 text-sm text-stone-600 w-fit">
+                        <input
+                            v-model="favoritesOnly"
+                            type="checkbox"
+                            class="rounded border-stone-300 text-amber-600 focus:ring-amber-500"
+                            @change="applyFilters"
+                        >
+                        My favorites only
+                    </label>
 
                     <!-- General Conference cascade: year → month → session -->
                     <div v-if="isGeneralConference" class="flex flex-col md:flex-row gap-4 mt-4">
@@ -201,59 +384,60 @@ watch(search, () => {
                     </div>
                 </div>
 
+                <!-- Result count, so the effect of a filter is legible -->
+                <p v-if="talks.total" class="text-sm text-stone-600 mb-4">
+                    <span class="font-semibold text-stone-800">{{ talks.total.toLocaleString() }}</span>
+                    {{ talks.total === 1 ? 'talk' : 'talks' }}
+                    <span v-if="talks.last_page > 1" class="text-stone-400">
+                        &middot; showing {{ talks.from.toLocaleString() }}&ndash;{{ talks.to.toLocaleString() }}
+                    </span>
+                </p>
+
+                <!-- A random talk from the same filtered set, for when you
+                     don't have a particular talk in mind. -->
+                <div v-if="randomTalk" class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold text-stone-700">
+                            Random pick from these results
+                        </h3>
+                        <button
+                            type="button"
+                            class="text-sm text-amber-700 hover:text-amber-900 underline"
+                            @click="shuffleRandomTalk"
+                        >
+                            Shuffle
+                        </button>
+                    </div>
+                    <TalkCard
+                        :talk="randomTalk"
+                        :can-engage="canEngage"
+                        highlight
+                        @filter-tag="filterByTag"
+                    />
+                </div>
+
+                <!-- Keeps the random pick from reading as the first result -->
+                <hr v-if="randomTalk && talks.data.length" class="mb-8 border-stone-300">
+
                 <!-- Talks List -->
                 <div v-if="talks.data.length" class="space-y-4">
-                    <component
-                        :is="talk.url ? 'a' : 'div'"
+                    <TalkCard
                         v-for="talk in talks.data"
                         :key="talk.id"
-                        :href="talk.url || undefined"
-                        :target="talk.url ? '_blank' : undefined"
-                        :rel="talk.url ? 'noopener noreferrer' : undefined"
-                        class="block bg-white rounded-lg shadow p-5 border border-stone-100"
-                        :class="talk.url ? 'hover:shadow-md hover:border-amber-200 transition' : ''"
-                    >
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <h3 class="text-lg font-semibold text-stone-800">
-                                    {{ talk.title }}
-                                </h3>
-                                <p class="text-sm text-stone-600 mt-1">
-                                    {{ talk.speaker_display_name }}
-                                    <span v-if="talk.calling" class="text-stone-400"> &middot; {{ talk.calling }}</span>
-                                </p>
-                            </div>
-                            <span v-if="talk.source" class="shrink-0 px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs whitespace-nowrap">
-                                {{ talk.source }}
-                            </span>
-                        </div>
-                        <p v-if="talk.summary" class="text-sm text-stone-500 mt-3 line-clamp-3">
-                            {{ talk.summary }}
-                        </p>
-                        <div v-if="talk.tags?.length" class="flex flex-wrap gap-1.5 mt-3">
-                            <button
-                                v-for="tag in talk.tags"
-                                :key="tag.id"
-                                type="button"
-                                class="px-2 py-0.5 bg-stone-100 text-stone-600 rounded-full text-xs hover:bg-amber-100 hover:text-amber-800 transition-colors"
-                                :title="`Show talks tagged ${tag.name}`"
-                                @click.prevent.stop="filterByTag(tag)"
-                            >
-                                #{{ tag.name }}
-                            </button>
-                        </div>
-                        <p v-if="talk.talk_date || talk.session" class="text-xs text-stone-400 mt-3">
-                            {{ [talk.talk_date, talk.session].filter(Boolean).join(' · ') }}
-                        </p>
-                    </component>
+                        :talk="talk"
+                        :can-engage="canEngage"
+                        @filter-tag="filterByTag"
+                    />
                 </div>
 
                 <div v-else class="bg-white rounded-lg shadow p-12 text-center border border-stone-100">
                     <h3 class="text-lg font-semibold text-stone-800 mb-2">
-                        No talks found
+                        {{ favoritesOnly ? 'No favorite talks yet' : 'No talks found' }}
                     </h3>
                     <p class="text-stone-500">
-                        Try adjusting your search or filters.
+                        {{ favoritesOnly
+                            ? 'Favorite a talk from the library and it will show up here.'
+                            : 'Try adjusting your search or filters.' }}
                     </p>
                 </div>
 

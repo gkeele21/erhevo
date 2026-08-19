@@ -33,6 +33,7 @@ use App\Http\Controllers\TempleTripController;
 use App\Http\Controllers\TempleVisitController;
 use App\Http\Controllers\UserCategoryController;
 use App\Http\Controllers\UserSettingsController;
+use App\Http\Controllers\WhatsNewController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -43,6 +44,8 @@ Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/invite/{token}', [FriendshipController::class, 'acceptInvitationLink'])->name('friends.invite-link');
 Route::get('/guide', fn () => Inertia::render('Guide'))->name('guide');
 Route::get('/help', fn () => Inertia::render('Help'))->name('help');
+// Full history of the announcements that surface on the dashboard.
+Route::get('/whats-new', WhatsNewController::class)->name('whats-new');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index');
 // LDS content library — public; logged-in users are still gated by their

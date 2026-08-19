@@ -256,6 +256,9 @@ const logout = () => {
                         <Link :href="route('help')" class="text-sm text-teal hover:text-navy transition-colors">
                             Help
                         </Link>
+                        <Link :href="route('whats-new')" class="text-sm text-teal hover:text-navy transition-colors">
+                            What's New
+                        </Link>
                         <span class="text-sm text-teal-300">
                             &copy; {{ new Date().getFullYear() }} Erhevo
                         </span>

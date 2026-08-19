@@ -182,6 +182,9 @@ defineProps({
                         <Link :href="route('help')" class="text-aqua-200 hover:text-gold text-sm">
                             Help
                         </Link>
+                        <Link :href="route('whats-new')" class="text-aqua-200 hover:text-gold text-sm">
+                            What's New
+                        </Link>
                         <Link :href="route('posts.index')" class="text-aqua-200 hover:text-gold text-sm">
                             Posts
                         </Link>

@@ -13,7 +13,8 @@ feature ships. There are three layers, shallowest to deepest:
 > (and a "Did you know?" if the feature is easy to miss), consider a
 > HelpTip at the spot in the UI where users would wonder about it, and add
 > a dated entry to `config/whats_new.php` so existing users see it on their
-> dashboard. The Guide only changes for headline features.
+> dashboard and it joins the history on `/whats-new`. The Guide only changes
+> for headline features.
 
 ---
 

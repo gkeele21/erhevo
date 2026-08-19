@@ -10,6 +10,10 @@
 | notice; it appears for each user until they dismiss it, tracked via the
 | `whats_new_seen_through` user setting.
 |
+| Every entry also lives permanently on the /whats-new page, grouped by date,
+| so users can catch up on anything they dismissed or missed before joining.
+| Nothing extra to do — adding it here is enough.
+|
 | Fields: `date` (Y-m-d — bump to today when adding, it drives "unseen"),
 | `title`, `body`, and an optional `help_anchor` linking to a section id
 | in the Help page.

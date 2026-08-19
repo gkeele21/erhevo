@@ -185,7 +185,7 @@ watch(search, () => {
                             <input
                                 v-model="search"
                                 type="text"
-                                placeholder="Search by title, speaker, or summary..."
+                                placeholder="Search by title or summary..."
                                 class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
                             >
                         </div>

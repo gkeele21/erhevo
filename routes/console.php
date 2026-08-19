@@ -16,3 +16,8 @@ Schedule::command('talks:sync-latest')
     ->onOneServer()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/talks-sync.log'));
+
+Schedule::comand('temples:import')
+    ->dailyAt('04:15')
+    ->onOneServer()
+    ->withoutOverlapping();

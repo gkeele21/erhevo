@@ -21,9 +21,9 @@ return [
     'entries' => [
 
         [
-            'date' => '2026-08-11',
+            'date' => '2026-08-19',
             'title' => 'Temple Tracker',
-            'body' => 'A new Temples section for members with LDS content on: browse every dedicated temple in a list or on a map, filter by country and state, log your visits (with ordinances), explore temples near any spot, and plan trips as check-off lists.',
+            'body' => 'A new Temples section for members with LDS content on: browse every dedicated temple in a list or on a map, star your favorites to keep them at the top, log your visits (with ordinances), find temples near your location or any address you type, and plan trips as check-off lists that suggest other temples along the way.',
             'help_anchor' => 'temple-tracker',
         ],
 

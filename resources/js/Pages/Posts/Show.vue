@@ -305,6 +305,24 @@ const typeLabel = computed(() => ({
                     </article>
                 </template>
 
+                <!-- Inline viewer for sources that offer one (Google Slides, YouTube, Vimeo) -->
+                <div v-if="post.embed_url" class="mt-8 overflow-hidden rounded-lg border border-stone-200 bg-white shadow">
+                    <iframe
+                        :src="post.embed_url"
+                        :title="post.title"
+                        class="aspect-video w-full"
+                        frameborder="0"
+                        loading="lazy"
+                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                    <p v-if="canEdit" class="border-t border-stone-200 px-4 py-2 text-xs text-stone-500">
+                        Others only see this if the original is shared publicly. For a Google deck,
+                        File &rarr; Share &rarr; Publish to web gives a link that works without sign-in — paste that one.
+                        Otherwise viewers get the <span class="font-medium">View original</span> link below.
+                    </p>
+                </div>
+
                 <!-- Original source link -->
                 <div v-if="post.source_url" class="mt-8 rounded-lg border border-stone-200 bg-white p-4 text-sm text-stone-600">
                     Originally seen

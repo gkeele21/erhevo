@@ -48,7 +48,7 @@ enum PostType: string
             self::Thought => 'A brief reflection or idea',
             self::Note => 'A reference or reminder',
             self::Quote => 'Words from someone else',
-            self::Video => 'A video or link worth keeping, with your notes',
+            self::Video => 'A video, slideshow, or link worth keeping, with your notes',
             self::Image => 'A picture worth keeping, with your notes',
             self::ScriptureHelp => 'Insight, context, or explanation for a scripture',
             self::MeetingNotes => 'Notes from a church meeting or class',

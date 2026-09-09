@@ -42,9 +42,23 @@ const PLATFORMS = {
     'substack.com': 'Substack',
 }
 
+// Google puts every app on docs.google.com — only the path tells them apart.
+const GOOGLE_APPS = {
+    '/presentation/': 'Google Slides',
+    '/document/': 'Google Docs',
+    '/spreadsheets/': 'Google Sheets',
+    '/forms/': 'Google Forms',
+}
+
 const platform = computed(() => {
     try {
-        const host = new URL(props.modelValue).hostname.toLowerCase()
+        const url = new URL(props.modelValue)
+        const host = url.hostname.toLowerCase()
+        if (host === 'docs.google.com') {
+            const app = Object.entries(GOOGLE_APPS).find(([path]) => url.pathname.startsWith(path))
+            return app ? app[1] : 'Google Drive'
+        }
+        if (host === 'drive.google.com') return 'Google Drive'
         for (const [domain, label] of Object.entries(PLATFORMS)) {
             if (host === domain || host.endsWith(`.${domain}`)) return label
         }

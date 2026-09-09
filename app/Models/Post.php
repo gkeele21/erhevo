@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\AuthorType;
 use App\Enums\PostType;
 use App\Enums\Visibility;
+use App\Services\SourceLink;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -59,6 +60,7 @@ class Post extends Model
         'creator_name',
         'author_name',
         'display_content',
+        'embed_url',
     ];
 
     protected static function booted(): void
@@ -188,6 +190,15 @@ class Post extends Model
         }
 
         return $this->user?->name;
+    }
+
+    /**
+     * Inline viewer for the source link (Google Slides, YouTube, Vimeo), or
+     * null when the link can only be linked out to.
+     */
+    public function getEmbedUrlAttribute(): ?string
+    {
+        return SourceLink::embedUrlFor($this->source_url);
     }
 
     public function scopePublic($query)

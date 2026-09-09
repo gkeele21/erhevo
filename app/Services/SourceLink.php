@@ -40,6 +40,10 @@ class SourceLink
             return null;
         }
 
+        if ($google = self::googleAppFor($host, (string) parse_url($url, PHP_URL_PATH))) {
+            return $google;
+        }
+
         foreach (self::PLATFORMS as $domain => $label) {
             if ($host === $domain || str_ends_with($host, ".{$domain}")) {
                 return $label;
@@ -48,6 +52,87 @@ class SourceLink
 
         // Fall back to the bare domain so the source still reads sensibly.
         return Str::of($host)->replaceStart('www.', '')->toString();
+    }
+
+    /**
+     * Google puts every app on docs.google.com, so the one behind a link is
+     * only distinguishable from the path.
+     */
+    private static function googleAppFor(string $host, string $path): ?string
+    {
+        if ($host !== 'docs.google.com') {
+            return $host === 'drive.google.com' ? 'Google Drive' : null;
+        }
+
+        return match (true) {
+            str_starts_with($path, '/presentation/') => 'Google Slides',
+            str_starts_with($path, '/document/') => 'Google Docs',
+            str_starts_with($path, '/spreadsheets/') => 'Google Sheets',
+            str_starts_with($path, '/forms/') => 'Google Forms',
+            default => 'Google Drive',
+        };
+    }
+
+    /**
+     * The inline viewer URL for a source link, when the platform offers one.
+     * Null means the link can only be linked out to.
+     *
+     * The result is rebuilt from an extracted id rather than passing the
+     * pasted URL through, so only these known hosts can reach an iframe.
+     */
+    public static function embedUrlFor(?string $url): ?string
+    {
+        if (! $url) {
+            return null;
+        }
+
+        $parts = parse_url($url);
+        if (! in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)) {
+            return null;
+        }
+
+        $host = Str::of(strtolower($parts['host'] ?? ''))->replaceStart('www.', '')->toString();
+        $path = $parts['path'] ?? '';
+        parse_str($parts['query'] ?? '', $query);
+
+        // Slides live at /presentation/d/<id>, published ones at /presentation/d/e/<id>.
+        if ($host === 'docs.google.com' && preg_match('#^/presentation/d/(e/)?([\w-]+)#', $path, $m)) {
+            return "https://docs.google.com/presentation/d/{$m[1]}{$m[2]}/embed";
+        }
+
+        if ($host === 'youtu.be') {
+            return self::youtubeEmbed(trim($path, '/'));
+        }
+
+        if ($host === 'youtube.com' || str_ends_with($host, '.youtube.com')) {
+            $id = is_string($query['v'] ?? null) ? $query['v'] : self::pathId($path, ['embed', 'shorts', 'live', 'v']);
+
+            return self::youtubeEmbed($id);
+        }
+
+        if ($host === 'vimeo.com' && preg_match('#^/(?:video/)?(\d+)#', $path, $m)) {
+            return "https://player.vimeo.com/video/{$m[1]}";
+        }
+
+        return null;
+    }
+
+    private static function youtubeEmbed(?string $id): ?string
+    {
+        return $id && preg_match('/^[\w-]{6,20}$/', $id) ? "https://www.youtube.com/embed/{$id}" : null;
+    }
+
+    /**
+     * The id in a two-segment /<prefix>/<id> path (YouTube's /embed, /shorts,
+     * /live forms).
+     *
+     * @param  string[]  $prefixes
+     */
+    private static function pathId(string $path, array $prefixes): ?string
+    {
+        $segments = array_values(array_filter(explode('/', $path), fn ($s) => $s !== ''));
+
+        return count($segments) === 2 && in_array($segments[0], $prefixes, true) ? $segments[1] : null;
     }
 
     /**

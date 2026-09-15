@@ -125,9 +125,11 @@ class StudyPlanController extends Controller
             'members:id,first_name,last_name',
             'items.completedBy:id,first_name,last_name',
             'items.chapter.book:id,name',
-            'items.talk:id,title,slug,speaker_name,speaker_title,summary,talk_date,url,church_calling_id,average_rating,ratings_count',
+            'items.talk:id,title,slug,speaker_name,speaker_title,summary,talk_date,url,church_calling_id,general_conference_session_id,average_rating,ratings_count',
             'items.talk.calling:id,prefix,name,church_organization_id',
             'items.talk.calling.organization:id,name',
+            // Conference talks show which session they were given in.
+            'items.talk.conferenceSession:id,name',
             'items.talk.tags:id,name,slug',
             // Just this user's rating — a plan shows the shared average plus
             // your own stars, never anyone else's.
@@ -157,6 +159,10 @@ class StudyPlanController extends Controller
             if ($item->talk) {
                 $item->talk->setAttribute('my_rating', $item->talk->ratings->first()?->rating);
                 $item->talk->unsetRelation('ratings');
+
+                // "Sunday Afternoon Session" — the same label TalkCard shows.
+                $item->talk->setAttribute('session', $item->talk->conferenceSession?->name);
+                $item->talk->unsetRelation('conferenceSession');
             }
         });
 

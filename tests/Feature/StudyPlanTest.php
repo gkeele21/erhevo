@@ -371,6 +371,42 @@ class StudyPlanTest extends TestCase
         $this->assertSame('October 2025 General Conference', $plan->criteria_summary);
     }
 
+    public function test_a_plan_shows_the_session_a_conference_talk_was_given_in(): void
+    {
+        $user = User::factory()->create();
+        $source = \App\Models\Source::create(['name' => 'General Conference', 'slug' => 'gc']);
+        $conference = \App\Models\GeneralConference::create(['name' => 'October 2025 General Conference', 'year' => 2025, 'month' => 'october', 'start_date' => '2025-10-04', 'end_date' => '2025-10-05']);
+        $type = \App\Models\GeneralConferenceSessionType::create(['name' => 'Sunday Afternoon', 'slug' => 'sunday-afternoon', 'display_order' => 7]);
+        $session = \App\Models\GeneralConferenceSession::create(['general_conference_id' => $conference->id, 'session_type_id' => $type->id, 'name' => 'Sunday Afternoon Session', 'session_date' => '2025-10-05', 'display_order' => 2]);
+
+        $conferenceTalk = Talk::create(['source_id' => $source->id, 'general_conference_session_id' => $session->id, 'speaker_name' => 'Speaker A', 'title' => 'Conference Talk', 'display_order' => 1]);
+        $otherTalk = Talk::create(['source_id' => $source->id, 'speaker_name' => 'Speaker B', 'title' => 'Devotional Talk', 'display_order' => 1]);
+
+        $plan = StudyPlan::create([
+            'user_id' => $user->id,
+            'name' => 'Sessions',
+            'type' => 'talks',
+            'config' => ['mode' => 'author'],
+        ]);
+        foreach ([$conferenceTalk, $otherTalk] as $i => $talk) {
+            \App\Models\StudyPlanItem::create([
+                'study_plan_id' => $plan->id,
+                'talk_id' => $talk->id,
+                'session_number' => 1,
+                'sort_order' => $i + 1,
+            ]);
+        }
+
+        $this->actingAs($user)
+            ->get(route('study-plans.show', $plan))
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->component('StudyPlans/Show')
+                // The session's full name, matching what TalkCard shows.
+                ->where('plan.items.0.talk.session', 'Sunday Afternoon Session')
+                // A non-conference talk has no session to show.
+                ->where('plan.items.1.talk.session', null));
+    }
+
     public function test_scripture_sessions_are_balanced_by_verse_count(): void
     {
         $user = User::factory()->create();

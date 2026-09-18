@@ -272,7 +272,9 @@ const destroy = () => {
                                         {{ item.talk.speaker_display_name }}
                                         <span v-if="item.talk.calling?.display_label"> &middot; {{ item.talk.calling.display_label }}</span>
                                         <span v-if="item.talk.talk_date"> &middot; {{ formatLocalDate(item.talk.talk_date, { month: 'long', year: 'numeric' }) }}</span>
-                                        <span v-if="item.talk.session"> &middot; {{ item.talk.session }}</span>
+                                    </p>
+                                    <p v-if="item.talk?.session" class="text-sm text-teal truncate">
+                                        {{ item.talk.session }}
                                     </p>
                                     <p v-if="item.talk?.summary" class="text-sm text-teal-300 mt-1 line-clamp-2">
                                         {{ item.talk.summary }}

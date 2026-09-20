@@ -19,10 +19,9 @@ class CfmResurfacingService
      */
     public function getResurfacingPosts(CfmWeek $currentWeek, ?User $viewer = null): Collection
     {
-        // Get all chapter IDs for the current week
-        $chapterIds = $currentWeek->chapters()->pluck('scripture_chapters.id');
+        $chapters = $currentWeek->chapters()->get();
 
-        if ($chapterIds->isEmpty()) {
+        if ($chapters->isEmpty()) {
             // This is a special topic week with no scripture chapters
             return $this->getSpecialTopicPosts($currentWeek, $viewer);
         }
@@ -30,15 +29,14 @@ class CfmResurfacingService
         return Post::query()
             ->published()
             ->visibleTo($viewer)
-            ->where(function ($query) use ($chapterIds) {
-                // Posts whose scripture references overlap with these chapters
-                $query->whereHas('scriptureReferences', function ($q) use ($chapterIds) {
-                    $q->where(function ($subQuery) use ($chapterIds) {
-                        // Start chapter is in the week's chapters
-                        $subQuery->whereIn('start_chapter_id', $chapterIds);
-                    })->orWhere(function ($subQuery) use ($chapterIds) {
-                        // End chapter is in the week's chapters (for multi-chapter ranges)
-                        $subQuery->whereIn('end_chapter_id', $chapterIds);
+            ->where(function ($query) use ($chapters) {
+                // Posts whose references touch any of the week's chapters,
+                // including ranges that run straight through one.
+                $query->whereHas('scriptureReferences', function ($q) use ($chapters) {
+                    $q->where(function ($any) use ($chapters) {
+                        foreach ($chapters as $chapter) {
+                            $any->orWhere(fn ($c) => $c->coveringChapter($chapter));
+                        }
                     });
                 });
             })

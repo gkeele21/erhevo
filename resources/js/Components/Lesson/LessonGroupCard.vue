@@ -48,8 +48,17 @@ const removeChild = (index) => {
     props.group.children.splice(index, 1)
 }
 
-// A group child list never accepts another group (one level of nesting only).
-const childMove = (evt) => evt.draggedContext.element?.type !== 'group'
+// A group's child list never accepts another group — one level of nesting only.
+//
+// This has to be a `put` rule rather than `:move`. SortableJS reads `onMove`
+// from the list the drag STARTED in, so a `:move` handler here never saw a
+// group arriving from the top-level list; all it did was block dragging one
+// back out again, which left the group stranded. `put` is evaluated on the
+// destination list, which is what we actually want to gate.
+const childGroup = {
+    name: 'lesson-blocks',
+    put: (to, from, dragEl) => dragEl.__draggable_context?.element?.type !== 'group',
+}
 </script>
 
 <template>
@@ -81,8 +90,7 @@ const childMove = (evt) => evt.draggedContext.element?.type !== 'group'
             <draggable
                 ref="listRef"
                 :list="group.children"
-                :group="{ name: 'lesson-blocks' }"
-                :move="childMove"
+                :group="childGroup"
                 handle=".lesson-drag-handle"
                 item-key="_uid"
                 :animation="150"

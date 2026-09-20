@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ProvidesScriptureBooks;
 use App\Enums\AuthorType;
 use App\Enums\LessonItemType;
 use App\Enums\PostType;
@@ -13,7 +14,6 @@ use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\ScriptureChapter;
 use App\Models\ScriptureVerse;
-use App\Models\ScriptureVolume;
 use App\Models\Talk;
 use App\Services\ScriptureReferenceParser;
 use Illuminate\Http\Request;
@@ -25,6 +25,8 @@ use Inertia\Response;
 
 class LessonController extends Controller
 {
+    use ProvidesScriptureBooks;
+
     /** Upload size caps (KB) for lesson media. */
     private const VIDEO_MAX_KB = 20480; // 20 MB
     private const IMAGE_MAX_KB = 10240; // 10 MB
@@ -716,30 +718,6 @@ class LessonController extends Controller
             'k' => $number * 1024,
             default => (int) $value,
         };
-    }
-
-    /**
-     * Volumes → books → chapters (with verse_count) for the scripture picker.
-     */
-    protected function scriptureBooksTree(): array
-    {
-        return ScriptureVolume::query()
-            ->orderBy('sort_order')
-            ->with(['books' => fn ($q) => $q->orderBy('sort_order')
-                ->with(['chapters' => fn ($q2) => $q2->orderBy('chapter_number')])])
-            ->get()
-            ->map(fn ($volume) => [
-                'name' => $volume->name,
-                'books' => $volume->books->map(fn ($book) => [
-                    'id' => $book->id,
-                    'name' => $book->name,
-                    'chapters' => $book->chapters->map(fn ($c) => [
-                        'id' => $c->id,
-                        'number' => $c->chapter_number,
-                        'verse_count' => $c->verse_count,
-                    ])->values(),
-                ])->values(),
-            ])->values()->toArray();
     }
 
     protected function validateLesson(Request $request, ?string $existingKind = null): array

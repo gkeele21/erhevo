@@ -27,12 +27,19 @@ const mapLeaf = (item) => ({
     _collapsed: true,
 })
 
+// Groups only ever hold leaves. If a nested group turns up anyway, lift its
+// items into the parent rather than mapping it as a leaf — mapLeaf keeps no
+// children, so the nested group's content would otherwise be dropped silently.
+const mapChildren = (children) => (children ?? [])
+    .flatMap((child) => child.type === 'group' ? (child.children ?? []) : [child])
+    .map(mapLeaf)
+
 const mapNode = (item) => item.type === 'group'
     ? {
         type: 'group',
         content: '',
         config: item.config ?? {},
-        children: (item.children ?? []).map(mapLeaf),
+        children: mapChildren(item.children),
     }
     : mapLeaf(item)
 
@@ -77,6 +84,7 @@ const submit = (publish) => {
 // directly; on a published lesson it saves into the pending draft revision,
 // so auto-save can never publish or alter what readers currently see.
 const lastAutosavedAt = ref(null)
+const autosaveFailed = ref(false)
 let autosaveTimer = null
 let lastSavedSnapshot = JSON.stringify(form.data())
 
@@ -93,10 +101,16 @@ const autosave = () => {
         preserveScroll: true,
         onSuccess: () => {
             lastSavedSnapshot = snapshot
+            autosaveFailed.value = false
             lastAutosavedAt.value = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
         },
-        // Stay quiet on half-finished input; the manual save will surface errors.
-        onError: () => form.clearErrors(),
+        // Half-finished input shouldn't throw field errors at someone mid-type,
+        // so the errors are cleared — but say plainly that nothing was saved.
+        // Silently swallowing this let a whole session's work go unsaved.
+        onError: () => {
+            form.clearErrors()
+            autosaveFailed.value = true
+        },
     })
 }
 
@@ -178,7 +192,10 @@ onUnmounted(() => clearInterval(autosaveTimer))
                             </button>
                         </div>
                         <div class="flex items-center gap-4">
-                            <span v-if="lastAutosavedAt" class="text-sm text-stone-400">
+                            <span v-if="autosaveFailed" class="text-sm font-medium text-red-600">
+                                Not saved — use Save to see what needs fixing.
+                            </span>
+                            <span v-else-if="lastAutosavedAt" class="text-sm text-stone-400">
                                 Auto-saved at {{ lastAutosavedAt }}
                             </span>
                             <button

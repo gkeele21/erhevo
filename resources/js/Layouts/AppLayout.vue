@@ -57,6 +57,9 @@ const logout = () => {
                                 <NavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
                                     Library
                                 </NavLink>
+                                <NavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('scriptures.index')" :active="route().current('scriptures.*')">
+                                    Scriptures
+                                </NavLink>
                                 <!-- Auth-only (visits/trips are personal), unlike the guest-browsable Library. -->
                                 <NavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('temples.index')" :active="route().current('temples.*') || route().current('temple-visits.*') || route().current('temple-trips.*')">
                                     Temples
@@ -148,6 +151,9 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
                             Library
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('scriptures.index')" :active="route().current('scriptures.*')">
+                            Scriptures
                         </ResponsiveNavLink>
                         <ResponsiveNavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('temples.index')" :active="route().current('temples.*') || route().current('temple-visits.*') || route().current('temple-trips.*')">
                             Temples

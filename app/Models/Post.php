@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 
 class Post extends Model
 {
-    use Concerns\HasFriendShares, HasFactory, SoftDeletes;
+    use Concerns\HasFriendShares, Concerns\HasScriptureReferences, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'uuid',
@@ -127,14 +127,6 @@ class Post extends Model
     }
 
     /**
-     * Scripture references linked to this post
-     */
-    public function scriptureReferences(): HasMany
-    {
-        return $this->hasMany(PostScriptureReference::class)->orderBy('sort_order');
-    }
-
-    /**
      * CFM weeks this post is associated with
      */
     public function cfmWeeks(): BelongsToMany
@@ -145,24 +137,6 @@ class Post extends Model
             'post_id',
             'cfm_week_id'
         )->withTimestamps();
-    }
-
-    /**
-     * Sync scripture references from parsed input
-     */
-    public function syncScriptureReferences(array $references): void
-    {
-        $this->scriptureReferences()->delete();
-
-        foreach ($references as $index => $ref) {
-            $this->scriptureReferences()->create([
-                'start_chapter_id' => $ref['start_chapter_id'],
-                'start_verse' => $ref['start_verse'] ?? null,
-                'end_chapter_id' => $ref['end_chapter_id'] ?? null,
-                'end_verse' => $ref['end_verse'] ?? null,
-                'sort_order' => $index,
-            ]);
-        }
     }
 
     public function getDisplayContentAttribute(): string

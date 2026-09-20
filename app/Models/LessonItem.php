@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LessonItem extends Model
 {
+    use Concerns\HasScriptureReferences;
+
     protected $fillable = [
         'lesson_id',
         'parent_id',
@@ -37,6 +39,40 @@ class LessonItem extends Model
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
+    }
+
+    /**
+     * Turn a scripture block's picker config into reference rows, so the
+     * passage can find the lesson the same way it finds a post. Blocks of any
+     * other type simply have no references.
+     */
+    public function syncScriptureReferencesFromConfig(): void
+    {
+        if ($this->type !== LessonItemType::Scripture) {
+            return;
+        }
+
+        $config = $this->config ?? [];
+
+        if (empty($config['start_chapter_id'])) {
+            $this->syncScriptureReferences([]);
+
+            return;
+        }
+
+        // "Same chapter" comes through as no end chapter; an end verse on its
+        // own means the range stays inside the start chapter.
+        $endChapterId = $config['end_chapter_id'] ?? null;
+        if ($endChapterId && (int) $endChapterId === (int) $config['start_chapter_id']) {
+            $endChapterId = null;
+        }
+
+        $this->syncScriptureReferences([[
+            'start_chapter_id' => (int) $config['start_chapter_id'],
+            'start_verse' => $config['start_verse'] ?? null,
+            'end_chapter_id' => $endChapterId ? (int) $endChapterId : null,
+            'end_verse' => $config['end_verse'] ?? null,
+        ]]);
     }
 
     /**

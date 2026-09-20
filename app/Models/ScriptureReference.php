@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class PostScriptureReference extends Model
+class ScriptureReference extends Model
 {
     protected $fillable = [
-        'post_id',
+        'referenceable_type',
+        'referenceable_id',
         'start_chapter_id',
         'start_verse',
         'end_chapter_id',
@@ -22,9 +24,10 @@ class PostScriptureReference extends Model
         'sort_order' => 'integer',
     ];
 
-    public function post(): BelongsTo
+    /** The Post or LessonItem this reference hangs off. */
+    public function referenceable(): MorphTo
     {
-        return $this->belongsTo(Post::class);
+        return $this->morphTo();
     }
 
     public function startChapter(): BelongsTo
@@ -74,6 +77,60 @@ class PostScriptureReference extends Model
 
         // Fallback
         return "{$startBook} {$startChapterNum}";
+    }
+
+    /**
+     * References that touch a chapter — including ranges that merely pass
+     * through it, e.g. "1 Nephi 3:25-5:2" covers chapter 4 without naming it.
+     */
+    public function scopeCoveringChapter($query, ScriptureChapter $chapter)
+    {
+        return $query->where(function ($q) use ($chapter) {
+            $q->where('start_chapter_id', $chapter->id)
+                ->orWhere('end_chapter_id', $chapter->id)
+                ->orWhere(function ($spanning) use ($chapter) {
+                    $spanning
+                        ->whereHas('startChapter', fn ($c) => $c
+                            ->where('book_id', $chapter->book_id)
+                            ->where('chapter_number', '<', $chapter->chapter_number))
+                        ->whereHas('endChapter', fn ($c) => $c
+                            ->where('book_id', $chapter->book_id)
+                            ->where('chapter_number', '>', $chapter->chapter_number));
+                });
+        });
+    }
+
+    /**
+     * Whether this reference includes a given verse of a given chapter.
+     *
+     * Assumes the reference already covers the chapter (see coveringChapter);
+     * this narrows it to the verses actually named.
+     */
+    public function coversVerse(ScriptureChapter $chapter, int $verseNumber): bool
+    {
+        $isStart = $this->start_chapter_id === $chapter->id;
+        $isEnd = $this->end_chapter_id === $chapter->id;
+
+        // A range passing straight through covers the chapter end to end.
+        if (! $isStart && ! $isEnd) {
+            return true;
+        }
+
+        // Single-chapter reference.
+        if (! $this->end_chapter_id) {
+            if (! $this->start_verse) {
+                return true;
+            }
+
+            return $verseNumber >= $this->start_verse
+                && $verseNumber <= ($this->end_verse ?: $this->start_verse);
+        }
+
+        if ($isStart) {
+            return ! $this->start_verse || $verseNumber >= $this->start_verse;
+        }
+
+        return ! $this->end_verse || $verseNumber <= $this->end_verse;
     }
 
     /**

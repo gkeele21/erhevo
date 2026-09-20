@@ -1,8 +1,18 @@
 <script setup>
+import { ref } from 'vue'
 import CfmWeekSelector from '@/Components/Story/CfmWeekSelector.vue'
+import ScriptureReferenceInput from '@/Components/Story/ScriptureReferenceInput.vue'
 
 defineProps({
     cfmWeekIds: {
+        type: Array,
+        default: () => []
+    },
+    scriptureReferences: {
+        type: Array,
+        default: () => []
+    },
+    scriptureBooks: {
         type: Array,
         default: () => []
     },
@@ -16,7 +26,14 @@ defineProps({
     }
 })
 
-const emit = defineEmits(['update:cfmWeekIds'])
+const emit = defineEmits(['update:cfmWeekIds', 'update:scriptureReferences'])
+
+// Exposed so the page can hand AI-suggested references straight to the picker.
+const scriptureInput = ref(null)
+
+defineExpose({
+    addScriptureReference: (row) => scriptureInput.value?.add(row),
+})
 </script>
 
 <template>
@@ -38,6 +55,15 @@ const emit = defineEmits(['update:cfmWeekIds'])
             :cfm-weeks="cfmWeeks"
             :current-cfm-week="currentCfmWeek"
         />
+
+        <div class="border-t border-amber-200 pt-4">
+            <ScriptureReferenceInput
+                ref="scriptureInput"
+                :model-value="scriptureReferences"
+                @update:model-value="emit('update:scriptureReferences', $event)"
+                :scripture-books="scriptureBooks"
+            />
+        </div>
 
         <p class="text-xs text-amber-700 italic">
             Track your temple visits in the new <a href="/temples" class="underline font-medium">Temple Tracker</a>.

@@ -28,7 +28,8 @@ const props = defineProps({
     cfmWeeks: Array,
     currentCfmWeek: Object,
     churchCallings: Array,
-    friends: Array
+    friends: Array,
+    scriptureBooks: Array
 })
 
 const form = useForm({
@@ -41,6 +42,7 @@ const form = useForm({
     user_category_id: '',
     tags: [],
     cfm_week_ids: [],
+    scripture_references: [],
     author_type: 'self',
     author_text: '',
     author_id: null,
@@ -113,8 +115,21 @@ const handleTranscribed = ({ text, author_name, title, date_given }) => {
     }
 }
 
+const ldsSection = ref(null)
+
 const handleScriptureAdd = (suggestion) => {
     const reference = suggestion.reference
+
+    // The AI endpoint resolves each suggestion to chapter ids; when it can,
+    // record a real reference row instead of pasting text into the post.
+    if (suggestion.valid && suggestion.chapter_data) {
+        ldsSection.value?.addScriptureReference({
+            ...suggestion.chapter_data,
+            reference,
+        })
+        return
+    }
+
     if (form.content) {
         form.content += `\n\n> ${reference}`
     } else {
@@ -340,9 +355,12 @@ const uploadCoverImage = async (e) => {
                     <!-- LDS Content Section -->
                     <LdsContentSection
                         v-if="$page.props.userSettings?.show_lds_content"
+                        ref="ldsSection"
                         v-model:cfm-week-ids="form.cfm_week_ids"
+                        v-model:scripture-references="form.scripture_references"
                         :cfm-weeks="cfmWeeks"
                         :current-cfm-week="currentCfmWeek"
+                        :scripture-books="scriptureBooks"
                     />
 
                     <!-- Visibility & Privacy -->

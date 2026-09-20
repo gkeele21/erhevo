@@ -9,7 +9,7 @@ The resurfacing mechanism allows posts created for a specific scripture study to
 ### For Scripture-Based Weeks
 
 1. User creates a post about "1 Nephi 3:7" in 2024
-2. The post is linked via `post_scripture_references` to chapter ID for 1 Nephi 3
+2. The post is linked via `scripture_references` to chapter ID for 1 Nephi 3
 3. In 2028, when viewing the CFM week covering 1 Nephi 3:
    - The system queries for posts whose scripture references overlap
    - The 2024 post appears alongside 2028 content
@@ -90,7 +90,7 @@ The `visibleTo()` scope handles this automatically.
 Key indexes support efficient resurfacing queries:
 
 - `cfm_week_chapters.chapter_id` - For finding weeks covering a chapter
-- `post_scripture_references.start_chapter_id` - For finding posts about a chapter
+- `scripture_references.start_chapter_id` - For finding posts about a chapter
 - Composite indexes on visibility and published_at
 
 ## The 4-Year Cycle

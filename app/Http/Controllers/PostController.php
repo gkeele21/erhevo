@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ProvidesScriptureBooks;
 use App\Enums\AuthorType;
 use App\Enums\PostType;
 use App\Enums\Visibility;
@@ -23,6 +24,8 @@ use Inertia\Response;
 
 class PostController extends Controller
 {
+    use ProvidesScriptureBooks;
+
     public function __construct(
         protected NameAnonymizer $nameAnonymizer
     ) {}
@@ -90,6 +93,7 @@ class PostController extends Controller
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'churchCallings' => $this->churchCallings(),
             'friends' => $this->friendOptions($request),
+            'scriptureBooks' => $this->scriptureBooksTree(),
         ]);
     }
 
@@ -121,6 +125,14 @@ class PostController extends Controller
             'date_given' => 'nullable|date',
             'source_url' => 'nullable|url|max:2048',
             'publish' => 'boolean',
+            // Verse-level links to the scriptures this post is about. These are
+            // what make a post discoverable from a passage (and what CFM
+            // resurfacing queries against) — see CFM_SCRIPTURE_REFERENCES.md.
+            'scripture_references' => 'nullable|array',
+            'scripture_references.*.start_chapter_id' => 'required|exists:scripture_chapters,id',
+            'scripture_references.*.start_verse' => 'nullable|integer|min:1',
+            'scripture_references.*.end_chapter_id' => 'nullable|exists:scripture_chapters,id',
+            'scripture_references.*.end_verse' => 'nullable|integer|min:1',
         ]);
 
         $post = new Post($validated);
@@ -149,6 +161,7 @@ class PostController extends Controller
 
         $post->cfmWeeks()->sync($validated['cfm_week_ids'] ?? []);
         $post->syncSharedWith($validated['shared_user_ids'] ?? []);
+        $post->syncScriptureReferences($validated['scripture_references'] ?? []);
 
         return redirect()->route('posts.show', $post)
             ->with('success', 'Post created successfully.');
@@ -183,7 +196,7 @@ class PostController extends Controller
     {
         Gate::authorize('update', $post);
 
-        $post->load(['category', 'userCategory', 'tags', 'cfmWeeks', 'author']);
+        $post->load(['category', 'userCategory', 'tags', 'cfmWeeks', 'author', 'scriptureReferences.startChapter.book', 'scriptureReferences.endChapter']);
 
         return Inertia::render('Posts/Edit', [
             'post' => $post,
@@ -209,6 +222,14 @@ class PostController extends Controller
             'currentCfmWeek' => CfmWeek::current()->with('studyYear')->first(),
             'churchCallings' => $this->churchCallings(),
             'friends' => $this->friendOptions($request),
+            'scriptureBooks' => $this->scriptureBooksTree(),
+            'scriptureReferences' => $post->scriptureReferences->map(fn ($ref) => [
+                'start_chapter_id' => $ref->start_chapter_id,
+                'start_verse' => $ref->start_verse,
+                'end_chapter_id' => $ref->end_chapter_id,
+                'end_verse' => $ref->end_verse,
+                'reference' => $ref->display_reference,
+            ])->values(),
         ]);
     }
 
@@ -275,6 +296,14 @@ class PostController extends Controller
             'date_given' => 'nullable|date',
             'source_url' => 'nullable|url|max:2048',
             'publish' => 'boolean',
+            // Verse-level links to the scriptures this post is about. These are
+            // what make a post discoverable from a passage (and what CFM
+            // resurfacing queries against) — see CFM_SCRIPTURE_REFERENCES.md.
+            'scripture_references' => 'nullable|array',
+            'scripture_references.*.start_chapter_id' => 'required|exists:scripture_chapters,id',
+            'scripture_references.*.start_verse' => 'nullable|integer|min:1',
+            'scripture_references.*.end_chapter_id' => 'nullable|exists:scripture_chapters,id',
+            'scripture_references.*.end_verse' => 'nullable|integer|min:1',
         ]);
 
         $post->fill($validated);
@@ -305,6 +334,10 @@ class PostController extends Controller
 
         $post->cfmWeeks()->sync($validated['cfm_week_ids'] ?? []);
         $post->syncSharedWith($validated['shared_user_ids'] ?? []);
+
+        if (isset($validated['scripture_references'])) {
+            $post->syncScriptureReferences($validated['scripture_references']);
+        }
 
         return redirect()->route('posts.show', $post)
             ->with('success', 'Post updated successfully.');

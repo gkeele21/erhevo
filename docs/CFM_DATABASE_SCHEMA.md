@@ -39,9 +39,9 @@
 │                          USER CONTENT                                            │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
-│  ┌──────────────────┐         ┌────────────────────────────┐                   │
-│  │      posts       │────────<│ post_scripture_references  │                   │
-│  └────────┬─────────┘         └────────────────────────────┘                   │
+│  ┌──────────────────────┐     ┌────────────────────────────┐                   │
+│  │ posts / lesson_items │────<│    scripture_references    │  (polymorphic)    │
+│  └────────┬─────────────┘     └────────────────────────────┘                   │
 │           │                                                                     │
 │           │    ┌──────────────────┐                                            │
 │           └───>│ post_cfm_weeks   │                                            │
@@ -154,11 +154,14 @@ Pivot table linking weeks to special topics.
 
 ### User Content
 
-#### `post_scripture_references`
+#### `scripture_references`
+Anything that can point at a passage — a post, or a lesson's scripture block.
+
 | Column | Type | Description |
 |--------|------|-------------|
 | id | bigint | Primary key |
-| post_id | bigint | FK to posts |
+| referenceable_type | string | `App\Models\Post` or `App\Models\LessonItem` |
+| referenceable_id | bigint | FK to that model |
 | start_chapter_id | bigint | FK to scripture_chapters |
 | start_verse | smallint | Starting verse (nullable) |
 | end_chapter_id | bigint | Ending chapter for ranges (nullable) |
@@ -210,5 +213,5 @@ Key indexes for performance:
 - `scripture_chapters`: (`book_id`, `chapter_number`)
 - `cfm_weeks`: (`start_date`, `end_date`), `slug`
 - `cfm_week_chapters`: `chapter_id` (for resurfacing queries)
-- `post_scripture_references`: (`start_chapter_id`, `start_verse`)
+- `scripture_references`: (`start_chapter_id`, `start_verse`), (`referenceable_type`, `referenceable_id`)
 - `cfm_publisher_content`: (`cfm_week_id`, `content_type`)

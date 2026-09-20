@@ -94,6 +94,12 @@ class Lesson extends Model
      */
     public function syncItems(array $nodes): void
     {
+        // A mass delete skips model events, so the items' scripture references
+        // have to be cleared by hand before the rows go.
+        ScriptureReference::where('referenceable_type', LessonItem::class)
+            ->whereIn('referenceable_id', $this->allItems()->pluck('id'))
+            ->delete();
+
         $this->allItems()->delete();
 
         foreach ($nodes as $index => $node) {
@@ -107,6 +113,8 @@ class Lesson extends Model
                 'config' => $node['config'] ?? null,
             ]);
 
+            $item->syncScriptureReferencesFromConfig();
+
             if (($node['type'] ?? null) === 'group') {
                 foreach ($node['children'] ?? [] as $childIndex => $child) {
                     LessonItem::create([
@@ -117,7 +125,7 @@ class Lesson extends Model
                         'sort_order' => $childIndex,
                         'content' => $child['content'] ?? null,
                         'config' => $child['config'] ?? null,
-                    ]);
+                    ])->syncScriptureReferencesFromConfig();
                 }
             }
         }

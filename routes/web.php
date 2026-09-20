@@ -28,6 +28,7 @@ use App\Http\Controllers\StudyPlanController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TalkController;
 use App\Http\Controllers\TalkEngagementController;
+use App\Http\Controllers\ScriptureController;
 use App\Http\Controllers\TempleController;
 use App\Http\Controllers\TempleTripController;
 use App\Http\Controllers\TempleVisitController;
@@ -100,6 +101,12 @@ Route::middleware([
     Route::delete('/api/lessons/video', [LessonController::class, 'deleteVideo'])->name('lessons.video-delete');
     Route::post('/api/lessons/image-upload', [LessonController::class, 'uploadImage'])->name('lessons.image-upload');
     Route::delete('/api/lessons/image', [LessonController::class, 'deleteImage'])->name('lessons.image-delete');
+
+    // Scriptures — browse a passage and see what has been written about it
+    Route::get('/scriptures', [ScriptureController::class, 'index'])->name('scriptures.index');
+    Route::get('/scriptures/{book:slug}/{chapter}', [ScriptureController::class, 'show'])
+        ->whereNumber('chapter')
+        ->name('scriptures.show');
 
     // Post sharing
     Route::get('/posts/{post:slug}/share', [PostShareController::class, 'index'])->name('posts.share.index');

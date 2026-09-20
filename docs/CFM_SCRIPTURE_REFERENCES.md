@@ -2,7 +2,7 @@
 
 ## Overview
 
-Posts can be linked to specific scripture passages using the `post_scripture_references` table. This system supports:
+Posts and lesson scripture blocks can be linked to specific passages using the polymorphic `scripture_references` table (`referenceable_type` / `referenceable_id`). This system supports:
 
 - Single verses: "1 Nephi 3:7"
 - Verse ranges: "1 Nephi 3:7-12"
@@ -12,7 +12,7 @@ Posts can be linked to specific scripture passages using the `post_scripture_ref
 
 ## Storage Format
 
-The `post_scripture_references` table uses four columns to represent any reference:
+The `scripture_references` table uses four columns to represent any reference:
 
 | Column | Purpose |
 |--------|---------|

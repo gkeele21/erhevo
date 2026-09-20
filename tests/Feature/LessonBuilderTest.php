@@ -382,6 +382,50 @@ class LessonBuilderTest extends TestCase
         ])->assertSessionHasErrors('items.0.children.0.type');
     }
 
+    public function test_editing_a_lesson_cannot_nest_a_group_and_leaves_it_unchanged(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'Two Groups',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [
+                ['type' => 'group', 'config' => ['title' => 'One'], 'children' => [
+                    ['type' => 'text', 'content' => 'first'],
+                ]],
+                ['type' => 'group', 'config' => ['title' => 'Two'], 'children' => [
+                    ['type' => 'text', 'content' => 'second'],
+                ]],
+            ],
+        ]);
+
+        $lesson = \App\Models\Lesson::latest('id')->first();
+        $before = $lesson->allItems()->count();
+
+        // What a mis-drop sends: group "Two", with its content, inside "One".
+        $this->actingAs($user)->put('/lessons/' . $lesson->slug, [
+            'title' => 'Two Groups',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [
+                ['type' => 'group', 'config' => ['title' => 'One'], 'children' => [
+                    ['type' => 'text', 'content' => 'first'],
+                    ['type' => 'group', 'config' => ['title' => 'Two'], 'children' => [
+                        ['type' => 'text', 'content' => 'second'],
+                    ]],
+                ]],
+            ],
+        ])->assertSessionHasErrors('items.0.children.1.type');
+
+        // The rejection must leave the saved lesson completely untouched.
+        $this->assertSame($before, $lesson->allItems()->count());
+        $this->assertSame(
+            ['first', 'second'],
+            $lesson->allItems()->where('type', 'text')->orderBy('id')->pluck('content')->all()
+        );
+    }
+
     public function test_a_draft_lesson_is_not_published(): void
     {
         $user = User::factory()->create();

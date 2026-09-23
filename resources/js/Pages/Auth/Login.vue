@@ -41,6 +41,16 @@ const submit = () => {
             {{ status }}
         </div>
 
+        <!-- Why they landed here: a timed-out session redirects to login with
+             an explanation (see bootstrap/app.php). This page is outside
+             AppLayout, so it renders its own flash. -->
+        <div
+            v-if="$page.props.flash?.error"
+            class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+            {{ $page.props.flash.error }}
+        </div>
+
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />

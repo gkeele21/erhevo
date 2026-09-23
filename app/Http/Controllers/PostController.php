@@ -105,6 +105,13 @@ class PostController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
             'cover_image' => 'required_if:post_type,image|nullable|string|max:2048',
+            // A supporting document (PDF). Uploaded ahead of the form submit by
+            // AttachmentUploadController, which is what validates the file itself;
+            // what arrives here is the metadata it handed back.
+            'attachment_url' => 'nullable|string|max:2048',
+            'attachment_path' => 'nullable|string|max:2048',
+            'attachment_name' => 'nullable|string|max:255',
+            'attachment_size' => 'nullable|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',
@@ -276,6 +283,13 @@ class PostController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
             'cover_image' => 'required_if:post_type,image|nullable|string|max:2048',
+            // A supporting document (PDF). Uploaded ahead of the form submit by
+            // AttachmentUploadController, which is what validates the file itself;
+            // what arrives here is the metadata it handed back.
+            'attachment_url' => 'nullable|string|max:2048',
+            'attachment_path' => 'nullable|string|max:2048',
+            'attachment_name' => 'nullable|string|max:255',
+            'attachment_size' => 'nullable|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'user_category_id' => 'nullable|exists:user_categories,id',
             'tags' => 'nullable|array',

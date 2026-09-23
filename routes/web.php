@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AdminTalkController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\AiConnectionController;
 use App\Http\Controllers\AiController;
+use App\Http\Controllers\AttachmentUploadController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
@@ -116,6 +117,10 @@ Route::middleware([
     // Image uploads
     Route::post('/upload-image', [ImageUploadController::class, 'store'])->name('images.store');
     Route::delete('/images/{image}', [ImageUploadController::class, 'destroy'])->name('images.destroy');
+
+    // Document attachments on posts (PDFs)
+    Route::post('/upload-attachment', [AttachmentUploadController::class, 'store'])->name('attachments.store');
+    Route::delete('/upload-attachment', [AttachmentUploadController::class, 'destroy'])->name('attachments.destroy');
 
     // Category suggestions
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');

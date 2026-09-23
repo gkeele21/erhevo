@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Head, useForm, Link, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import AttachmentUpload from '@/Components/Story/AttachmentUpload.vue'
 import StoryEditor from '@/Components/Story/StoryEditor.vue'
 import VisibilitySelector from '@/Components/Story/VisibilitySelector.vue'
 import TagInput from '@/Components/Story/TagInput.vue'
@@ -38,6 +39,10 @@ const form = useForm({
     content: '',
     excerpt: '',
     cover_image: '',
+    attachment_url: null,
+    attachment_path: null,
+    attachment_name: null,
+    attachment_size: null,
     category_id: '',
     user_category_id: '',
     tags: [],
@@ -237,6 +242,9 @@ const uploadCoverImage = async (e) => {
                         <p v-if="imageUploadError" class="text-sm text-red-600">{{ imageUploadError }}</p>
                         <p v-if="form.errors.cover_image" class="text-sm text-red-600">{{ form.errors.cover_image }}</p>
                     </div>
+
+                    <!-- PDF attachment (any post type) -->
+                    <AttachmentUpload :form="form" />
 
                     <div class="bg-white rounded-lg shadow p-6 space-y-6 border border-stone-100">
                         <!-- Title -->

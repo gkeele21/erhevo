@@ -27,6 +27,10 @@ class Post extends Model
         'content_anonymized',
         'excerpt',
         'cover_image',
+        'attachment_url',
+        'attachment_path',
+        'attachment_name',
+        'attachment_size',
         'user_id',
         'author_type',
         'author_id',
@@ -52,6 +56,7 @@ class Post extends Model
         'hide_author' => 'boolean',
         'anonymize_names' => 'boolean',
         'name_mappings' => 'array',
+        'attachment_size' => 'integer',
         'published_at' => 'datetime',
         'date_given' => 'date',
     ];

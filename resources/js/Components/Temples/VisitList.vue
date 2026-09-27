@@ -21,11 +21,11 @@ defineEmits(['edit', 'delete'])
                     <Link
                         v-if="showTemple && visit.temple"
                         :href="route('temples.show', visit.temple.slug)"
-                        class="font-semibold hover:text-teal-700"
+                        class="block font-semibold hover:text-teal-700"
                     >
                         {{ visit.temple.name }}
                     </Link>
-                    <span :class="{ 'text-stone-500': showTemple }">
+                    <span :class="{ 'block text-stone-500': showTemple }">
                         {{ formatLocalDate(visit.visited_on, { year: 'numeric', month: 'long', day: 'numeric' }) }}
                     </span>
                 </p>

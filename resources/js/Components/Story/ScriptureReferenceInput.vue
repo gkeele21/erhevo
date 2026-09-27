@@ -11,6 +11,14 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
+    label: {
+        type: String,
+        default: 'Scriptures this post is about'
+    },
+    hint: {
+        type: String,
+        default: 'Linking verses lets this post resurface when you or your friends study the same passage.'
+    },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -133,10 +141,8 @@ defineExpose({ add })
 <template>
     <div class="space-y-3">
         <div>
-            <label class="block text-sm font-medium text-amber-900">Scriptures this post is about</label>
-            <p class="mt-0.5 text-xs text-amber-800">
-                Linking verses lets this post resurface when you or your friends study the same passage.
-            </p>
+            <label class="block text-sm font-medium text-amber-900">{{ label }}</label>
+            <p v-if="hint" class="mt-0.5 text-xs text-amber-800">{{ hint }}</p>
         </div>
 
         <!-- Current references -->
@@ -160,6 +166,8 @@ defineExpose({ add })
             </span>
         </div>
         <p v-else class="text-sm italic text-amber-700">No scriptures linked yet.</p>
+
+        <slot name="suggestions" />
 
         <!-- Add form -->
         <div v-if="adding" class="space-y-3 rounded-lg border border-amber-300 bg-white p-3">

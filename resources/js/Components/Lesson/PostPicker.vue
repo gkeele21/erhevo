@@ -75,6 +75,7 @@ const attach = (post) => {
         post_type: post.post_type,
         cover_image: post.cover_image || null,
         tags: post.tags || [],
+        scripture_references: post.scripture_references || [],
     }
     query.value = ''
     results.value = []

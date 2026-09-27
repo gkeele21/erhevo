@@ -7,6 +7,7 @@ import TalkPicker from '@/Components/Lesson/TalkPicker.vue'
 import QuotePicker from '@/Components/Lesson/QuotePicker.vue'
 import PostPicker from '@/Components/Lesson/PostPicker.vue'
 import ScripturePicker from '@/Components/Lesson/ScripturePicker.vue'
+import ScriptureReferenceInput from '@/Components/Story/ScriptureReferenceInput.vue'
 
 const props = defineProps({
     item: {
@@ -191,7 +192,8 @@ const saveAsPost = async () => {
             title: postForm.value.title || null,
             post_type: postForm.value.post_type,
             visibility: postForm.value.visibility,
-            tags: postForm.value.tags
+            tags: postForm.value.tags,
+            scripture_references: linkedScriptures.value
         })
         props.item.post_id = data.id
         props.item.config = { ...(props.item.config || {}), saved_post_url: data.url }
@@ -214,6 +216,60 @@ if (!props.item.config) {
 // post_id but leaves no snapshot, so the block stays in write mode.
 const attachedPost = computed(() => !!(props.item.post_id && props.item.config?.post_title))
 const textSource = ref(props.item.config?.post_title ? 'existing' : 'write')
+
+// --- My Writing / Scripture Help: linked passages ---
+// Kept in config.scripture_references. Unsaved writing carries them on the
+// lesson block itself; once the block is backed by a post, the post owns
+// them, so each change is saved straight to the post as well.
+const linkedScriptures = computed(() => props.item.config?.scripture_references ?? [])
+const savingScriptures = ref(false)
+const scripturesError = ref('')
+
+const setLinkedScriptures = async (rows) => {
+    const previous = linkedScriptures.value
+    props.item.config = { ...(props.item.config || {}), scripture_references: rows }
+    if (!props.item.post_id) return
+
+    savingScriptures.value = true
+    scripturesError.value = ''
+    try {
+        const { data } = await axios.put(
+            route('lessons.post-scripture-references', props.item.post_id),
+            { scripture_references: rows }
+        )
+        props.item.config = { ...props.item.config, scripture_references: data.scripture_references }
+    } catch (e) {
+        props.item.config = { ...props.item.config, scripture_references: previous }
+        scripturesError.value = e.response?.data?.message || 'Could not update the post\'s scriptures — please try again.'
+    } finally {
+        savingScriptures.value = false
+    }
+}
+
+// Offer the passage from the nearest Scripture block above as a one-click
+// link, unless it's already linked.
+const precedingScripture = inject('lessonPrecedingScripture', () => null)
+const suggestedScripture = computed(() => {
+    const c = precedingScripture(props.item)?.config
+    if (!c?.start_chapter_id) return null
+
+    const endChapterId = c.end_chapter_id && Number(c.end_chapter_id) !== Number(c.start_chapter_id)
+        ? Number(c.end_chapter_id)
+        : null
+    const row = {
+        start_chapter_id: Number(c.start_chapter_id),
+        start_verse: c.start_verse ? Number(c.start_verse) : null,
+        end_chapter_id: endChapterId,
+        end_verse: c.end_verse ? Number(c.end_verse) : null,
+        reference: c.reference,
+    }
+    const linked = linkedScriptures.value.some((r) =>
+        r.start_chapter_id === row.start_chapter_id &&
+        (r.start_verse ?? null) === row.start_verse &&
+        (r.end_chapter_id ?? null) === row.end_chapter_id &&
+        (r.end_verse ?? null) === row.end_verse)
+    return linked ? null : row
+})
 
 // Effective max upload size (MB) per media type, provided by the builder.
 const uploadLimits = inject('lessonUploadLimits', { video_mb: 20, image_mb: 10 })
@@ -829,6 +885,35 @@ const summary = computed(() => {
                             </div>
                         </div>
                     </div>
+                </div>
+                <!-- Linked scriptures -->
+                <div
+                    v-if="textSource === 'write' || attachedPost"
+                    class="rounded-lg border border-amber-200 bg-amber-50/60 p-3"
+                >
+                    <ScriptureReferenceInput
+                        :model-value="linkedScriptures"
+                        :scripture-books="scriptureBooks"
+                        label="Scriptures this is about"
+                        :hint="item.post_id
+                            ? 'Saved to the post, so it resurfaces when you or your friends study these verses.'
+                            : 'Shows this on the passage page, and carries over if you save it as a post.'"
+                        @update:model-value="setLinkedScriptures"
+                    >
+                        <template #suggestions>
+                            <button
+                                v-if="suggestedScripture"
+                                type="button"
+                                class="inline-flex items-center gap-1.5 rounded-full border border-dashed border-amber-400 px-3 py-1 text-sm text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                                :disabled="savingScriptures"
+                                @click="setLinkedScriptures([...linkedScriptures, suggestedScripture])"
+                            >
+                                + {{ suggestedScripture.reference }}
+                                <span class="text-xs text-amber-600">from the Scripture block above</span>
+                            </button>
+                        </template>
+                    </ScriptureReferenceInput>
+                    <p v-if="scripturesError" class="mt-2 text-sm text-red-600">{{ scripturesError }}</p>
                 </div>
             </div>
 

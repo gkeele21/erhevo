@@ -14,15 +14,21 @@ const props = defineProps({
     scriptureBooks: Array,
     uploadLimits: Object,
     churchCallings: Array,
+    // An empty PHP array arrives as [] rather than {}.
+    postScriptureReferences: { type: [Object, Array], default: () => ({}) },
     friends: Array,
 })
 
 // Existing elements start collapsed so a long lesson is easy to scan;
 // each card (and Expand all) opens them as needed.
+// A post-backed writing block swaps its saved copy of the post's linked
+// passages for the post's current ones (see postScriptureReferences).
 const mapLeaf = (item) => ({
     type: item.type,
     content: item.content ?? '',
-    config: item.config ?? {},
+    config: item.post_id && props.postScriptureReferences?.[item.post_id]
+        ? { ...(item.config ?? {}), scripture_references: props.postScriptureReferences[item.post_id] }
+        : (item.config ?? {}),
     post_id: item.post_id ?? null,
     _collapsed: true,
 })

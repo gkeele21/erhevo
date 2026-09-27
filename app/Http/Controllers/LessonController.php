@@ -150,6 +150,7 @@ class LessonController extends Controller
         return Inertia::render('Lessons/Edit', [
             'lesson' => $lesson,
             'sharedUserIds' => $lesson->sharedWith()->pluck('users.id'),
+            'postScriptureReferences' => $this->postScriptureReferences($lesson),
             'itemTypes' => $this->itemTypeOptions(),
             'visibilityOptions' => $this->visibilityOptions(),
             'cfmWeeks' => $this->getCfmWeeksForSelect(),
@@ -388,12 +389,13 @@ class LessonController extends Controller
                     ->orWhere('content', 'like', "%{$query}%")
                     ->orWhereHas('tags', fn ($q3) => $q3->where('name', 'like', "%{$query}%"));
             }))
-            ->with('tags')
+            ->with(['tags', 'scriptureReferences.startChapter.book', 'scriptureReferences.endChapter'])
             ->latest()
             ->limit(10)
             ->get()
             ->map(fn (Post $post) => [
                 'post_id' => $post->id,
+                'scripture_references' => $this->referenceRows($post->scriptureReferences),
                 'slug' => $post->slug,
                 'title' => $post->title,
                 'post_type' => $post->post_type->value,
@@ -426,6 +428,7 @@ class LessonController extends Controller
             'visibility' => 'nullable|in:public,private,friends',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
+            ...$this->scriptureReferenceRules('scripture_references'),
         ]);
 
         $coverImage = $validated['cover_image'] ?? null;
@@ -465,11 +468,32 @@ class LessonController extends Controller
             $post->syncTags($validated['tags']);
         }
 
+        $post->syncScriptureReferences($validated['scripture_references'] ?? []);
+
         return response()->json([
             'id' => $post->id,
             'slug' => $post->slug,
             'title' => $post->title,
             'url' => route('posts.show', $post->slug),
+        ]);
+    }
+
+    /**
+     * Replace the passages a post is linked to, from the scripture picker on
+     * a post-backed My Writing / Scripture Help block.
+     */
+    public function updatePostScriptureReferences(Request $request, Post $post)
+    {
+        Gate::authorize('update', $post);
+
+        $validated = $request->validate($this->scriptureReferenceRules('scripture_references'));
+
+        $post->syncScriptureReferences($validated['scripture_references'] ?? []);
+
+        return response()->json([
+            'scripture_references' => $this->referenceRows(
+                $post->scriptureReferences()->with(['startChapter.book', 'endChapter'])->get()
+            ),
         ]);
     }
 
@@ -744,6 +768,13 @@ class LessonController extends Controller
             'items.*.children.*.post_id' => 'nullable|exists:posts,id',
         ]);
 
+        // Checked on their own: rules naming keys inside config would make
+        // validated() drop every config key they don't name.
+        $request->validate([
+            ...$this->scriptureReferenceRules('items.*.config.scripture_references'),
+            ...$this->scriptureReferenceRules('items.*.children.*.config.scripture_references'),
+        ]);
+
         // Talks have no Come Follow Me link. On update, an omitted kind
         // keeps the existing one rather than reverting a talk to a lesson.
         $kind = $validated['kind'] ?? $existingKind ?? 'lesson';
@@ -754,6 +785,59 @@ class LessonController extends Controller
         }
 
         return $validated;
+    }
+
+    /**
+     * Validation rules for a list of scripture picker rows at the given key.
+     */
+    protected function scriptureReferenceRules(string $key): array
+    {
+        return [
+            $key => 'nullable|array',
+            "{$key}.*.start_chapter_id" => 'required|exists:scripture_chapters,id',
+            "{$key}.*.start_verse" => 'nullable|integer|min:1',
+            "{$key}.*.end_chapter_id" => 'nullable|exists:scripture_chapters,id',
+            "{$key}.*.end_verse" => 'nullable|integer|min:1',
+            "{$key}.*.reference" => 'nullable|string|max:255',
+        ];
+    }
+
+    /**
+     * Shape reference models as the scripture picker's rows.
+     */
+    protected function referenceRows($references): array
+    {
+        return $references->map(fn ($ref) => [
+            'start_chapter_id' => $ref->start_chapter_id,
+            'start_verse' => $ref->start_verse,
+            'end_chapter_id' => $ref->end_chapter_id,
+            'end_verse' => $ref->end_verse,
+            'reference' => $ref->display_reference,
+        ])->values()->all();
+    }
+
+    /**
+     * The passages each post behind a writing block is linked to right now,
+     * keyed by post id. A block's config holds a copy taken when the post was
+     * attached; the editor swaps in these so an edit made on the post itself
+     * isn't overwritten by a stale copy.
+     */
+    protected function postScriptureReferences(Lesson $lesson): array
+    {
+        $nodes = collect($lesson->draft_data['items'] ?? $lesson->items->toArray());
+        $postIds = $nodes
+            ->flatMap(fn ($node) => [$node, ...($node['children'] ?? [])])
+            ->whereIn('type', ['text', 'scripture_help'])
+            ->pluck('post_id')
+            ->filter()
+            ->unique();
+
+        return Post::whereIn('id', $postIds)
+            ->where('user_id', $lesson->user_id)
+            ->with(['scriptureReferences.startChapter.book', 'scriptureReferences.endChapter'])
+            ->get()
+            ->mapWithKeys(fn (Post $post) => [$post->id => $this->referenceRows($post->scriptureReferences)])
+            ->all();
     }
 
     protected function itemTypeOptions(): array

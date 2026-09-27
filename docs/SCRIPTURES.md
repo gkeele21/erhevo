@@ -16,7 +16,20 @@ Polymorphic — anything that can point at a passage uses it:
 | referenceable_type | Written by |
 |--------------------|------------|
 | `App\Models\Post` | The scripture picker on the post form, or `posts:backfill-scripture-references` |
-| `App\Models\LessonItem` | `Lesson::syncItems()`, derived from a scripture block's `config` |
+| `App\Models\LessonItem` | `Lesson::syncItems()`, derived from the block's `config` (see below) |
+
+### Lesson blocks
+
+- **Scripture** blocks reference the passage they quote.
+- **My Writing / Scripture Help** blocks carry a scripture picker, stored in
+  `config.scripture_references`. It offers the passage from the nearest
+  Scripture block above as a one-click link.
+  - Unsaved writing: the block itself gets the references.
+  - Post-backed (saved as a post, or pulled in from one): the **post** owns
+    them. Picker changes save straight to the post
+    (`lessons.post-scripture-references`), "Save as a Post" carries them over,
+    and the block gets none, so the passage page lists the writing once.
+    The editor refreshes the block's copy from the post on load.
 
 Four columns describe any reference — see
 [CFM_SCRIPTURE_REFERENCES.md](CFM_SCRIPTURE_REFERENCES.md) for the full table

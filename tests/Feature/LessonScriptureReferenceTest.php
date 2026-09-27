@@ -223,4 +223,163 @@ class LessonScriptureReferenceTest extends TestCase
         $post->forceDelete();
         $this->assertSame(0, ScriptureReference::count(), 'a force delete should drop them');
     }
+
+    private function postFor(User $user): Post
+    {
+        return Post::create([
+            'post_type' => 'thought',
+            'title' => 'On obedience',
+            'content' => 'Thoughts.',
+            'user_id' => $user->id,
+            'author_type' => 'self',
+            'visibility' => 'private',
+            'published_at' => now(),
+        ]);
+    }
+
+    public function test_a_writing_block_references_its_linked_passages(): void
+    {
+        $chapters = $this->seedScripture();
+        $lesson = $this->lessonFor(User::factory()->create());
+
+        $lesson->syncItems([[
+            'type' => 'text',
+            'content' => 'Go and do.',
+            'config' => ['scripture_references' => [
+                ['start_chapter_id' => $chapters[3]->id, 'start_verse' => 7, 'reference' => '1 Nephi 3:7'],
+                ['start_chapter_id' => $chapters[4]->id, 'reference' => '1 Nephi 4'],
+            ]],
+        ]]);
+
+        $refs = $lesson->allItems()->first()->scriptureReferences;
+
+        $this->assertSame(['1 Nephi 3:7', '1 Nephi 4'], $refs->map->display_reference->all());
+    }
+
+    public function test_saving_a_lesson_keeps_a_writing_blocks_passages_and_other_config(): void
+    {
+        $chapters = $this->seedScripture();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/lessons', [
+            'title' => 'Obedience',
+            'visibility' => 'private',
+            'publish' => true,
+            'items' => [[
+                'type' => 'text',
+                'content' => '<p>Go and do.</p>',
+                'config' => [
+                    'emphasis' => 'key',
+                    'scripture_references' => [
+                        ['start_chapter_id' => $chapters[3]->id, 'start_verse' => 7, 'reference' => '1 Nephi 3:7'],
+                    ],
+                ],
+            ]],
+        ])->assertRedirect();
+
+        $item = Lesson::firstOrFail()->allItems()->first();
+
+        $this->assertSame('key', $item->config['emphasis']);
+        $this->assertSame(['1 Nephi 3:7'], $item->scriptureReferences->map->display_reference->all());
+    }
+
+    public function test_a_lesson_rejects_a_passage_in_an_unknown_chapter(): void
+    {
+        $this->seedScripture();
+
+        $this->actingAs(User::factory()->create())->post('/lessons', [
+            'title' => 'Obedience',
+            'visibility' => 'private',
+            'items' => [[
+                'type' => 'text',
+                'content' => '<p>Go and do.</p>',
+                'config' => ['scripture_references' => [['start_chapter_id' => 999999]]],
+            ]],
+        ])->assertSessionHasErrors('items.0.config.scripture_references.0.start_chapter_id');
+
+        $this->assertSame(0, Lesson::count());
+    }
+
+    public function test_a_post_backed_writing_block_leaves_the_references_to_the_post(): void
+    {
+        $chapters = $this->seedScripture();
+        $user = User::factory()->create();
+        $post = $this->postFor($user);
+
+        $this->lessonFor($user)->syncItems([[
+            'type' => 'scripture_help',
+            'content' => 'Context.',
+            'post_id' => $post->id,
+            'config' => ['post_title' => $post->title, 'scripture_references' => [
+                ['start_chapter_id' => $chapters[3]->id, 'start_verse' => 7],
+            ]],
+        ]]);
+
+        $this->assertSame(0, ScriptureReference::where('referenceable_type', LessonItem::class)->count());
+    }
+
+    public function test_saving_block_writing_as_a_post_carries_its_passages(): void
+    {
+        $chapters = $this->seedScripture();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson(route('lessons.save-post'), [
+            'content' => '<p>Go and do.</p>',
+            'post_type' => 'thought',
+            'scripture_references' => [
+                ['start_chapter_id' => $chapters[3]->id, 'start_verse' => 7, 'reference' => '1 Nephi 3:7'],
+            ],
+        ])->assertOk();
+
+        $post = Post::find($response->json('id'));
+
+        $this->assertSame(['1 Nephi 3:7'], $post->scriptureReferences->map->display_reference->all());
+    }
+
+    public function test_a_block_can_update_its_posts_passages(): void
+    {
+        $chapters = $this->seedScripture();
+        $user = User::factory()->create();
+        $post = $this->postFor($user);
+        $post->syncScriptureReferences([['start_chapter_id' => $chapters[3]->id]]);
+
+        $this->actingAs($user)
+            ->putJson(route('lessons.post-scripture-references', $post->id), [
+                'scripture_references' => [
+                    ['start_chapter_id' => $chapters[4]->id, 'start_verse' => 2, 'end_verse' => 5],
+                ],
+            ])
+            ->assertOk()
+            ->assertJsonPath('scripture_references.0.reference', '1 Nephi 4:2-5');
+
+        $this->assertSame(['1 Nephi 4:2-5'], $post->fresh()->scriptureReferences->map->display_reference->all());
+    }
+
+    public function test_only_the_owner_can_update_a_posts_passages(): void
+    {
+        $chapters = $this->seedScripture();
+        $post = $this->postFor(User::factory()->create());
+
+        $this->actingAs(User::factory()->create())
+            ->putJson(route('lessons.post-scripture-references', $post->id), [
+                'scripture_references' => [['start_chapter_id' => $chapters[4]->id]],
+            ])
+            ->assertForbidden();
+
+        $this->assertSame(0, ScriptureReference::count());
+    }
+
+    public function test_post_search_includes_linked_passages(): void
+    {
+        $chapters = $this->seedScripture();
+        $user = User::factory()->create();
+        $this->postFor($user)->syncScriptureReferences([
+            ['start_chapter_id' => $chapters[3]->id, 'start_verse' => 7],
+        ]);
+
+        $this->actingAs($user)
+            ->getJson(route('lessons.post-search'))
+            ->assertOk()
+            ->assertJsonPath('0.scripture_references.0.reference', '1 Nephi 3:7');
+    }
 }

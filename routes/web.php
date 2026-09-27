@@ -96,6 +96,7 @@ Route::middleware([
     Route::get('/api/lessons/quote-search', [LessonController::class, 'searchQuotes'])->name('lessons.quote-search');
     Route::post('/api/lessons/quotes', [LessonController::class, 'storeQuote'])->name('lessons.quote-store');
     Route::post('/api/lessons/save-post', [LessonController::class, 'savePost'])->name('lessons.save-post');
+    Route::put('/api/lessons/posts/{post}/scripture-references', [LessonController::class, 'updatePostScriptureReferences'])->name('lessons.post-scripture-references');
     Route::get('/api/lessons/post-search', [LessonController::class, 'searchPosts'])->name('lessons.post-search');
     Route::get('/api/lessons/scripture-text', [LessonController::class, 'scriptureText'])->name('lessons.scripture-text');
     Route::post('/api/lessons/video-upload', [LessonController::class, 'uploadVideo'])->name('lessons.video-upload');

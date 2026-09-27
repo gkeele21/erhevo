@@ -42,17 +42,31 @@ class LessonItem extends Model
     }
 
     /**
-     * Turn a scripture block's picker config into reference rows, so the
-     * passage can find the lesson the same way it finds a post. Blocks of any
+     * Turn a block's config into reference rows, so the passage can find the
+     * lesson the same way it finds a post.
+     *
+     * A scripture block references the passage it quotes. A My Writing or
+     * Scripture Help block references the passages linked in its picker
+     * (config.scripture_references) — but only while it is unsaved writing.
+     * Once it is backed by a post, the post owns those references, so the
+     * passage page lists the writing once rather than twice. Blocks of any
      * other type simply have no references.
      */
     public function syncScriptureReferencesFromConfig(): void
     {
-        if ($this->type !== LessonItemType::Scripture) {
+        $config = $this->config ?? [];
+
+        if (in_array($this->type, [LessonItemType::Text, LessonItemType::ScriptureHelp], true)) {
+            $this->syncScriptureReferences(
+                $this->post_id ? [] : array_values($config['scripture_references'] ?? [])
+            );
+
             return;
         }
 
-        $config = $this->config ?? [];
+        if ($this->type !== LessonItemType::Scripture) {
+            return;
+        }
 
         if (empty($config['start_chapter_id'])) {
             $this->syncScriptureReferences([]);

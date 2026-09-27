@@ -40,6 +40,19 @@ const props = defineProps({
 provide('lessonUploadLimits', props.uploadLimits)
 provide('lessonChurchCallings', props.churchCallings)
 
+// The nearest Scripture block above the given item, in reading order (a
+// group's items sit where the group does). Writing blocks offer its passage
+// as a one-click link, since what you write usually follows the verses.
+const precedingScripture = (item) => {
+    const flat = props.items.flatMap((node) => node.type === 'group' ? [node, ...(node.children ?? [])] : [node])
+    const index = flat.indexOf(item)
+    for (let i = index - 1; i >= 0; i--) {
+        if (flat[i].type === 'scripture' && flat[i].config?.start_chapter_id) return flat[i]
+    }
+    return null
+}
+provide('lessonPrecedingScripture', precedingScripture)
+
 // Transient client-side keys so dragging stays stable. Stripped server-side
 // (the controller only reads type/content/config/children).
 let uidCounter = 0

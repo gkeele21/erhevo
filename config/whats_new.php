@@ -25,6 +25,13 @@ return [
     'entries' => [
 
         [
+            'date' => '2026-09-28',
+            'title' => 'Family History: research your ancestors',
+            'body' => 'A new Family History section, under Temple & Family in the menu. Import your tree from FamilySearch (through the free Ancestral Quest app), then work through your ancestors one at a time: how they are related to you, where they were born, died and were buried, and a timeline of the places they lived. Ancestors who lived in Nauvoo, Kirtland, Missouri or Winter Quarters, likely pioneers, and those baptized while living are highlighted in the list and the pedigree chart. Mark each one as researched, keep notes, or let Surprise me pick someone new. The menu is also regrouped: Study Plans, Scriptures and the Library now sit under Study.',
+            'help_anchor' => 'family-history',
+        ],
+
+        [
             'date' => '2026-08-19',
             'title' => 'More ways to search the Library',
             'body' => 'The Library now filters the way the study plan builder does: narrow to one speaker — and optionally only the talks they gave while holding particular callings, picking as many as you like — or to everyone who held a calling when they spoke, to a single General Conference, or to just the last few years. Results show a total count, and every search also turns up one random pick matching your filters, with a Shuffle button for another — a good way to find something you would not have thought to search for.',

@@ -1,0 +1,90 @@
+0 HEAD
+1 SOUR AncestQuest
+2 NAME Ancestral Quest
+1 GEDC
+2 VERS 5.5.1
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Test /Person/
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 1980
+2 PLAC Provo, Utah, Utah
+1 _FSFTID AAAA-001
+1 FAMC @F1@
+0 @I2@ INDI
+1 NAME Robert /Person/
+1 SEX M
+1 BIRT
+2 DATE 1950
+1 DEAT
+2 DATE 2010
+1 BAPL
+2 DATE 8 MAR 1958
+1 _FSFTID AAAA-002
+1 FAMS @F1@
+1 FAMC @F2@
+2 _PRIMARY Y
+1 FAMC @F9@
+0 @I3@ INDI
+1 NAME Mary /Smith/
+1 SEX F
+1 BIRT
+2 DATE 1952
+1 _FSFTID AAAA-003
+1 FAMS @F1@
+0 @I4@ INDI
+1 NAME Living /Sibling/
+1 SEX F
+1 BIRT
+2 DATE 1982
+1 _FSFTID AAAA-004
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME Ezra /Person/
+1 SEX M
+1 BIRT
+2 DATE 12 MAY 1820
+2 PLAC Bristol, England
+1 RESI
+2 DATE 1843
+2 PLAC Nauvoo, Hancock, Illinois, United States
+1 EVEN Daniel A. Miller/John W. Cooley Company
+2 TYPE Arrival
+2 DATE 17 SEP 1853
+2 PLAC Utah, United States
+1 DEAT
+2 DATE 3 FEB 1890
+2 PLAC Provo, Utah, Utah, United States
+1 BURI
+2 PLAC Provo City Cemetery, Provo, Utah
+1 EVEN
+2 TYPE LdsBaptism
+2 DATE 14 JUN 2000
+1 _FSFTID AAAA-005
+1 FAMS @F2@
+0 @I6@ INDI
+1 NAME Adoptive /Father/
+1 SEX M
+1 _FSFTID AAAA-006
+1 FAMS @F9@
+0 @I7@ INDI
+1 NAME Hannah /Person/
+1 SEX F
+1 _FSFTID AAAA-007
+1 FAMS @F2@
+0 @F1@ FAM
+1 HUSB @I2@
+1 WIFE @I3@
+1 CHIL @I1@
+1 CHIL @I4@
+1 MARR
+2 DATE 1975
+0 @F2@ FAM
+1 HUSB @I5@
+1 WIFE @I7@
+1 CHIL @I2@
+0 @F9@ FAM
+1 HUSB @I6@
+1 CHIL @I2@
+0 TRLR

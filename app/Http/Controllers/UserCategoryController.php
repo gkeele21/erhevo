@@ -37,6 +37,10 @@ class UserCategoryController extends Controller
             Gate::authorize('update', $parent);
 
             if (!$parent->isRoot()) {
+                if ($request->wantsJson()) {
+                    return response()->json(['message' => 'Cannot create a child of a child category.'], 422);
+                }
+
                 return back()->withErrors(['parent_id' => 'Cannot create a child of a child category.']);
             }
         }
@@ -46,10 +50,17 @@ class UserCategoryController extends Controller
             ->where('parent_id', $validated['parent_id'] ?? null)
             ->max('sort_order') ?? 0;
 
-        $request->user()->userCategories()->create([
+        $category = $request->user()->userCategories()->create([
             ...$validated,
             'sort_order' => $maxSortOrder + 1,
         ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'category' => $category,
+            ], 201);
+        }
 
         return back()->with('success', 'Category created successfully.');
     }

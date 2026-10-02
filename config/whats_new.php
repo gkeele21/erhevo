@@ -25,6 +25,13 @@ return [
     'entries' => [
 
         [
+            'date' => '2026-10-02',
+            'title' => 'Family History: research your ancestors',
+            'body' => 'A new Family History section, under Temple & Family in the menu. Bring in your tree from FamilySearch through the free Ancestral Quest app (turn on its LDS options so baptism dates come along), then work through your ancestors one at a time: how they are related to you, where they were born, died and were buried, and a timeline of the places they lived. Stories and photos are one click away on FamilySearch. Mark each ancestor as researched, keep notes, or let Surprise me pick someone you have not looked at yet. See everyone baptized while living, sorted by birth or baptism date with their age when baptized, and find your earliest convert. Key Church sites shows who lived in or near Palmyra, Harmony, Kirtland, Independence, Far West, Nauvoo and Winter Quarters while the Church was there, and Pioneers lists those who crossed the plains before the railroad, with the year they reached Utah and their wagon or handcart company. The pedigree chart highlights baptized and pioneer ancestors, and Back to me returns you to the start. The menu is also regrouped: Study Plans, Scriptures and the Library now sit under Study.',
+            'help_anchor' => 'family-history',
+        ],
+
+        [
             'date' => '2026-08-19',
             'title' => 'More ways to search the Library',
             'body' => 'The Library now filters the way the study plan builder does: narrow to one speaker — and optionally only the talks they gave while holding particular callings, picking as many as you like — or to everyone who held a calling when they spoke, to a single General Conference, or to just the last few years. Results show a total count, and every search also turns up one random pick matching your filters, with a Shuffle button for another — a good way to find something you would not have thought to search for.',

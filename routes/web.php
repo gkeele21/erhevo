@@ -18,6 +18,8 @@ use App\Http\Controllers\AttachmentUploadController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FamilyHistoryController;
+use App\Http\Controllers\FamilyTreeImportController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageUploadController;
@@ -196,6 +198,20 @@ Route::middleware([
         Route::post('/temple-trips/{trip}/items', [TempleTripController::class, 'addItem'])->name('temple-trips.items.store');
         Route::patch('/temple-trips/{trip}/items/{item}', [TempleTripController::class, 'toggleItem'])->name('temple-trips.items.toggle');
         Route::delete('/temple-trips/{trip}/items/{item}', [TempleTripController::class, 'removeItem'])->name('temple-trips.items.destroy');
+
+        // Family History — the user's own ancestors, imported from a GEDCOM
+        // export. People are addressed by FamilySearch ID, scoped to the user.
+        Route::get('/family-history', [FamilyHistoryController::class, 'index'])->name('family-history.index');
+        Route::get('/family-history/baptized', [FamilyHistoryController::class, 'baptized'])->name('family-history.baptized');
+        Route::get('/family-history/church-sites', [FamilyHistoryController::class, 'churchSites'])->name('family-history.church-sites');
+        Route::get('/family-history/pioneers', [FamilyHistoryController::class, 'pioneers'])->name('family-history.pioneers');
+        Route::get('/family-history/random', [FamilyHistoryController::class, 'random'])->name('family-history.random');
+        Route::get('/family-history/pedigree/{fsId?}', [FamilyHistoryController::class, 'pedigree'])->name('family-history.pedigree');
+        Route::get('/family-history/import', [FamilyTreeImportController::class, 'create'])->name('family-history.import');
+        Route::post('/family-history/import', [FamilyTreeImportController::class, 'store'])->name('family-history.import.store');
+        Route::delete('/family-history', [FamilyTreeImportController::class, 'destroy'])->name('family-history.destroy');
+        Route::get('/family-history/ancestors/{fsId}', [FamilyHistoryController::class, 'show'])->name('family-history.show');
+        Route::put('/family-history/ancestors/{fsId}/research', [FamilyHistoryController::class, 'updateResearch'])->name('family-history.research.update');
     });
 
     // User Settings

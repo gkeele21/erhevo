@@ -204,6 +204,28 @@ const topics = [
                             </div>
                         </section>
 
+                        <!-- Family History -->
+                        <section id="family-history" class="scroll-mt-6 bg-white rounded-lg shadow border border-navy-50 p-6">
+                            <h3 class="text-xl font-semibold text-navy mb-3">🌳 Family History</h3>
+                            <p class="text-teal mb-3">
+                                Research your direct-line ancestors one at a time and keep track of who you've learned
+                                about. Your tree comes from a GEDCOM file exported from Ancestral Quest (free), which
+                                downloads it from FamilySearch. The Import tab walks you through it.
+                            </p>
+                            <ul class="list-disc list-inside text-teal space-y-1 mb-4">
+                                <li>Each ancestor's page shows how they're related to you, their birth, death and burial, and a timeline of every dated place in their record, including where their children were born.</li>
+                                <li><strong class="text-navy">Stories &amp; photos</strong> open that person's Memories on FamilySearch.</li>
+                                <li><strong class="text-navy">Baptized while living</strong> compares LDS baptism and death dates. Most early baptism dates aren't in the export, so add them from FamilySearch's Ordinances tab as you research. The "first baptized" card updates as you do, and <strong class="text-navy">See all</strong> lists everyone baptized while living, sortable by birth or baptism date, with their age when baptized.</li>
+                                <li><strong class="text-navy">Church history clues</strong> flag ancestors who lived in or near a key Church site (Palmyra, Harmony, Kirtland, Independence, Far West, Nauvoo and Winter Quarters) while the Church was there. "Near" means the surrounding county, so Carthage counts for Nauvoo and Colesville for Harmony. <strong class="text-navy">Key Church sites</strong> lists them by site. They also flag likely <strong class="text-navy">pioneers</strong> who reached Utah before the railroad (1847–1869). They're hints: confirm or overrule them on the ancestor's page. The <strong class="text-navy">Pioneers</strong> list shows when each reached Utah, with their company when your tree names it.</li>
+                                <li><strong class="text-navy">Surprise me</strong> picks someone you haven't researched yet, within whatever filter you're on. <strong class="text-navy">Pedigree</strong> shows four generations at a time, with baptized and pioneer ancestors highlighted. Follow the arrows further back, and use <strong class="text-navy">Back to me</strong> to return.</li>
+                                <li>Importing a newer file replaces the tree but keeps your notes. Only direct ancestors are kept, and the file itself isn't stored.</li>
+                            </ul>
+                            <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
+                                💡 <strong>Did you know?</strong> Family History only appears when "Show LDS content" is
+                                enabled in your profile settings.
+                            </div>
+                        </section>
+
                         <!-- Friends -->
                         <section id="friends" class="scroll-mt-6 bg-white rounded-lg shadow border border-navy-50 p-6">
                             <h3 class="text-xl font-semibold text-navy mb-3">👥 Friends &amp; invitations</h3>

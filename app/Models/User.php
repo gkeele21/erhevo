@@ -155,6 +155,21 @@ class User extends Authenticatable
         return $this->hasMany(TempleTrip::class);
     }
 
+    public function familyTree(): HasOne
+    {
+        return $this->hasOne(FamilyTree::class);
+    }
+
+    public function ancestors(): HasMany
+    {
+        return $this->hasMany(Ancestor::class);
+    }
+
+    public function ancestorResearch(): HasMany
+    {
+        return $this->hasMany(AncestorResearch::class);
+    }
+
     public function sentFriendRequests(): HasMany
     {
         return $this->hasMany(Friendship::class, 'requester_id');

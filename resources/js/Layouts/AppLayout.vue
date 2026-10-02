@@ -3,9 +3,11 @@ import { ref, computed } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import Banner from '@/Components/Banner.vue';
 import NavLink from '@/Components/NavLink.vue';
+import NavDropdown from '@/Components/NavDropdown.vue';
 import NotificationsBell from '@/Components/NotificationsBell.vue';
 import UserMenu from '@/Components/UserMenu.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { useNavigation } from '@/Composables/useNavigation';
 
 defineProps({
     title: String,
@@ -13,6 +15,7 @@ defineProps({
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+const nav = useNavigation();
 
 const showingNavigationDropdown = ref(false);
 
@@ -42,28 +45,12 @@ const logout = () => {
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 lg:-my-px lg:ms-10 lg:flex">
-                                <NavLink v-if="user" :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
-                                </NavLink>
-                                <NavLink :href="route('posts.index')" :active="route().current('posts.index')">
-                                    Posts
-                                </NavLink>
-                                <NavLink :href="route('lessons.index')" :active="route().current('lessons.index')">
-                                    Lessons/Talks
-                                </NavLink>
-                                <NavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
-                                    Study Plans
-                                </NavLink>
-                                <NavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
-                                    Library
-                                </NavLink>
-                                <NavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('scriptures.index')" :active="route().current('scriptures.*')">
-                                    Scriptures
-                                </NavLink>
-                                <!-- Auth-only (visits/trips are personal), unlike the guest-browsable Library. -->
-                                <NavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('temples.index')" :active="route().current('temples.*') || route().current('temple-visits.*') || route().current('temple-trips.*')">
-                                    Temples
-                                </NavLink>
+                                <template v-for="entry in nav" :key="entry.label">
+                                    <NavDropdown v-if="entry.children" :label="entry.label" :active="entry.active" :items="entry.children" />
+                                    <NavLink v-else :href="entry.href" :active="entry.active">
+                                        {{ entry.label }}
+                                    </NavLink>
+                                </template>
                             </div>
                         </div>
 
@@ -137,27 +124,19 @@ const logout = () => {
                 <!-- Responsive Navigation Menu -->
                 <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="lg:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink v-if="user" :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('posts.index')" :active="route().current('posts.index')">
-                            Posts
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('lessons.index')" :active="route().current('lessons.index')">
-                            Lessons/Talks
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="user" :href="route('study-plans.index')" :active="route().current('study-plans.*')">
-                            Study Plans
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="!user || page.props.userSettings?.show_lds_content" :href="route('talks.index')" :active="route().current('talks.index')">
-                            Library
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('scriptures.index')" :active="route().current('scriptures.*')">
-                            Scriptures
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="user && page.props.userSettings?.show_lds_content" :href="route('temples.index')" :active="route().current('temples.*') || route().current('temple-visits.*') || route().current('temple-trips.*')">
-                            Temples
-                        </ResponsiveNavLink>
+                        <template v-for="entry in nav" :key="entry.label">
+                            <template v-if="entry.children">
+                                <div class="px-4 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide text-teal-300">
+                                    {{ entry.label }}
+                                </div>
+                                <ResponsiveNavLink v-for="child in entry.children" :key="child.label" :href="child.href" :active="child.active">
+                                    {{ child.label }}
+                                </ResponsiveNavLink>
+                            </template>
+                            <ResponsiveNavLink v-else :href="entry.href" :active="entry.active">
+                                {{ entry.label }}
+                            </ResponsiveNavLink>
+                        </template>
                         <ResponsiveNavLink v-if="user" :href="route('posts.create')" :active="route().current('posts.create')">
                             New Post
                         </ResponsiveNavLink>

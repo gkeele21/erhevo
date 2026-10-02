@@ -25,9 +25,9 @@ return [
     'entries' => [
 
         [
-            'date' => '2026-09-28',
+            'date' => '2026-10-02',
             'title' => 'Family History: research your ancestors',
-            'body' => 'A new Family History section, under Temple & Family in the menu. Import your tree from FamilySearch (through the free Ancestral Quest app), then work through your ancestors one at a time: how they are related to you, where they were born, died and were buried, and a timeline of the places they lived. Ancestors who lived in Nauvoo, Kirtland, Missouri or Winter Quarters, likely pioneers, and those baptized while living are highlighted in the list and the pedigree chart. Mark each one as researched, keep notes, or let Surprise me pick someone new. The menu is also regrouped: Study Plans, Scriptures and the Library now sit under Study.',
+            'body' => 'A new Family History section, under Temple & Family in the menu. Bring in your tree from FamilySearch through the free Ancestral Quest app (turn on its LDS options so baptism dates come along), then work through your ancestors one at a time: how they are related to you, where they were born, died and were buried, and a timeline of the places they lived. Stories and photos are one click away on FamilySearch. Mark each ancestor as researched, keep notes, or let Surprise me pick someone you have not looked at yet. See everyone baptized while living, sorted by birth or baptism date with their age when baptized, and find your earliest convert. Key Church sites shows who lived in or near Palmyra, Harmony, Kirtland, Independence, Far West, Nauvoo and Winter Quarters while the Church was there, and Pioneers lists those who crossed the plains before the railroad, with the year they reached Utah and their wagon or handcart company. The pedigree chart highlights baptized and pioneer ancestors, and Back to me returns you to the start. The menu is also regrouped: Study Plans, Scriptures and the Library now sit under Study.',
             'help_anchor' => 'family-history',
         ],
 

@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import FamilyHistoryNav from '@/Components/FamilyHistory/FamilyHistoryNav.vue'
+import FamilyHistoryHeader from '@/Components/FamilyHistory/FamilyHistoryHeader.vue'
 
 const props = defineProps({
     people: Array,
@@ -28,7 +29,7 @@ const confirmedCount = props.people.filter((p) => p.confirmed).length
 <template>
     <AppLayout title="Pioneers">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">Pioneers</h2>
+            <FamilyHistoryHeader title="Pioneers" />
         </template>
 
         <div class="py-12">

@@ -4,6 +4,9 @@ import { Link } from '@inertiajs/vue3'
 const tabs = [
     { label: 'Ancestors', route: 'family-history.index', current: ['family-history.index', 'family-history.show'] },
     { label: 'Pedigree', route: 'family-history.pedigree', current: ['family-history.pedigree'] },
+    { label: 'Baptized', route: 'family-history.baptized', current: ['family-history.baptized'] },
+    { label: 'Pioneers', route: 'family-history.pioneers', current: ['family-history.pioneers'] },
+    { label: 'Church sites', route: 'family-history.church-sites', current: ['family-history.church-sites'] },
     { label: 'Import', route: 'family-history.import', current: ['family-history.import'] },
 ]
 

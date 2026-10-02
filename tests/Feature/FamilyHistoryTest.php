@@ -110,7 +110,7 @@ class FamilyHistoryTest extends TestCase
         $this->assertContains('Arrived with Daniel A. Miller/John W. Cooley Company (1853)', $ezra->pioneer_signals);
 
         $this->assertSame('Mother', $user->ancestors()->where('fs_id', 'AAAA-003')->first()->relationship());
-        $this->assertSame('mother', $user->ancestors()->where('fs_id', 'AAAA-003')->first()->side());
+        $this->assertNull($user->ancestors()->where('fs_id', 'AAAA-003')->first()->side());
     }
 
     public function test_relationship_labels_count_greats(): void

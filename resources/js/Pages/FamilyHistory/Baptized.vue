@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import FamilyHistoryNav from '@/Components/FamilyHistory/FamilyHistoryNav.vue'
+import FamilyHistoryHeader from '@/Components/FamilyHistory/FamilyHistoryHeader.vue'
 
 const props = defineProps({
     people: Array,
@@ -28,7 +29,7 @@ const age = (p) => p.age_at_baptism ? `${p.age_at_baptism.approximate ? '~' : ''
 <template>
     <AppLayout title="Baptized While Living">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">Baptized while living</h2>
+            <FamilyHistoryHeader title="Baptized while living" />
         </template>
 
         <div class="py-12">

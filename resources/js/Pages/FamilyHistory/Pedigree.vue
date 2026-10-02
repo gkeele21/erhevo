@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import FamilyHistoryNav from '@/Components/FamilyHistory/FamilyHistoryNav.vue'
+import FamilyHistoryHeader from '@/Components/FamilyHistory/FamilyHistoryHeader.vue'
 
 const props = defineProps({
     generations: Number,
@@ -47,7 +48,7 @@ const ring = (p) => {
 <template>
     <AppLayout :title="`Pedigree · ${focus.name}`">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">Pedigree</h2>
+            <FamilyHistoryHeader title="Pedigree" />
         </template>
 
         <div class="py-12">

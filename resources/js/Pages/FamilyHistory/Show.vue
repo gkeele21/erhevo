@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import InputError from '@/Components/InputError.vue'
 import FamilyHistoryNav from '@/Components/FamilyHistory/FamilyHistoryNav.vue'
+import FamilyHistoryHeader from '@/Components/FamilyHistory/FamilyHistoryHeader.vue'
 import AncestorBadges from '@/Components/FamilyHistory/AncestorBadges.vue'
 
 const props = defineProps({
@@ -51,16 +52,16 @@ const treeSays = (value) => (value ? 'yes' : 'no')
 <template>
     <AppLayout :title="ancestor.name">
         <template #header>
-            <div class="flex flex-col gap-1">
-                <h2 class="font-semibold text-xl text-stone-800 leading-tight">
-                    {{ ancestor.name }} <span class="font-normal text-stone-400">{{ lifespan }}</span>
-                </h2>
-                <p class="text-sm text-stone-500">
-                    <template v-if="ancestor.generation === 0">You</template>
-                    <template v-else>Your {{ ancestor.relationship.toLowerCase() }}<span v-if="ancestor.side"> on your {{ ancestor.side }}'s side</span></template>
-                    · {{ ancestor.fs_id }}
-                </p>
-            </div>
+            <FamilyHistoryHeader :title="ancestor.name">
+                <span class="font-normal text-stone-400">{{ lifespan }}</span>
+                <template #subtitle>
+                    <p class="text-sm text-stone-500">
+                        <template v-if="ancestor.generation === 0">You</template>
+                        <template v-else>Your {{ ancestor.relationship.toLowerCase() }}<span v-if="ancestor.side"> on your {{ ancestor.side }}'s side</span></template>
+                        · {{ ancestor.fs_id }}
+                    </p>
+                </template>
+            </FamilyHistoryHeader>
         </template>
 
         <div class="py-12">

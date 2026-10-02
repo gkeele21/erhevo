@@ -90,10 +90,13 @@ class Ancestor extends Model
             : self::ordinal($greats).' great-'.$base[1];
     }
 
-    /** Which parent's line this ancestor is on; null for the root. */
+    /**
+     * Which parent's line this ancestor is on. Null for the root and for
+     * parents themselves ("your father on your father's side").
+     */
     public function side(): ?string
     {
-        if ($this->generation < 1) {
+        if ($this->generation < 2) {
             return null;
         }
 

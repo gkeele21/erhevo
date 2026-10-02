@@ -8,6 +8,7 @@ import DangerButton from '@/Components/DangerButton.vue'
 import ConfirmationModal from '@/Components/ConfirmationModal.vue'
 import InputError from '@/Components/InputError.vue'
 import FamilyHistoryNav from '@/Components/FamilyHistory/FamilyHistoryNav.vue'
+import FamilyHistoryHeader from '@/Components/FamilyHistory/FamilyHistoryHeader.vue'
 import { formatLocalDate } from '@/utils/date.js'
 
 const props = defineProps({
@@ -41,7 +42,7 @@ const destroy = () => {
 <template>
     <AppLayout title="Import Family Tree">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">Family History</h2>
+            <FamilyHistoryHeader title="Import your tree" />
         </template>
 
         <div class="py-12">

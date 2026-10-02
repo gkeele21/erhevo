@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import FamilyHistoryNav from '@/Components/FamilyHistory/FamilyHistoryNav.vue'
+import FamilyHistoryHeader from '@/Components/FamilyHistory/FamilyHistoryHeader.vue'
 
 const props = defineProps({
     sites: Array,
@@ -15,7 +16,7 @@ const years = (p) => (p.from === p.to ? `${p.from}` : `${p.from}–${p.to}`)
 <template>
     <AppLayout title="Key Church Sites">
         <template #header>
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">Key Church sites</h2>
+            <FamilyHistoryHeader title="Key Church sites" />
         </template>
 
         <div class="py-12">

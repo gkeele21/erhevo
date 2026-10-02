@@ -150,8 +150,7 @@ class FamilyTreeImporter
         $birthYear = GedcomDate::year($birth['date'] ?? null);
         $baptismSort = GedcomDate::sortKey($baptism['date'] ?? null);
         $deathSort = GedcomDate::sortKey($death['date'] ?? null);
-        $churchPlaces = $this->churchHistory->places($events);
-        $pioneerSignals = $this->churchHistory->pioneerSignals($events, $birthYear);
+        $clues = $this->churchHistory->clues($events, $birthYear);
 
         [$father, $mother] = $this->parents($person, $families);
 
@@ -181,10 +180,10 @@ class FamilyTreeImporter
             'baptized_while_living' => self::wasLivingAt($baptismSort, $deathSort, $death !== null),
             'lds_affiliation' => collect($person['events'])->contains(fn ($e) => in_array($e['tag'], ['RELI', 'EVEN'], true)
                 && preg_match('/latter[- ]day saints|\blds\b|mormon/i', (string) $e['value'])),
-            'likely_pioneer' => (bool) $pioneerSignals,
-            'has_church_places' => (bool) $churchPlaces,
-            'pioneer_signals' => json_encode($pioneerSignals),
-            'church_places' => json_encode($churchPlaces),
+            'likely_pioneer' => $clues['likely_pioneer'],
+            'has_church_places' => $clues['has_church_places'],
+            'pioneer_signals' => json_encode($clues['pioneer_signals']),
+            'church_places' => json_encode($clues['church_places']),
             'events' => json_encode($events),
         ];
     }

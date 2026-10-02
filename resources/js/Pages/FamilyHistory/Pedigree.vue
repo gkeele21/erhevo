@@ -56,6 +56,13 @@ const ring = (p) => {
 
                 <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 text-sm text-stone-600">
                     <Link
+                        v-if="focus.generation > 0"
+                        :href="route('family-history.pedigree')"
+                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-navy text-white text-sm font-medium hover:bg-navy-700"
+                    >
+                        ⌂ Back to me
+                    </Link>
+                    <Link
                         v-if="focusChild"
                         :href="route('family-history.pedigree', focusChild.fs_id)"
                         class="text-teal hover:text-navy"

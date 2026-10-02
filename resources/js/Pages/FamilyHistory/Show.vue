@@ -108,8 +108,10 @@ const treeSays = (value) => (value ? 'yes' : 'no')
                             <h3 class="font-semibold text-navy mb-3">Church history clues</h3>
                             <ul class="space-y-1.5 text-sm text-stone-700">
                                 <li v-for="place in ancestor.church_place_details" :key="place.key">
-                                    Lived in <strong>{{ place.label }}</strong>
+                                    Lived {{ place.proximity === 'near' ? 'near' : 'in' }}
+                                    <Link :href="`${route('family-history.church-sites')}#${place.key}`" class="font-semibold text-navy hover:text-teal">{{ place.label }}</Link>
                                     ({{ place.from === place.to ? place.from : `${place.from}–${place.to}` }})
+                                    <span v-if="place.proximity === 'near' && place.where" class="text-stone-400">· {{ place.where }}</span>
                                 </li>
                                 <li v-for="signal in ancestor.pioneer_signals" :key="signal">{{ signal }}</li>
                                 <li v-if="ancestor.lds_affiliation">Religion recorded as Latter-day Saint</li>

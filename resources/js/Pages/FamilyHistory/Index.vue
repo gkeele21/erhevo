@@ -89,21 +89,33 @@ const percent = (n) => props.stats.total ? Math.round((n / props.stats.total) * 
                             <p class="text-sm text-stone-600">{{ firstBaptized.baptism_date }} · {{ firstBaptized.relationship }}</p>
                         </template>
                         <p v-else class="text-sm text-stone-500 mt-1">No baptism dates yet.</p>
+                        <Link
+                            v-if="stats.baptized"
+                            :href="route('family-history.baptized')"
+                            class="mt-2 inline-block text-sm font-medium text-teal hover:text-navy"
+                        >
+                            See all {{ stats.baptized }} baptized while living →
+                        </Link>
                         <p class="mt-2 text-xs text-stone-400">
-                            Most early baptism dates aren't in the file. Add them as you research and this updates.
+                            From the baptism dates in your tree, plus any you add while researching.
                         </p>
                     </div>
 
                     <div class="bg-white rounded-lg shadow border border-stone-100 p-5">
                         <p class="text-sm text-stone-500">Church history</p>
                         <p class="text-sm text-stone-700 mt-1">
-                            <button type="button" class="font-semibold text-navy hover:text-teal" @click="filter = 'pioneers'">{{ stats.pioneers }} likely pioneers</button>
+                            <Link :href="route('family-history.pioneers')" class="font-semibold text-teal hover:text-navy">{{ stats.pioneers }} pioneers →</Link>
                         </p>
                         <ul class="mt-1 space-y-0.5 text-sm text-stone-600">
-                            <li v-for="place in stats.places" :key="place.label">
-                                {{ place.count }} in {{ place.label }} <span class="text-stone-400">({{ place.years }})</span>
+                            <li v-for="place in stats.places" :key="place.key">
+                                <Link :href="`${route('family-history.church-sites')}#${place.key}`" class="hover:text-navy">
+                                    {{ place.count }} in or near {{ place.label }}
+                                </Link>{{ ' ' }}<span class="text-stone-400">({{ place.years }})</span>
                             </li>
                         </ul>
+                        <Link :href="route('family-history.church-sites')" class="mt-2 inline-block text-sm font-medium text-teal hover:text-navy">
+                            Key Church sites →
+                        </Link>
                     </div>
                 </div>
 

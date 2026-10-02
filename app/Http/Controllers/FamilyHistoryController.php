@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Ancestor;
 use App\Services\FamilyHistory\ChurchHistory;
+use App\Services\FamilyHistory\GedcomDate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -155,6 +157,159 @@ class FamilyHistoryController extends Controller
         ]);
     }
 
+    /**
+     * Everyone baptized while living, as a sortable table. Sorted in PHP on
+     * full dates (the table only has birth years); the list is small.
+     */
+    public function baptized(Request $request)
+    {
+        if (! $request->user()->familyTree) {
+            return redirect()->route('family-history.import');
+        }
+
+        $validated = $request->validate([
+            'sort' => ['nullable', Rule::in(['baptism', 'birth'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
+        ]);
+        $sort = $validated['sort'] ?? 'baptism';
+        $direction = $validated['direction'] ?? 'asc';
+
+        $people = $this->filtered($request, 'baptized')->get()->map(function (Ancestor $ancestor) {
+            $baptismSort = $ancestor->research_baptism_on ?? $ancestor->lds_baptism_sort;
+            $birthSort = GedcomDate::sortKey($ancestor->birth_date);
+
+            return $ancestor->summary() + [
+                'birth_date' => $ancestor->birth_date,
+                'death_date' => $ancestor->death_date,
+                'age_at_baptism' => self::ageAt($birthSort, $baptismSort),
+                'sort_keys' => ['baptism' => $baptismSort, 'birth' => $birthSort],
+            ];
+        });
+
+        return Inertia::render('FamilyHistory/Baptized', [
+            'people' => self::sortByKey($people, $sort, $direction),
+            'sort' => $sort,
+            'direction' => $direction,
+        ]);
+    }
+
+    /** Ancestors who lived in or near each key Church site while the Church was there. */
+    public function churchSites(Request $request)
+    {
+        if (! $request->user()->familyTree) {
+            return redirect()->route('family-history.import');
+        }
+
+        $ancestors = $this->filtered($request, 'church_places')->get();
+
+        $sites = collect(ChurchHistory::PLACES)->map(function (array $site, string $key) use ($ancestors) {
+            $people = $ancestors
+                ->map(function (Ancestor $ancestor) use ($key) {
+                    $place = collect($ancestor->church_places ?? [])->firstWhere('key', $key);
+
+                    return $place ? $ancestor->summary() + [
+                        'from' => $place['from'],
+                        'to' => $place['to'],
+                        // Rows stored before "near" existed only ever matched the town.
+                        'proximity' => $place['proximity'] ?? 'in',
+                        'where' => $place['where'] ?? null,
+                    ] : null;
+                })
+                ->filter()
+                // Those in the town first, then by when they arrived.
+                ->sortBy([['proximity', 'asc'], ['from', 'asc'], ['name', 'asc']])
+                ->values();
+
+            return [
+                'key' => $key,
+                'label' => $site['label'],
+                'years' => $site['from'].'–'.$site['to'],
+                'about' => $site['about'],
+                'near_label' => $site['near_label'],
+                'people' => $people,
+            ];
+        })->values();
+
+        return Inertia::render('FamilyHistory/ChurchSites', ['sites' => $sites]);
+    }
+
+    /** Everyone flagged as a pioneer, by the clues or by the user, as a sortable table. */
+    public function pioneers(Request $request, ChurchHistory $churchHistory)
+    {
+        if (! $request->user()->familyTree) {
+            return redirect()->route('family-history.import');
+        }
+
+        $validated = $request->validate([
+            'sort' => ['nullable', Rule::in(['arrival', 'birth'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
+        ]);
+        $sort = $validated['sort'] ?? 'arrival';
+        $direction = $validated['direction'] ?? 'asc';
+
+        $people = $this->filtered($request, 'pioneers')->get()->map(function (Ancestor $ancestor) use ($churchHistory) {
+            $arrival = $churchHistory->arrival($ancestor->events ?? []);
+
+            return $ancestor->summary() + [
+                'birth_date' => $ancestor->birth_date,
+                'death_date' => $ancestor->death_date,
+                'arrival' => $arrival,
+                'signals' => $ancestor->pioneer_signals ?? [],
+                'confirmed' => $ancestor->research_pioneer !== null && (bool) $ancestor->research_pioneer,
+                'sort_keys' => [
+                    'arrival' => $arrival ? sprintf('%04d', $arrival['year']) : null,
+                    'birth' => GedcomDate::sortKey($ancestor->birth_date),
+                ],
+            ];
+        });
+
+        return Inertia::render('FamilyHistory/Pioneers', [
+            'people' => self::sortByKey($people, $sort, $direction),
+            'sort' => $sort,
+            'direction' => $direction,
+        ]);
+    }
+
+    /**
+     * Sort table rows on one of their `sort_keys` (sortable strings), then
+     * drop the keys. Unknown values sink to the bottom whichever way the
+     * column is sorted; ties fall back to name.
+     */
+    private static function sortByKey(Collection $people, string $sort, string $direction): Collection
+    {
+        return $people->sort(function ($a, $b) use ($sort, $direction) {
+            [$x, $y] = [$a['sort_keys'][$sort], $b['sort_keys'][$sort]];
+            if (($x === null) !== ($y === null)) {
+                return $x === null ? 1 : -1;
+            }
+            $order = $direction === 'asc' ? strcmp((string) $x, (string) $y) : strcmp((string) $y, (string) $x);
+
+            return $order ?: strcmp($a['name'], $b['name']);
+        })->values()->map(fn ($p) => collect($p)->except('sort_keys')->all());
+    }
+
+    /**
+     * Whole years between two sort keys ("YYYY-MM-DD", unknown parts 00).
+     * Approximate when either month is unknown.
+     *
+     * @return array{years: int, approximate: bool}|null
+     */
+    private static function ageAt(?string $birthSort, ?string $eventSort): ?array
+    {
+        if (! $birthSort || ! $eventSort) {
+            return null;
+        }
+        [$by, $bm, $bd] = array_map('intval', explode('-', $birthSort));
+        [$ey, $em, $ed] = array_map('intval', explode('-', $eventSort));
+        $years = $ey - $by;
+        $approximate = ! $bm || ! $em;
+        if (! $approximate && ($em < $bm || ($em === $bm && $bd && $ed && $ed < $bd))) {
+            $years--;
+        }
+
+        return $years >= 0 ? ['years' => $years, 'approximate' => $approximate] : null;
+    }
+
     /** "Surprise me": a random unresearched ancestor, within the current filter. */
     public function random(Request $request)
     {
@@ -236,8 +391,8 @@ class FamilyHistoryController extends Controller
             ->first();
 
         // Per-place counts; only a few dozen rows ever have places.
-        $places = collect(ChurchHistory::PLACES)->map(fn ($p) => ['label' => $p['label'], 'years' => $p['from'].'–'.$p['to'], 'count' => 0]);
-        DB::table('ancestors')->where('user_id', $request->user()->id)->where('has_church_places', true)
+        $places = collect(ChurchHistory::PLACES)->map(fn ($p, $key) => ['key' => $key, 'label' => $p['label'], 'years' => $p['from'].'–'.$p['to'], 'count' => 0]);
+        DB::table('ancestors')->where('user_id', $request->user()->id)->where('generation', '>', 0)->where('has_church_places', true)
             ->pluck('church_places')
             ->each(function ($json) use ($places) {
                 foreach (json_decode($json, true) ?? [] as $place) {

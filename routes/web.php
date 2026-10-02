@@ -202,6 +202,9 @@ Route::middleware([
         // Family History — the user's own ancestors, imported from a GEDCOM
         // export. People are addressed by FamilySearch ID, scoped to the user.
         Route::get('/family-history', [FamilyHistoryController::class, 'index'])->name('family-history.index');
+        Route::get('/family-history/baptized', [FamilyHistoryController::class, 'baptized'])->name('family-history.baptized');
+        Route::get('/family-history/church-sites', [FamilyHistoryController::class, 'churchSites'])->name('family-history.church-sites');
+        Route::get('/family-history/pioneers', [FamilyHistoryController::class, 'pioneers'])->name('family-history.pioneers');
         Route::get('/family-history/random', [FamilyHistoryController::class, 'random'])->name('family-history.random');
         Route::get('/family-history/pedigree/{fsId?}', [FamilyHistoryController::class, 'pedigree'])->name('family-history.pedigree');
         Route::get('/family-history/import', [FamilyTreeImportController::class, 'create'])->name('family-history.import');

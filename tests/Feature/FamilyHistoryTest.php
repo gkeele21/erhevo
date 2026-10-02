@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Ancestor;
 use App\Models\User;
+use App\Services\FamilyHistory\ChurchHistory;
 use App\Services\FamilyHistory\FamilyTreeImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -35,6 +36,9 @@ class FamilyHistoryTest extends TestCase
             'list' => ['/family-history'],
             'import' => ['/family-history/import'],
             'pedigree' => ['/family-history/pedigree'],
+            'baptized' => ['/family-history/baptized'],
+            'pioneers' => ['/family-history/pioneers'],
+            'church sites' => ['/family-history/church-sites'],
         ];
     }
 
@@ -171,6 +175,114 @@ class FamilyHistoryTest extends TestCase
 
         $this->actingAs($user)->get('/family-history?filter=unresearched')
             ->assertInertia(fn (Assert $page) => $page->has('ancestors.data', 3));
+    }
+
+    public function test_baptized_page_sorts_by_baptism_and_birth(): void
+    {
+        $user = User::factory()->create();
+        $this->importFor($user);
+        // Ezra's file baptism is a proxy; the user found his own in 1842.
+        $user->ancestorResearch()->create(['fs_id' => 'AAAA-005', 'lds_baptism_on' => '1842-05-01', 'baptized_while_living' => true]);
+
+        $this->actingAs($user)->get('/family-history/baptized')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('FamilyHistory/Baptized')
+                ->where('sort', 'baptism')
+                ->has('people', 2)
+                ->where('people.0.fs_id', 'AAAA-005')
+                ->where('people.0.age_at_baptism', ['years' => 21, 'approximate' => false])
+                ->where('people.1.fs_id', 'AAAA-002')
+                // Born "1950", so the age is approximate.
+                ->where('people.1.age_at_baptism', ['years' => 8, 'approximate' => true])
+                ->missing('people.0.sort_keys'));
+
+        $this->actingAs($user)->get('/family-history/baptized?sort=birth&direction=desc')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('people.0.fs_id', 'AAAA-002')
+                ->where('people.1.fs_id', 'AAAA-005'));
+    }
+
+    public function test_pioneers_page_shows_arrival_and_clues(): void
+    {
+        $user = User::factory()->create();
+        $this->importFor($user);
+        // Hannah has no clues, but the user knows she crossed too.
+        $user->ancestorResearch()->create(['fs_id' => 'AAAA-007', 'pioneer' => true]);
+
+        $this->actingAs($user)->get('/family-history/pioneers')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('FamilyHistory/Pioneers')
+                ->has('people', 2)
+                ->where('people.0.fs_id', 'AAAA-005')
+                ->where('people.0.arrival', ['year' => 1853, 'company' => 'Daniel A. Miller/John W. Cooley Company'])
+                ->where('people.0.confirmed', false)
+                // No arrival known, so she sorts last.
+                ->where('people.1.fs_id', 'AAAA-007')
+                ->where('people.1.arrival', null)
+                ->where('people.1.confirmed', true));
+    }
+
+    public static function churchSitePlaces(): array
+    {
+        return [
+            'Harmony in Susquehanna County' => ['Harmony, Susquehanna, Pennsylvania, United States', 1828, 'harmony', 'in'],
+            'Colesville is near Harmony' => ['Colesville, Broome, New York, United States', 1830, 'harmony', 'near'],
+            'a different Harmony, PA' => ['Harmony, Butler, Pennsylvania, United States', 1828, null, null],
+            'New Harmony, Indiana' => ['New Harmony, Posey, Indiana, United States', 1828, null, null],
+            'Independence, Missouri' => ['Independence, Jackson, Missouri, United States', 1832, 'independence', 'in'],
+            'Clay County is near Independence' => ['Liberty, Clay, Missouri, United States', 1835, 'independence', 'near'],
+            'Independence, Iowa' => ['Independence, Buchanan, Iowa, United States', 1832, null, null],
+            'Kirtland while still in Geauga' => ['Kirtland Township, Geauga, Ohio, United States', 1835, 'kirtland', 'in'],
+            'Kirtland, New Mexico' => ['Kirtland, San Juan, New Mexico, United States', 1835, null, null],
+            'Palmyra' => ['Palmyra, Palmyra, Wayne, New York, United States', 1820, 'palmyra', 'in'],
+            'Manchester, the Smith farm' => ['Manchester, Ontario, New York, United States', 1825, 'palmyra', 'in'],
+            'Ontario, Canada' => ['Toronto, Ontario, Canada', 1825, null, null],
+            'Far West' => ['Far West, Caldwell, Missouri, United States', 1838, 'far_west', 'in'],
+            'Carthage is near Nauvoo' => ['Carthage, Hancock, Illinois, United States', 1844, 'nauvoo', 'near'],
+            'Montrose, across the river' => ['Montrose, Lee, Iowa, United States', 1841, 'nauvoo', 'near'],
+            'Nauvoo after the Saints left' => ['Nauvoo, Hancock, Illinois, United States', 1900, null, null],
+        ];
+    }
+
+    /** @dataProvider churchSitePlaces */
+    public function test_church_sites_match_the_right_town_and_county(string $place, int $year, ?string $key, ?string $proximity): void
+    {
+        $found = app(ChurchHistory::class)->places([['year' => $year, 'date' => (string) $year, 'place' => $place]]);
+
+        $this->assertSame($key, $found[0]['key'] ?? null);
+        $this->assertSame($proximity, $found[0]['proximity'] ?? null);
+    }
+
+    public function test_church_sites_page_groups_ancestors_by_site(): void
+    {
+        $user = User::factory()->create();
+        $this->importFor($user);
+
+        $this->actingAs($user)->get('/family-history/church-sites')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('FamilyHistory/ChurchSites')
+                ->has('sites', count(ChurchHistory::PLACES))
+                ->where('sites.0.key', 'palmyra')
+                ->has('sites.0.people', 0)
+                ->where('sites.5.key', 'nauvoo')
+                ->has('sites.5.people', 1)
+                ->where('sites.5.people.0.fs_id', 'AAAA-005')
+                ->where('sites.5.people.0.proximity', 'in')
+                ->where('sites.5.people.0.from', 1843));
+    }
+
+    public function test_refresh_command_recomputes_clues_from_stored_events(): void
+    {
+        $user = User::factory()->create();
+        $this->importFor($user);
+        // As if imported under older rules that knew nothing about Nauvoo.
+        $user->ancestors()->update(['church_places' => json_encode([]), 'has_church_places' => false]);
+
+        $this->artisan('family-history:refresh-clues')->assertSuccessful();
+
+        $ezra = $user->ancestors()->where('fs_id', 'AAAA-005')->first();
+        $this->assertTrue($ezra->has_church_places);
+        $this->assertSame('nauvoo', $ezra->church_places[0]['key']);
     }
 
     public function test_surprise_me_picks_someone_not_yet_researched(): void

@@ -120,9 +120,14 @@ const handleScriptureAdd = (suggestion) => {
     }
 }
 
-const handleCategoryCreated = () => {
-    // Reload the page data to get updated categories
-    router.reload({ only: ['userCategories'] })
+const handleCategoryCreated = (category) => {
+    // Reload the categories, then select the one just created
+    router.reload({
+        only: ['userCategories'],
+        onSuccess: () => {
+            form.user_category_id = category.id
+        },
+    })
 }
 
 // --- Cover image (for image posts) ---

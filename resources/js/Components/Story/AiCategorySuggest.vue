@@ -71,7 +71,7 @@ const fetchSuggestion = async () => {
 
         const data = await response.json()
 
-        if (data.success && data.suggestion?.name) {
+        if (data.success && (data.suggestion?.existing || data.suggestion?.new)) {
             suggestion.value = data.suggestion
             showSuggestion.value = true
         } else {
@@ -84,8 +84,18 @@ const fetchSuggestion = async () => {
     }
 }
 
-const applySuggestion = () => {
-    emit('selectCategory', suggestion.value)
+// Existing and new options, recommended one first
+const options = computed(() => {
+    if (!suggestion.value) return []
+    const list = []
+    if (suggestion.value.existing) list.push({ ...suggestion.value.existing, is_existing: true })
+    if (suggestion.value.new) list.push({ ...suggestion.value.new, is_existing: false })
+    if (suggestion.value.recommended === 'new') list.reverse()
+    return list
+})
+
+const applySuggestion = (option) => {
+    emit('selectCategory', option)
     showSuggestion.value = false
     suggestion.value = null
 }
@@ -124,7 +134,7 @@ const closeSuggestion = () => {
         <!-- Suggestion popup -->
         <div
             v-if="showSuggestion && suggestion"
-            class="absolute z-20 top-full right-0 mt-2 p-3 bg-white border border-stone-200 rounded-lg shadow-lg min-w-[220px]"
+            class="absolute z-20 top-full right-0 mt-2 p-3 bg-white border border-stone-200 rounded-lg shadow-lg w-64"
         >
             <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-medium text-stone-500">AI Suggestion</span>
@@ -139,30 +149,47 @@ const closeSuggestion = () => {
                 </button>
             </div>
 
-            <div class="p-2 bg-stone-50 rounded mb-2">
-                <p class="font-medium text-sm text-stone-800">{{ suggestion.name }}</p>
-                <p class="text-xs text-stone-600 mt-1">{{ suggestion.reason }}</p>
-                <span
-                    v-if="suggestion.is_existing"
-                    class="inline-block mt-1 px-1.5 py-0.5 text-xs bg-green-100 text-green-700 rounded"
+            <div class="space-y-2">
+                <div
+                    v-for="(option, index) in options"
+                    :key="option.name"
+                    class="p-2 bg-stone-50 rounded"
                 >
-                    Existing category
-                </span>
-                <span
-                    v-else
-                    class="inline-block mt-1 px-1.5 py-0.5 text-xs bg-amber-100 text-amber-700 rounded"
-                >
-                    New category
-                </span>
-            </div>
+                    <p class="font-medium text-sm text-stone-800">{{ option.name }}</p>
+                    <p class="text-xs text-stone-600 mt-1">{{ option.reason }}</p>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                        <span
+                            v-if="option.is_existing"
+                            class="inline-block px-1.5 py-0.5 text-xs bg-green-100 text-green-700 rounded"
+                        >
+                            Existing category
+                        </span>
+                        <span
+                            v-else
+                            class="inline-block px-1.5 py-0.5 text-xs bg-amber-100 text-amber-700 rounded"
+                        >
+                            New category
+                        </span>
+                        <span
+                            v-if="options.length > 1 && index === 0"
+                            class="inline-block px-1.5 py-0.5 text-xs bg-stone-200 text-stone-700 rounded"
+                        >
+                            Recommended
+                        </span>
+                    </div>
 
-            <button
-                type="button"
-                @click="applySuggestion"
-                class="w-full px-3 py-1.5 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700"
-            >
-                {{ suggestion.is_existing ? 'Use This Category' : 'Create This Category' }}
-            </button>
+                    <button
+                        type="button"
+                        @click="applySuggestion(option)"
+                        class="w-full mt-2 px-3 py-1.5 text-xs font-medium rounded"
+                        :class="index === 0
+                            ? 'text-white bg-amber-600 hover:bg-amber-700'
+                            : 'text-amber-700 bg-white border border-amber-300 hover:bg-amber-50'"
+                    >
+                        {{ option.is_existing ? 'Use This Category' : 'Create This Category' }}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </template>

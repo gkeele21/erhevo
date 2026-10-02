@@ -82,19 +82,17 @@ const createCategory = async () => {
             })
         })
 
-        if (response.ok) {
-            // Emit event to parent to refresh categories
-            emit('categoryCreated', {
-                name: newCategoryName.value.trim(),
-                parent_id: newCategoryParentId.value || null,
-            })
+        const data = await response.json()
+
+        if (response.ok && data.category) {
+            // Parent refreshes the category list and selects the new category
+            emit('categoryCreated', data.category)
 
             // Reset form
             newCategoryName.value = ''
             newCategoryParentId.value = ''
             showCreateForm.value = false
         } else {
-            const data = await response.json()
             error.value = data.message || 'Failed to create category'
         }
     } catch (e) {

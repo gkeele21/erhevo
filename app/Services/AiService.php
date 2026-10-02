@@ -207,18 +207,13 @@ class AiService
     }
 
     /**
-     * Suggest categories for content.
+     * Suggest categories for content: the best-fitting existing category (if
+     * any) plus a proposed new category, so the user can choose between them.
      *
-     * @return array{name: string, reason: string, is_existing: bool}
+     * @return array{existing: ?array{name: string, reason: string}, new: ?array{name: string, reason: string}, recommended: string}
      */
     public function suggestCategory(string $content, array $existingCategories = [], string $type = 'user'): array
     {
-        $default = [
-            'name' => '',
-            'reason' => '',
-            'is_existing' => false,
-        ];
-
         $categoryContext = !empty($existingCategories)
             ? "Existing categories: " . implode(', ', $existingCategories) . "."
             : "No existing categories.";
@@ -228,14 +223,67 @@ class AiService
             : "Suggest a public category for this post that would help others discover it. Categories should be broad topics (e.g., 'Faith', 'Family', 'Gratitude', 'Service', 'Personal Growth').";
 
         $result = $this->provider->complete(
-            "You are a helpful assistant that suggests categories for journal entries. {$typeContext}\n\n{$categoryContext}\n\nPrefer an existing category when one fits the content well, but it is perfectly fine to suggest a brand-new category when none of the existing ones are a good fit.\n\nReturn a JSON object with: 'name' (the suggested category name), 'reason' (brief explanation of why this category fits, 10-15 words), 'is_existing' (boolean, true only if the name exactly matches an existing category).",
-            [['type' => 'text', 'text' => "Suggest a category for this content:\n\n{$content}"]],
-            ['max_tokens' => 150, 'json' => true],
+            "You are a helpful assistant that suggests categories for journal entries. {$typeContext}\n\n{$categoryContext}\n\n"
+                . "Give two suggestions:\n"
+                . "1. 'existing': the existing category that best fits the content, copied exactly from the list. Use null if there are no existing categories or none is a reasonable fit.\n"
+                . "2. 'new': a new category that does NOT duplicate or closely overlap any existing category, and that would describe this content more precisely than the existing options. Use null only if an existing category is already a precise fit and a new one would add nothing.\n\n"
+                . "Also set 'recommended' to 'existing' or 'new' for whichever you think is the better choice.\n\n"
+                . "Return a JSON object: {\"existing\": {\"name\": string, \"reason\": string} | null, \"new\": {\"name\": string, \"reason\": string} | null, \"recommended\": \"existing\" | \"new\"}. Each reason is a brief explanation of why the category fits, 10-15 words.",
+            [['type' => 'text', 'text' => "Suggest categories for this content:\n\n{$content}"]],
+            ['max_tokens' => 300, 'json' => true],
         );
 
-        $suggestion = $this->decodeJson($result);
+        return $this->normalizeCategorySuggestion($this->decodeJson($result), $existingCategories);
+    }
 
-        return is_array($suggestion) ? $suggestion : $default;
+    /**
+     * Validate the model's category suggestions against the real category list:
+     * an "existing" pick must actually exist, and a "new" pick that matches an
+     * existing name is treated as that existing category instead.
+     */
+    protected function normalizeCategorySuggestion(mixed $raw, array $existingCategories): array
+    {
+        $byLowerName = [];
+        foreach ($existingCategories as $name) {
+            $byLowerName[mb_strtolower(trim($name))] = $name;
+        }
+
+        $clean = function ($item) {
+            if (! is_array($item) || ! is_string($item['name'] ?? null) || trim($item['name']) === '') {
+                return null;
+            }
+
+            return [
+                'name' => trim($item['name']),
+                'reason' => is_string($item['reason'] ?? null) ? trim($item['reason']) : '',
+            ];
+        };
+
+        $existing = $clean(is_array($raw) ? ($raw['existing'] ?? null) : null);
+        $new = $clean(is_array($raw) ? ($raw['new'] ?? null) : null);
+
+        if ($existing) {
+            $match = $byLowerName[mb_strtolower($existing['name'])] ?? null;
+            $existing = $match ? ['name' => $match, 'reason' => $existing['reason']] : null;
+        }
+
+        if ($new && ($match = $byLowerName[mb_strtolower($new['name'])] ?? null)) {
+            $existing ??= ['name' => $match, 'reason' => $new['reason']];
+            $new = null;
+        }
+
+        $recommended = is_array($raw) && ($raw['recommended'] ?? null) === 'new' ? 'new' : 'existing';
+        if (! $existing) {
+            $recommended = 'new';
+        } elseif (! $new) {
+            $recommended = 'existing';
+        }
+
+        return [
+            'existing' => $existing,
+            'new' => $new,
+            'recommended' => $recommended,
+        ];
     }
 
     /**

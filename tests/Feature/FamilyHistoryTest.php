@@ -342,6 +342,22 @@ class FamilyHistoryTest extends TestCase
         $this->assertNull($user->fresh()->familyTree);
     }
 
+    public function test_uploads_are_capped_at_50_mb_or_the_php_limit(): void
+    {
+        $toMb = fn (string $size) => (int) $size * match (strtoupper(substr($size, -1))) { 'G' => 1024, 'K' => 1 / 1024, default => 1 };
+        $phpLimits = array_filter([$toMb(ini_get('upload_max_filesize')), $toMb(ini_get('post_max_size'))]);
+        $expected = (int) floor(min([50, ...$phpLimits]));
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get('/family-history/import')
+            ->assertInertia(fn (Assert $page) => $page->where('maxUploadMb', $expected));
+
+        $this->actingAs($user)
+            ->post('/family-history/import', ['file' => UploadedFile::fake()->create('huge.ged', 51 * 1024)])
+            ->assertSessionHasErrors('file');
+    }
+
     public function test_deleting_the_tree_removes_research_too(): void
     {
         $user = User::factory()->create();

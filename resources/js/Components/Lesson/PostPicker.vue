@@ -70,6 +70,10 @@ const attach = (post) => {
     props.item.content = post.content || ''
     props.item.config = {
         emphasis: props.item.config?.emphasis || null,
+        preset: props.item.config?.preset,
+        // Set only for a friend's post: it's credited to them, and its
+        // scriptures stay theirs to edit.
+        post_creator: post.is_own ? undefined : (post.creator_name || 'a friend'),
         post_slug: post.slug,
         post_title: post.title,
         post_type: post.post_type,
@@ -85,7 +89,10 @@ const attach = (post) => {
 const clear = () => {
     props.item.post_id = null
     props.item.content = ''
-    props.item.config = { emphasis: props.item.config?.emphasis || null }
+    props.item.config = {
+        emphasis: props.item.config?.emphasis || null,
+        preset: props.item.config?.preset,
+    }
 }
 </script>
 
@@ -106,6 +113,10 @@ const clear = () => {
                 <p class="font-medium text-stone-800">{{ item.config.post_title }}</p>
                 <p class="text-sm text-stone-500">
                     {{ typeLabels[item.config.post_type] || 'Post' }}
+                    <template v-if="item.config.post_creator">by {{ item.config.post_creator }}</template>
+                </p>
+                <p v-if="item.config.post_creator" class="mt-1 text-xs text-stone-400">
+                    Only people who can see the original story will see this block in your lesson.
                 </p>
                 <div v-if="item.config.tags && item.config.tags.length" class="mt-1 flex flex-wrap gap-1">
                     <span
@@ -150,9 +161,10 @@ const clear = () => {
                     @focus="runSearch"
                     type="text"
                     class="w-full rounded-lg border-stone-300 focus:border-amber-500 focus:ring-amber-500"
-                    :placeholder="lockedType === 'scripture_help'
-                        ? 'Search your scripture helps by title, text, or tag...'
-                        : 'Search your posts by title, text, or tag...'"
+                    :placeholder="{
+                        scripture_help: 'Search your scripture helps by title, text, or tag...',
+                        story: 'Search your stories and friends\' stories by title, text, or tag...',
+                    }[lockedType] || 'Search your posts by title, text, or tag...'"
                 >
                 <span v-if="searching" class="absolute right-3 top-2.5 text-xs text-stone-400">Searching...</span>
 
@@ -173,15 +185,19 @@ const clear = () => {
                             <span class="ml-1 rounded bg-stone-100 px-1.5 py-0.5 text-xs font-normal text-stone-500">
                                 {{ typeLabels[post.post_type] || post.post_type }}
                             </span>
+                            <span v-if="!post.is_own" class="ml-1 text-xs font-normal text-stone-500">
+                                by {{ post.creator_name || 'a friend' }}
+                            </span>
                         </p>
                         <p class="text-xs text-stone-500">{{ post.excerpt }}</p>
                         </div>
                     </li>
                 </ul>
                 <p v-else-if="open && !searching" class="mt-1 text-xs text-stone-400">
-                    {{ lockedType === 'scripture_help'
-                        ? 'No scripture helps found. Scripture Help posts you write show up here.'
-                        : 'No posts found. Stories, thoughts, and notes you write show up here.' }}
+                    {{ {
+                        scripture_help: 'No scripture helps found. Scripture Help posts you write show up here.',
+                        story: 'No stories found. Stories you write, and ones friends share with you, show up here.',
+                    }[lockedType] || 'No posts found. Stories, thoughts, and notes you write show up here.' }}
                 </p>
             </div>
         </template>

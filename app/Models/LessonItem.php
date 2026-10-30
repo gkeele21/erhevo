@@ -33,6 +33,22 @@ class LessonItem extends Model
     }
 
     /**
+     * Whether the viewer may see this block. A block pulled from someone
+     * else's post (a friend's story) carries a copy of that post's text, so
+     * it follows the post's visibility rather than the lesson's: someone who
+     * can't see the original doesn't see the block, and it disappears for
+     * everyone once the original is deleted. Expects `post` to be loaded.
+     */
+    public function isVisibleTo(?User $viewer, Lesson $lesson): bool
+    {
+        if ($this->post) {
+            return (int) $this->post->user_id === (int) $lesson->user_id || $this->post->isVisibleTo($viewer);
+        }
+
+        return empty($this->config['post_creator']);
+    }
+
+    /**
      * The Post this block references, if any (e.g. a Quote block linked to a
      * Quote-type post). Null for blocks that carry their own inline content.
      */

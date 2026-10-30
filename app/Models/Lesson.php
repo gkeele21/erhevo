@@ -78,6 +78,25 @@ class Lesson extends Model
     }
 
     /**
+     * Load the blocks (and group children) the viewer may see, dropping any
+     * pulled from a post they can't see. See LessonItem::isVisibleTo().
+     */
+    public function loadItemsVisibleTo(?User $viewer): static
+    {
+        $this->load(['items.post', 'items.children.post']);
+
+        // The post is only loaded to decide; it isn't sent along, since it
+        // may be one the viewer can't see (the owner's own private post).
+        $visible = fn (LessonItem $item) => tap($item->isVisibleTo($viewer, $this), fn () => $item->unsetRelation('post'));
+
+        $this->setRelation('items', $this->items->filter($visible)->each(
+            fn (LessonItem $item) => $item->setRelation('children', $item->children->filter($visible)->values())
+        )->values());
+
+        return $this;
+    }
+
+    /**
      * Every block in the lesson regardless of nesting level.
      */
     public function allItems(): HasMany

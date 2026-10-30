@@ -250,6 +250,112 @@ class LessonBuilderTest extends TestCase
         $this->assertSame(['My Video'], collect($videos->json())->pluck('title')->all());
     }
 
+    public function test_story_search_includes_stories_friends_shared(): void
+    {
+        $user = User::factory()->create();
+        $friend = User::factory()->create(['first_name' => 'Ruth', 'last_name' => 'Hale']);
+        $stranger = User::factory()->create();
+        \App\Models\Friendship::create(['requester_id' => $user->id, 'addressee_id' => $friend->id, 'status' => 'accepted']);
+
+        $this->makePost($user, 'story', 'My Story');
+        $shared = $this->makePost($friend, 'story', 'Friend Story');
+        $shared->update(['visibility' => 'friends']);
+        $hidden = $this->makePost($friend, 'story', 'Anonymous Friend Story');
+        $hidden->update(['visibility' => 'friends', 'hide_creator' => true]);
+        $this->makePost($friend, 'story', 'Friend Private Story');
+        $draft = $this->makePost($friend, 'story', 'Friend Draft Story');
+        $draft->update(['visibility' => 'friends', 'published_at' => null]);
+        $thought = $this->makePost($friend, 'thought', 'Friend Thought');
+        $thought->update(['visibility' => 'friends']);
+        $this->makePost($stranger, 'story', 'Stranger Story')->update(['visibility' => 'public']);
+
+        $results = collect($this->actingAs($user)
+            ->getJson(route('lessons.post-search', ['type' => 'story']))
+            ->assertOk()
+            ->json());
+
+        // Own stories first, then friends' published, visible ones.
+        $this->assertSame('My Story', $results->first()['title']);
+        $this->assertEqualsCanonicalizing(
+            ['My Story', 'Friend Story', 'Anonymous Friend Story'],
+            $results->pluck('title')->all()
+        );
+
+        $byTitle = $results->keyBy('title');
+        $this->assertTrue($byTitle['My Story']['is_own']);
+        $this->assertNull($byTitle['My Story']['creator_name']);
+        $this->assertFalse($byTitle['Friend Story']['is_own']);
+        $this->assertSame($friend->name, $byTitle['Friend Story']['creator_name']);
+        // A creator who hid their name stays hidden.
+        $this->assertNull($byTitle['Anonymous Friend Story']['creator_name']);
+
+        // Other post types still search only your own posts.
+        $this->assertSame([], $this->actingAs($user)
+            ->getJson(route('lessons.post-search', ['type' => 'thought']))
+            ->json());
+    }
+
+    public function test_a_friends_story_block_is_only_shown_to_people_who_can_see_the_story(): void
+    {
+        $owner = User::factory()->create();
+        $friend = User::factory()->create();
+        $mutual = User::factory()->create();
+        $stranger = User::factory()->create();
+        foreach ([[$owner, $friend], [$mutual, $friend]] as [$a, $b]) {
+            \App\Models\Friendship::create(['requester_id' => $a->id, 'addressee_id' => $b->id, 'status' => 'accepted']);
+        }
+
+        $story = $this->makePost($friend, 'story', 'Friend Story');
+        $story->update(['visibility' => 'friends']);
+        $ownPrivate = $this->makePost($owner, 'story', 'Owner Private Story');
+
+        $lesson = Lesson::factory()->create(['user_id' => $owner->id, 'visibility' => 'public']);
+        $friendBlock = $lesson->allItems()->create([
+            'type' => 'text', 'sort_order' => 0, 'post_id' => $story->id,
+            'content' => '<p>Friend text</p>', 'config' => ['post_title' => 'Friend Story', 'post_creator' => 'Pat'],
+        ]);
+        $lesson->allItems()->create([
+            'type' => 'text', 'sort_order' => 1, 'post_id' => $ownPrivate->id,
+            'content' => '<p>Owner text</p>', 'config' => ['post_title' => 'Owner Private Story'],
+        ]);
+
+        $contentsFor = fn (?User $viewer) => collect(
+            ($viewer ? $this->actingAs($viewer) : $this)
+                ->get(route('lessons.show', $lesson->slug))
+                ->assertOk()
+                ->viewData('page')['props']['lesson']['items']
+        );
+
+        // The owner and the friend's friends see it; a stranger or guest doesn't.
+        // The owner's own private post stays: that's the owner's call.
+        $this->assertSame(['<p>Friend text</p>', '<p>Owner text</p>'], $contentsFor($owner)->pluck('content')->all());
+        $this->assertSame(['<p>Friend text</p>', '<p>Owner text</p>'], $contentsFor($mutual)->pluck('content')->all());
+        $this->assertSame(['<p>Owner text</p>'], $contentsFor($stranger)->pluck('content')->all());
+        $this->assertArrayNotHasKey('post', $contentsFor($stranger)->first());
+        auth()->logout();
+        $this->assertSame(['<p>Owner text</p>'], $contentsFor(null)->pluck('content')->all());
+
+        $this->actingAs($stranger)
+            ->get(route('lessons.present', [$lesson->slug, $friendBlock->id]))
+            ->assertNotFound();
+
+        // Once the friend deletes the story, the copy disappears for everyone.
+        $story->delete();
+        $this->assertSame(['<p>Owner text</p>'], $contentsFor($owner)->pluck('content')->all());
+    }
+
+    public function test_the_block_menu_offers_a_story_shortcut(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get('/lessons/create')
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('itemTypes', fn ($types) => collect($types)->contains(
+                    fn ($t) => ($t['preset'] ?? null) === 'story' && $t['value'] === 'text'
+                )));
+    }
+
     public function test_an_uploaded_lesson_image_can_be_saved_as_an_image_post(): void
     {
         \Illuminate\Support\Facades\Storage::fake('public');

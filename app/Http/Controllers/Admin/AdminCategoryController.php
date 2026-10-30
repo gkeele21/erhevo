@@ -37,7 +37,7 @@ class AdminCategoryController extends Controller
         ]);
 
         // Enforce 2-level hierarchy
-        if ($validated['parent_id']) {
+        if ($validated['parent_id'] ?? null) {
             $parent = Category::find($validated['parent_id']);
             if (!$parent->isRoot()) {
                 return back()->withErrors(['parent_id' => 'Cannot create a child of a child category.']);
@@ -46,12 +46,17 @@ class AdminCategoryController extends Controller
 
         $maxSortOrder = Category::where('parent_id', $validated['parent_id'] ?? null)->max('sort_order') ?? 0;
 
-        Category::create([
+        $category = Category::create([
             ...$validated,
             'sort_order' => $maxSortOrder + 1,
             'user_id' => null,
             'is_approved' => true,
         ]);
+
+        // The post form's category picker creates categories inline over JSON
+        if ($request->wantsJson()) {
+            return response()->json(['category' => $category], 201);
+        }
 
         return back()->with('success', 'Category created successfully.');
     }

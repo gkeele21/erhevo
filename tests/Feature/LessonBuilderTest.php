@@ -250,6 +250,63 @@ class LessonBuilderTest extends TestCase
         $this->assertSame(['My Video'], collect($videos->json())->pluck('title')->all());
     }
 
+    public function test_story_search_includes_stories_friends_shared(): void
+    {
+        $user = User::factory()->create();
+        $friend = User::factory()->create(['first_name' => 'Ruth', 'last_name' => 'Hale']);
+        $stranger = User::factory()->create();
+        \App\Models\Friendship::create(['requester_id' => $user->id, 'addressee_id' => $friend->id, 'status' => 'accepted']);
+
+        $this->makePost($user, 'story', 'My Story');
+        $shared = $this->makePost($friend, 'story', 'Friend Story');
+        $shared->update(['visibility' => 'friends']);
+        $hidden = $this->makePost($friend, 'story', 'Anonymous Friend Story');
+        $hidden->update(['visibility' => 'friends', 'hide_creator' => true]);
+        $this->makePost($friend, 'story', 'Friend Private Story');
+        $draft = $this->makePost($friend, 'story', 'Friend Draft Story');
+        $draft->update(['visibility' => 'friends', 'published_at' => null]);
+        $thought = $this->makePost($friend, 'thought', 'Friend Thought');
+        $thought->update(['visibility' => 'friends']);
+        $this->makePost($stranger, 'story', 'Stranger Story')->update(['visibility' => 'public']);
+
+        $results = collect($this->actingAs($user)
+            ->getJson(route('lessons.post-search', ['type' => 'story']))
+            ->assertOk()
+            ->json());
+
+        // Own stories first, then friends' published, visible ones.
+        $this->assertSame('My Story', $results->first()['title']);
+        $this->assertEqualsCanonicalizing(
+            ['My Story', 'Friend Story', 'Anonymous Friend Story'],
+            $results->pluck('title')->all()
+        );
+
+        $byTitle = $results->keyBy('title');
+        $this->assertTrue($byTitle['My Story']['is_own']);
+        $this->assertNull($byTitle['My Story']['creator_name']);
+        $this->assertFalse($byTitle['Friend Story']['is_own']);
+        $this->assertSame($friend->name, $byTitle['Friend Story']['creator_name']);
+        // A creator who hid their name stays hidden.
+        $this->assertNull($byTitle['Anonymous Friend Story']['creator_name']);
+
+        // Other post types still search only your own posts.
+        $this->assertSame([], $this->actingAs($user)
+            ->getJson(route('lessons.post-search', ['type' => 'thought']))
+            ->json());
+    }
+
+    public function test_the_block_menu_offers_a_story_shortcut(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get('/lessons/create')
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('itemTypes', fn ($types) => collect($types)->contains(
+                    fn ($t) => ($t['preset'] ?? null) === 'story' && $t['value'] === 'text'
+                )));
+    }
+
     public function test_an_uploaded_lesson_image_can_be_saved_as_an_image_post(): void
     {
         \Illuminate\Support\Facades\Storage::fake('public');

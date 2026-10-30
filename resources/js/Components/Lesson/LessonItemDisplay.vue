@@ -182,7 +182,7 @@ const formatGivenDate = (date) => {
             v-html="item.content"
         ></div>
         <p v-if="item.config?.post_title" class="mt-2 text-sm text-stone-500" :class="teaching ? 'text-base' : ''">
-            from my post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
+            from {{ item.config.post_creator ? `${item.config.post_creator}'s` : 'my' }} post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
         </p>
     </div>
 
@@ -198,7 +198,7 @@ const formatGivenDate = (date) => {
             v-html="item.content"
         ></div>
         <p v-if="item.config?.post_title" class="mt-2 text-sm text-stone-500" :class="teaching ? 'text-base' : ''">
-            from my post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
+            from {{ item.config.post_creator ? `${item.config.post_creator}'s` : 'my' }} post <span class="font-medium text-stone-700">“{{ item.config.post_title }}”</span>
         </p>
     </div>
 

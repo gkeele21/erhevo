@@ -31,11 +31,13 @@ const listRef = ref(null)
 const highlightedUid = ref(null)
 let highlightTimer = null
 
-const typeMetaFor = (type) => props.itemTypes.find((t) => t.value === type) || {}
+const typeMetaFor = (item) =>
+    props.itemTypes.find((t) => t.value === item.type && t.preset === item.config?.preset) || {}
 
-const addChild = async (type) => {
+const addChild = async (option) => {
     const uid = props.makeUid()
-    props.group.children.push({ _uid: uid, type, content: '', config: {} })
+    const config = option.preset ? { preset: option.preset } : {}
+    props.group.children.push({ _uid: uid, type: option.value, content: '', config })
 
     await nextTick()
     listRef.value?.$el?.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -105,7 +107,7 @@ const childGroup = {
                 <template #item="{ element, index }">
                     <LessonItemCard
                         :item="element"
-                        :type-meta="typeMetaFor(element.type)"
+                        :type-meta="typeMetaFor(element)"
                         :scripture-books="scriptureBooks"
                         :highlight="element._uid === highlightedUid"
                         @remove="removeChild(index)"
@@ -121,9 +123,9 @@ const childGroup = {
             <div class="flex flex-wrap gap-2 border-t border-amber-200/70 pt-3">
                 <button
                     v-for="type in itemTypes"
-                    :key="type.value"
+                    :key="type.preset || type.value"
                     type="button"
-                    @click="addChild(type.value)"
+                    @click="addChild(type)"
                     class="rounded-md border border-amber-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-600 hover:border-amber-400 hover:text-amber-700"
                 >
                     + {{ type.label }}

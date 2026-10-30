@@ -375,10 +375,27 @@ class LessonController extends Controller
         $query = trim((string) $request->input('q', ''));
         $type = $request->input('type');
 
+        $user = $request->user();
+
         // Every block type searches its own post type; the untyped search
         // (the My Writing block's "All" chip) covers the written types and
         // skips quotes, videos, and images, which have dedicated blocks.
-        $posts = Post::where('user_id', $request->user()->id)
+        // Story searches also reach stories friends have shared with you.
+        $posts = Post::query()
+            ->when(
+                $type === 'story',
+                fn ($qb) => $qb->visibleTo($user)->where(fn ($q) => $q
+                    ->where('user_id', $user->id)
+                    ->orWhere(fn ($q2) => $q2
+                        ->published()
+                        ->where(fn ($q3) => $q3
+                            ->whereIn('user_id', $user->friendIds())
+                            ->orWhereHas('sharedWith', fn ($q4) => $q4->whereKey($user->id))
+                        )
+                    )
+                ),
+                fn ($qb) => $qb->where('user_id', $user->id)
+            )
             ->when(
                 in_array($type, ['story', 'thought', 'note', 'meeting_notes', 'video', 'image', 'scripture_help'], true),
                 fn ($qb) => $qb->where('post_type', $type),
@@ -389,12 +406,15 @@ class LessonController extends Controller
                     ->orWhere('content', 'like', "%{$query}%")
                     ->orWhereHas('tags', fn ($q3) => $q3->where('name', 'like', "%{$query}%"));
             }))
-            ->with(['tags', 'scriptureReferences.startChapter.book', 'scriptureReferences.endChapter'])
+            ->with(['user', 'tags', 'scriptureReferences.startChapter.book', 'scriptureReferences.endChapter'])
+            ->orderByRaw('user_id = ? desc', [$user->id])
             ->latest()
             ->limit(10)
             ->get()
             ->map(fn (Post $post) => [
                 'post_id' => $post->id,
+                'is_own' => $post->user_id === $user->id,
+                'creator_name' => $post->user_id === $user->id ? null : $post->creator_name,
                 'scripture_references' => $this->referenceRows($post->scriptureReferences),
                 'slug' => $post->slug,
                 'title' => $post->title,
@@ -842,11 +862,22 @@ class LessonController extends Controller
 
     protected function itemTypeOptions(): array
     {
-        return collect(LessonItemType::contentCases())->map(fn ($t) => [
-            'value' => $t->value,
-            'label' => $t->label(),
-            'description' => $t->description(),
-            'icon' => $t->icon(),
+        return collect(LessonItemType::contentCases())->flatMap(fn ($t) => [
+            [
+                'value' => $t->value,
+                'label' => $t->label(),
+                'description' => $t->description(),
+                'icon' => $t->icon(),
+            ],
+            // A shortcut, not a block type of its own: a My Writing block that
+            // opens on the post picker, limited to stories.
+            ...($t === LessonItemType::Text ? [[
+                'value' => $t->value,
+                'preset' => 'story',
+                'label' => 'Story',
+                'description' => 'Pull in a story you or a friend wrote',
+                'icon' => 'bookmark',
+            ]] : []),
         ])->values()->toArray();
     }
 

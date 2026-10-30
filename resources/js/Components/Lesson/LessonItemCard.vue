@@ -215,7 +215,7 @@ if (!props.item.config) {
 // snapshot carries post_title). Saving fresh writing AS a post also sets
 // post_id but leaves no snapshot, so the block stays in write mode.
 const attachedPost = computed(() => !!(props.item.post_id && props.item.config?.post_title))
-const textSource = ref(props.item.config?.post_title ? 'existing' : 'write')
+const textSource = ref(props.item.config?.post_title || props.item.config?.preset === 'story' ? 'existing' : 'write')
 
 // --- My Writing / Scripture Help: linked passages ---
 // Kept in config.scripture_references. Unsaved writing carries them on the
@@ -785,7 +785,9 @@ const summary = computed(() => {
                 <div v-if="textSource === 'existing'" class="space-y-3">
                     <PostPicker
                         :item="item"
-                        :locked-type="item.type === 'scripture_help' ? 'scripture_help' : null"
+                        :locked-type="item.type === 'scripture_help'
+                            ? 'scripture_help'
+                            : (item.config?.preset === 'story' ? 'story' : null)"
                     />
                     <div v-if="attachedPost">
                         <label class="mb-1 block text-sm font-medium text-stone-700">
@@ -888,7 +890,7 @@ const summary = computed(() => {
                 </div>
                 <!-- Linked scriptures -->
                 <div
-                    v-if="textSource === 'write' || attachedPost"
+                    v-if="(textSource === 'write' || attachedPost) && !item.config?.post_creator"
                     class="rounded-lg border border-amber-200 bg-amber-50/60 p-3"
                 >
                     <ScriptureReferenceInput

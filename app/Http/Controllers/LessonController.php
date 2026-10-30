@@ -104,7 +104,7 @@ class LessonController extends Controller
     {
         Gate::authorize('view', $lesson);
 
-        $lesson->load(['user', 'cfmWeek.studyYear', 'items.children']);
+        $lesson->load(['user', 'cfmWeek.studyYear'])->loadItemsVisibleTo(auth()->user());
 
         return Inertia::render('Lessons/Show', [
             'lesson' => $lesson,
@@ -116,7 +116,7 @@ class LessonController extends Controller
     {
         Gate::authorize('view', $lesson);
 
-        $lesson->load(['cfmWeek.studyYear', 'items.children']);
+        $lesson->load('cfmWeek.studyYear')->loadItemsVisibleTo(auth()->user());
 
         return Inertia::render('Lessons/Teach', [
             'lesson' => $lesson,
@@ -132,7 +132,12 @@ class LessonController extends Controller
         Gate::authorize('view', $lesson);
         abort_unless($item->lesson_id === $lesson->id, 404);
 
-        $item->load('children');
+        $item->load(['post', 'children.post']);
+        abort_unless($item->isVisibleTo(auth()->user(), $lesson), 404);
+        $item->unsetRelation('post');
+        $item->setRelation('children', $item->children->filter(
+            fn ($child) => tap($child->isVisibleTo(auth()->user(), $lesson), fn () => $child->unsetRelation('post'))
+        )->values());
 
         return Inertia::render('Lessons/Present', [
             'lesson' => $lesson->only(['title', 'slug']),

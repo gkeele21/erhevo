@@ -115,6 +115,9 @@ const clear = () => {
                     {{ typeLabels[item.config.post_type] || 'Post' }}
                     <template v-if="item.config.post_creator">by {{ item.config.post_creator }}</template>
                 </p>
+                <p v-if="item.config.post_creator" class="mt-1 text-xs text-stone-400">
+                    Only people who can see the original story will see this block in your lesson.
+                </p>
                 <div v-if="item.config.tags && item.config.tags.length" class="mt-1 flex flex-wrap gap-1">
                     <span
                         v-for="tag in item.config.tags"

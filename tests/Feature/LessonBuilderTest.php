@@ -295,6 +295,55 @@ class LessonBuilderTest extends TestCase
             ->json());
     }
 
+    public function test_a_friends_story_block_is_only_shown_to_people_who_can_see_the_story(): void
+    {
+        $owner = User::factory()->create();
+        $friend = User::factory()->create();
+        $mutual = User::factory()->create();
+        $stranger = User::factory()->create();
+        foreach ([[$owner, $friend], [$mutual, $friend]] as [$a, $b]) {
+            \App\Models\Friendship::create(['requester_id' => $a->id, 'addressee_id' => $b->id, 'status' => 'accepted']);
+        }
+
+        $story = $this->makePost($friend, 'story', 'Friend Story');
+        $story->update(['visibility' => 'friends']);
+        $ownPrivate = $this->makePost($owner, 'story', 'Owner Private Story');
+
+        $lesson = Lesson::factory()->create(['user_id' => $owner->id, 'visibility' => 'public']);
+        $friendBlock = $lesson->allItems()->create([
+            'type' => 'text', 'sort_order' => 0, 'post_id' => $story->id,
+            'content' => '<p>Friend text</p>', 'config' => ['post_title' => 'Friend Story', 'post_creator' => 'Pat'],
+        ]);
+        $lesson->allItems()->create([
+            'type' => 'text', 'sort_order' => 1, 'post_id' => $ownPrivate->id,
+            'content' => '<p>Owner text</p>', 'config' => ['post_title' => 'Owner Private Story'],
+        ]);
+
+        $contentsFor = fn (?User $viewer) => collect(
+            ($viewer ? $this->actingAs($viewer) : $this)
+                ->get(route('lessons.show', $lesson->slug))
+                ->assertOk()
+                ->viewData('page')['props']['lesson']['items']
+        );
+
+        // The owner and the friend's friends see it; a stranger or guest doesn't.
+        // The owner's own private post stays: that's the owner's call.
+        $this->assertSame(['<p>Friend text</p>', '<p>Owner text</p>'], $contentsFor($owner)->pluck('content')->all());
+        $this->assertSame(['<p>Friend text</p>', '<p>Owner text</p>'], $contentsFor($mutual)->pluck('content')->all());
+        $this->assertSame(['<p>Owner text</p>'], $contentsFor($stranger)->pluck('content')->all());
+        $this->assertArrayNotHasKey('post', $contentsFor($stranger)->first());
+        auth()->logout();
+        $this->assertSame(['<p>Owner text</p>'], $contentsFor(null)->pluck('content')->all());
+
+        $this->actingAs($stranger)
+            ->get(route('lessons.present', [$lesson->slug, $friendBlock->id]))
+            ->assertNotFound();
+
+        // Once the friend deletes the story, the copy disappears for everyone.
+        $story->delete();
+        $this->assertSame(['<p>Owner text</p>'], $contentsFor($owner)->pluck('content')->all());
+    }
+
     public function test_the_block_menu_offers_a_story_shortcut(): void
     {
         $user = User::factory()->create();
